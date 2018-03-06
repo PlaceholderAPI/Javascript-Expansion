@@ -292,7 +292,7 @@ public class JavascriptPlaceholdersConfig {
 				
 				String line = scanner.nextLine();
 				
-				if (line == null || line.isEmpty()) {
+				if (line == null || line.isEmpty() || line.startsWith("//")) {
 					continue;
 				}
 

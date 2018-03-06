@@ -89,8 +89,15 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
 		for (JavascriptPlaceholder script : scripts) {
 			
-			if (script.getIdentifier().equalsIgnoreCase(identifier)) {
+			if (identifier.startsWith(script.getIdentifier() + "_")) {
+				identifier = identifier.replace(script.getIdentifier() + "_", "");
+				if (identifier.indexOf(",") == -1) {
+					return script.evaluate(engine, p, identifier);
+				} else {
+					return script.evaluate(engine, p, identifier.split(","));
+				}
 				
+			} else if (identifier.equalsIgnoreCase(script.getIdentifier())) {
 				return script.evaluate(engine, p);
 			}
 		}
@@ -121,7 +128,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
 	@Override
 	public String getVersion() {
-		return "1.2.0";
+		return "1.3.0";
 	}
 	
 	public boolean addJavascriptPlaceholder(JavascriptPlaceholder p) {

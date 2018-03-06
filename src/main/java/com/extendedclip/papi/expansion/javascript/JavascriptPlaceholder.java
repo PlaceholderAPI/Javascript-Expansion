@@ -38,6 +38,7 @@ public class JavascriptPlaceholder {
 	
 	private String falseResult;
 	
+	
 	private JavascriptReturnType type;
 	
 	public JavascriptPlaceholder(String identifier, JavascriptReturnType type, String expression, String trueResult, String falseResult) {
@@ -93,11 +94,32 @@ public class JavascriptPlaceholder {
 		return type;
 	}
 	
-	public String evaluate(ScriptEngine engine, Player p) {
-		
+	public String evaluate(ScriptEngine engine, Player p, String... args) {
 		String exp = PlaceholderAPI.setPlaceholders(p, expression);
 
         try {
+        	
+        	String[] c = null;
+        	
+        	if (args != null && args.length > 0) {
+        		
+        		for (int i = 0 ; i < args.length ; i++) {
+        			if (args[i] == null || args[i].isEmpty()) {
+        				continue;
+        			}
+        			String s = PlaceholderAPI.setBracketPlaceholders(p, args[i]);
+        			if (c == null) {
+        				c = new String[args.length];
+        			}
+        			c[i] = s;
+        		}
+        	}
+        	
+        	if (c == null) {
+        		c = new String[]{};
+        	}
+
+        	engine.put("args", c);
         	
         	engine.put("BukkitPlayer", p);
         	
