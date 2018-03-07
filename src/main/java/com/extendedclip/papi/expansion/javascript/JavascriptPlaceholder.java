@@ -38,7 +38,6 @@ public class JavascriptPlaceholder {
 	
 	private String falseResult;
 	
-	
 	private JavascriptReturnType type;
 	
 	public JavascriptPlaceholder(String identifier, JavascriptReturnType type, String expression, String trueResult, String falseResult) {

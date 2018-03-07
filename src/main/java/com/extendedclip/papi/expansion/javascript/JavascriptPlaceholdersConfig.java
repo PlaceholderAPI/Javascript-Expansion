@@ -292,9 +292,20 @@ public class JavascriptPlaceholdersConfig {
 				
 				String line = scanner.nextLine();
 				
-				if (line == null || line.isEmpty() || line.startsWith("//")) {
+				if (line == null || line.isEmpty()) {
 					continue;
 				}
+				
+				line = line.trim();
+
+				/* temp fix for single line comments
+				 * doesnt solve every case though..
+				 * lines that start with code and may have a comment afterward still screw stuff up...
+				*/
+				if (line.startsWith("//")) {
+					continue;
+				}
+				
 
 				sb.append(line + " ");
 			}

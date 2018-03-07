@@ -47,9 +47,12 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	
 	private final Set<JavascriptPlaceholder> scripts = new HashSet<JavascriptPlaceholder>();
 	
+	private final String VERSION = getClass().getPackage().getImplementationVersion();
+	
 	@Override
 	public boolean register() {
 		
+
 		engineType = getString("engine", "javascript");
 		
 		if (engine == null) {
@@ -128,7 +131,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
 	@Override
 	public String getVersion() {
-		return "1.3.0";
+		return VERSION;
 	}
 	
 	public boolean addJavascriptPlaceholder(JavascriptPlaceholder p) {
