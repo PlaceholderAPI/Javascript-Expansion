@@ -22,7 +22,6 @@ package com.extendedclip.papi.expansion.javascript;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.script.ScriptEngine;
@@ -219,10 +218,11 @@ public class JavascriptPlaceholder {
             }
             	
             if (result instanceof String) {
-            	return result != null ? (String) result : "";
+            	String res = PlaceholderAPI.setPlaceholders(p, (String)result);
+            	return res != null ? res : "";
             } 
             
-            return result != null ? result.toString() : "";
+            return result != null ? PlaceholderAPI.setPlaceholders(p, result.toString()) : "";
                         
         } catch (ScriptException ex) {
         	PlaceholderAPIPlugin.getInstance().getLogger().severe("Error in javascript format for placeholder - " + this.identifier);
