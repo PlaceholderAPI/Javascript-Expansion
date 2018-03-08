@@ -40,19 +40,13 @@ import org.bukkit.entity.Player;
 public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable {
 
 	private ScriptEngine engine = null;
-	
 	private String engineType = "javascript";
-	
 	private JavascriptPlaceholdersConfig config;
-	
 	private final Set<JavascriptPlaceholder> scripts = new HashSet<JavascriptPlaceholder>();
-	
 	private final String VERSION = getClass().getPackage().getImplementationVersion();
 	
 	@Override
 	public boolean register() {
-		
-
 		engineType = getString("engine", "javascript");
 		
 		if (engine == null) {
@@ -67,21 +61,24 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 		}
 		
 		config = new JavascriptPlaceholdersConfig(this);
-		
 		config.loadPlaceholders();
-		
-		return PlaceholderAPI.registerPlaceholderHook(getIdentifier(), this);
+		return super.register();
 	}
 	
 	@Override
 	public void clear() {
+		if (!scripts.isEmpty()) {
+			scripts.stream().forEach(s -> {
+				s.saveData();
+				s.cleanup();
+			});
+		}
 		scripts.clear();
 		engine = null;
 	}
 
 	@Override
 	public String onPlaceholderRequest(Player p, String identifier) {
-
 		if (p == null) {
 			return "";
 		}
@@ -91,20 +88,19 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 		}
 
 		for (JavascriptPlaceholder script : scripts) {
-			
 			if (identifier.startsWith(script.getIdentifier() + "_")) {
+				
 				identifier = identifier.replace(script.getIdentifier() + "_", "");
+				
 				if (identifier.indexOf(",") == -1) {
 					return script.evaluate(engine, p, identifier);
 				} else {
 					return script.evaluate(engine, p, identifier.split(","));
 				}
-				
 			} else if (identifier.equalsIgnoreCase(script.getIdentifier())) {
 				return script.evaluate(engine, p);
 			}
 		}
-		
 		return null;
 	}
 
@@ -135,7 +131,6 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	}
 	
 	public boolean addJavascriptPlaceholder(JavascriptPlaceholder p) {
-		
 		if (p == null) {
 			return false;
 		}
@@ -144,7 +139,6 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 			scripts.add(p);
 			return true;
 		}
-
 		
 		for (JavascriptPlaceholder pl : scripts) {
 			if (pl.getIdentifier().equalsIgnoreCase(p.getIdentifier())) {

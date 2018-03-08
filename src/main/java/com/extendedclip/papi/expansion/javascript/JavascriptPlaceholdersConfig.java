@@ -255,6 +255,9 @@ public class JavascriptPlaceholdersConfig {
 			
 			if (added) {
 				plugin.getLogger().info("Javascript " + type.getType() + " placeholder %javascript_" + identifier + "% has been loaded!");
+				if (pl.loadData()) {
+					plugin.getLogger().info("Loaded data for: %javascript_" + identifier + "%");
+				}
 			} else {
 				plugin.getLogger().warning("Javascript " + type.getType() + " placeholder %javascript_" + identifier + "% is a duplicate!");
 			}

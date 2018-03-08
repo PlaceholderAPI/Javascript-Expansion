@@ -20,9 +20,17 @@
  */
 package com.extendedclip.papi.expansion.javascript;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -40,8 +48,15 @@ public class JavascriptPlaceholder {
 	
 	private JavascriptReturnType type;
 	
+	private PlaceholderData data = null;
+	
+	private File dataFile;
+	
+	private FileConfiguration cfg;
+	
+	private final String FILEDIR = PlaceholderAPIPlugin.getInstance().getDataFolder() + File.separator + "expansions" + File.separator + "javascript_data";
+	
 	public JavascriptPlaceholder(String identifier, JavascriptReturnType type, String expression, String trueResult, String falseResult) {
-		
 		if (type == null) {
 			throw new IllegalArgumentException("Javascript placeholder type must set as 'boolean' or 'string'!");
 		}
@@ -53,23 +68,97 @@ public class JavascriptPlaceholder {
 		} else if (expression == null) {
 			throw new IllegalArgumentException("Javascript placeholder expression must not be null!");
 		}
-
-		this.identifier = identifier;
 		
+		this.identifier = identifier;
 		this.expression = expression;
 		
 		if (type == JavascriptReturnType.BOOLEAN) {
-			
 			if (trueResult == null) {
 				throw new IllegalArgumentException("Javascript boolean placeholder must contain a true_result!");
 			} else if (falseResult == null) {
 				throw new IllegalArgumentException("Javascript boolean placeholder must contain a false_result!");
 			}
-			
 			this.trueResult = trueResult;
-			
 			this.falseResult = falseResult;
-			
+		}
+
+		File dir = new File(FILEDIR);
+		
+		try {
+			if (!dir.exists()) {
+				dir.mkdirs();
+			}
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		}
+		
+		dataFile = new File(FILEDIR, identifier + "_data.yml");
+	}
+	
+	public boolean loadData() {
+		cfg = new YamlConfiguration();
+		
+		if (!dataFile.exists()) {
+			return false;
+		}
+		try {
+			cfg.load(dataFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		} catch (InvalidConfigurationException e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		final Set<String> keys = cfg.getKeys(true);
+		
+		if (keys == null || keys.isEmpty()) {
+			return false;
+		}
+		
+		boolean save = false;
+		
+		PlaceholderData data = new PlaceholderData();
+		
+		for (String k : keys) {
+			data.set(k, cfg.get(k));
+			cfg.set(k, null);
+			save = true;
+		}
+		
+		if (!data.isEmpty()) {
+			this.setData(data);
+		}
+		
+		if (save) {
+			try {
+				cfg.save(dataFile);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return save;
+	}
+	
+	public boolean saveData() {
+		if (data == null || data.isEmpty()) {
+			return false;
+		}
+		
+		if (cfg == null) {
+			return false;
+		}
+		
+		for (Entry<String, Object> d : data.getData().entrySet()) {
+			cfg.set(d.getKey(), d.getValue());
+		}
+		
+		try {
+			cfg.save(dataFile);
+			return true;
+		} catch (IOException e) {
+			return false;
 		}
 	}
 	
@@ -97,19 +186,20 @@ public class JavascriptPlaceholder {
 		String exp = PlaceholderAPI.setPlaceholders(p, expression);
 
         try {
-        	
         	String[] c = null;
         	
         	if (args != null && args.length > 0) {
-        		
         		for (int i = 0 ; i < args.length ; i++) {
         			if (args[i] == null || args[i].isEmpty()) {
         				continue;
         			}
+        			
         			String s = PlaceholderAPI.setBracketPlaceholders(p, args[i]);
+        			
         			if (c == null) {
         				c = new String[args.length];
         			}
+        			
         			c[i] = s;
         		}
         	}
@@ -119,6 +209,8 @@ public class JavascriptPlaceholder {
         	}
 
         	engine.put("args", c);
+        	
+        	engine.put("Data", getData());
         	
         	engine.put("BukkitPlayer", p);
         	
@@ -148,5 +240,24 @@ public class JavascriptPlaceholder {
         	ex.printStackTrace();
         }
         return "invalid javascript";
+	}
+	
+	public PlaceholderData getData() {
+		if (data == null) {
+			data = new PlaceholderData();
+		}
+		return data;
+	}
+
+	public void setData(PlaceholderData data) {
+		this.data = data;
+	}
+	
+	public void cleanup() {
+		if (this.data != null) {
+			this.data.clear();
+			this.data = null;
+		}
+		this.cfg = null;
 	}
 }
