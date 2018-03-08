@@ -218,11 +218,11 @@ public class JavascriptPlaceholder {
             }
             	
             if (result instanceof String) {
-            	String res = PlaceholderAPI.setPlaceholders(p, (String)result);
+            	String res = PlaceholderAPI.setBracketPlaceholders(p, (String)result);
             	return res != null ? res : "";
             } 
             
-            return result != null ? PlaceholderAPI.setPlaceholders(p, result.toString()) : "";
+            return result != null ? PlaceholderAPI.setBracketPlaceholders(p, result.toString()) : "";
                         
         } catch (ScriptException ex) {
         	PlaceholderAPIPlugin.getInstance().getLogger().severe("Error in javascript format for placeholder - " + this.identifier);
