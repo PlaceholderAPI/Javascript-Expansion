@@ -23,15 +23,15 @@ public class PlaceholderData {
 	}
 	
 	public boolean exists(String key) {
-		return map.containsKey(key);
+		return map.containsKey(key) && map.get(key) != null;
 	}
 	
 	public Object get(String key) {
 		return map.get(key);
 	}
 	
-	public boolean remove(String key) {
-		return map.remove(key) != null;
+	public void remove(String key) {
+		map.put(key, null);
 	}
 	
 	public void set(String key, Object value) {

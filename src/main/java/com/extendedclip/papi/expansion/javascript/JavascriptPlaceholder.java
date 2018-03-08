@@ -117,28 +117,17 @@ public class JavascriptPlaceholder {
 			return false;
 		}
 		
-		boolean save = false;
-		
 		PlaceholderData data = new PlaceholderData();
 		
-		for (String k : keys) {
+		keys.stream().forEach(k -> {
 			data.set(k, cfg.get(k));
-			cfg.set(k, null);
-			save = true;
-		}
+		});
 		
 		if (!data.isEmpty()) {
 			this.setData(data);
+			return true;
 		}
-		
-		if (save) {
-			try {
-				cfg.save(dataFile);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return save;
+		return false;
 	}
 	
 	public boolean saveData() {
@@ -150,9 +139,9 @@ public class JavascriptPlaceholder {
 			return false;
 		}
 		
-		for (Entry<String, Object> d : data.getData().entrySet()) {
-			cfg.set(d.getKey(), d.getValue());
-		}
+		data.getData().entrySet().forEach(e -> {
+			cfg.set(e.getKey(), e.getValue());
+		});
 		
 		try {
 			cfg.save(dataFile);
