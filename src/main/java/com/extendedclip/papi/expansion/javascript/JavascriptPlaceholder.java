@@ -27,6 +27,8 @@ import java.util.Set;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
+import org.apache.commons.lang.Validate;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -36,18 +38,14 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 
 public class JavascriptPlaceholder {
+	
+	private ScriptEngine engine = null;
 
 	private String identifier;
 	
-	private String expression;
+	private String script;
 	
-	private String trueResult;
-	
-	private String falseResult;
-	
-	private JavascriptReturnType type;
-	
-	private PlaceholderData data = null;
+	private ScriptData data = null;
 	
 	private File dataFile;
 	
@@ -55,32 +53,13 @@ public class JavascriptPlaceholder {
 	
 	private final String FILEDIR = PlaceholderAPIPlugin.getInstance().getDataFolder() + File.separator + "expansions" + File.separator + "javascript_data";
 	
-	public JavascriptPlaceholder(String identifier, JavascriptReturnType type, String expression, String trueResult, String falseResult) {
-		if (type == null) {
-			throw new IllegalArgumentException("Javascript placeholder type must set as 'boolean' or 'string'!");
-		}
-		
-		this.type = type;
-		
-		if (identifier == null) {
-			throw new IllegalArgumentException("Javascript placeholder identifier must not be null!");
-		} else if (expression == null) {
-			throw new IllegalArgumentException("Javascript placeholder expression must not be null!");
-		}
-		
+	public JavascriptPlaceholder(ScriptEngine engine, String identifier, String script) {
+		Validate.notNull(engine, "ScriptEngine can not be null");
+		Validate.notNull(identifier, "Identifier can not be null");
+		Validate.notNull(script, "script can not be null");
+		this.engine = engine;
 		this.identifier = identifier;
-		this.expression = expression;
-		
-		if (type == JavascriptReturnType.BOOLEAN) {
-			if (trueResult == null) {
-				throw new IllegalArgumentException("Javascript boolean placeholder must contain a true_result!");
-			} else if (falseResult == null) {
-				throw new IllegalArgumentException("Javascript boolean placeholder must contain a false_result!");
-			}
-			this.trueResult = trueResult;
-			this.falseResult = falseResult;
-		}
-
+		this.script = script;
 		File dir = new File(FILEDIR);
 		
 		try {
@@ -92,6 +71,65 @@ public class JavascriptPlaceholder {
 		}
 		
 		dataFile = new File(FILEDIR, identifier + "_data.yml");
+	}
+	
+	public String getIdentifier() {
+		return identifier;
+	}
+	
+	public String getScript() {
+		return script;
+	}
+	
+	public String evaluate(Player p, String... args) {
+		String exp = PlaceholderAPI.setPlaceholders(p, script);
+
+        try {
+        	String[] c = null;
+        	
+        	if (args != null && args.length > 0) {
+        		for (int i = 0 ; i < args.length ; i++) {
+        			if (args[i] == null || args[i].isEmpty()) {
+        				continue;
+        			}
+        			
+        			String s = PlaceholderAPI.setBracketPlaceholders(p, args[i]);
+        			
+        			if (c == null) {
+        				c = new String[args.length];
+        			}
+        			
+        			c[i] = s;
+        		}
+        	}
+        	
+        	if (c == null) {
+        		c = new String[]{};
+        	}
+
+        	engine.put("args", c);
+        	engine.put("Data", getData());
+        	engine.put("BukkitServer", Bukkit.getServer());
+        	engine.put("BukkitPlayer", p);
+            Object result = engine.eval(exp);
+            return result != null ? PlaceholderAPI.setBracketPlaceholders(p, result.toString()) : "";
+                        
+        } catch (ScriptException ex) {
+        	PlaceholderAPIPlugin.getInstance().getLogger().severe("Error in javascript for placeholder - " + this.identifier);
+        	ex.printStackTrace();
+        }
+        return "invalid javascript";
+	}
+	
+	public ScriptData getData() {
+		if (data == null) {
+			data = new ScriptData();
+		}
+		return data;
+	}
+
+	public void setData(ScriptData data) {
+		this.data = data;
 	}
 	
 	public boolean loadData() {
@@ -116,7 +154,7 @@ public class JavascriptPlaceholder {
 			return false;
 		}
 		
-		PlaceholderData data = new PlaceholderData();
+		ScriptData data = new ScriptData();
 		
 		keys.stream().forEach(k -> {
 			data.set(k, cfg.get(k));
@@ -148,98 +186,6 @@ public class JavascriptPlaceholder {
 		} catch (IOException e) {
 			return false;
 		}
-	}
-	
-	public String getIdentifier() {
-		return identifier;
-	}
-	
-	public String getExpression() {
-		return expression;
-	}
-	
-	public String getTrueResult() {
-		return trueResult;
-	}
-	
-	public String getFalseResult() {
-		return falseResult;
-	}
-	
-	public JavascriptReturnType getType() {
-		return type;
-	}
-	
-	public String evaluate(ScriptEngine engine, Player p, String... args) {
-		String exp = PlaceholderAPI.setPlaceholders(p, expression);
-
-        try {
-        	String[] c = null;
-        	
-        	if (args != null && args.length > 0) {
-        		for (int i = 0 ; i < args.length ; i++) {
-        			if (args[i] == null || args[i].isEmpty()) {
-        				continue;
-        			}
-        			
-        			String s = PlaceholderAPI.setBracketPlaceholders(p, args[i]);
-        			
-        			if (c == null) {
-        				c = new String[args.length];
-        			}
-        			
-        			c[i] = s;
-        		}
-        	}
-        	
-        	if (c == null) {
-        		c = new String[]{};
-        	}
-
-        	engine.put("args", c);
-        	
-        	engine.put("Data", getData());
-        	
-        	engine.put("BukkitPlayer", p);
-        	
-            Object result = engine.eval(exp);
-
-            if (type == JavascriptReturnType.BOOLEAN) {
-            	
-            	if (!(result instanceof Boolean)) {
-                 	return "invalid javascript";
-                 }
-                 
-                 if ((boolean) result) {
-                 	return PlaceholderAPI.setPlaceholders(p, trueResult);
-                 } else {
-                 	return PlaceholderAPI.setPlaceholders(p, falseResult);
-                 }	
-            }
-            	
-            if (result instanceof String) {
-            	String res = PlaceholderAPI.setBracketPlaceholders(p, (String)result);
-            	return res != null ? res : "";
-            } 
-            
-            return result != null ? PlaceholderAPI.setBracketPlaceholders(p, result.toString()) : "";
-                        
-        } catch (ScriptException ex) {
-        	PlaceholderAPIPlugin.getInstance().getLogger().severe("Error in javascript format for placeholder - " + this.identifier);
-        	ex.printStackTrace();
-        }
-        return "invalid javascript";
-	}
-	
-	public PlaceholderData getData() {
-		if (data == null) {
-			data = new PlaceholderData();
-		}
-		return data;
-	}
-
-	public void setData(PlaceholderData data) {
-		this.data = data;
 	}
 	
 	public void cleanup() {
