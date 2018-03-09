@@ -20,8 +20,10 @@
  */
 package com.extendedclip.papi.expansion.javascript;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,18 +34,76 @@ import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.Cacheable;
 import me.clip.placeholderapi.expansion.Configurable;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import me.clip.placeholderapi.util.Msg;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
-public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable {
-
+public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable, Listener {
+	
 	private ScriptEngine globalEngine = null;
 	
 	private JavascriptPlaceholdersConfig config;
 	
-	private final Set<JavascriptPlaceholder> scripts = new HashSet<JavascriptPlaceholder>();
+	private final Set<JavascriptPlaceholder> scripts = new HashSet<>();
 	
 	private final String VERSION = getClass().getPackage().getImplementationVersion();
+	
+	private static JavascriptExpansion instance;
+	
+	public JavascriptExpansion() {
+		instance = this;
+	}
+	
+	/*
+	 * I am just testing the waters here because there is no command system for expansions...
+	 */
+	@EventHandler
+	public void onCmdExecute(PlayerCommandPreprocessEvent event) {
+		
+		String msg = event.getMessage();
+		
+		if (!msg.startsWith("/papijsp")) {
+			return;
+		}
+		
+		if (!event.getPlayer().hasPermission("placeholderapi.admin")) {
+			return;
+		}
+		
+		event.setCancelled(true);
+		
+		Player p = event.getPlayer();
+		
+		// default command
+		if (msg.indexOf(" ") == -1) {
+			Msg.msg(p, "&7Javascript expansion v: &f" + getVersion());
+			Msg.msg(p, "&7Created by: &f" + getAuthor());
+			Msg.msg(p, "&fWiki: &ahttps://github.com/PlaceholderAPI-Expansions/Javascript-Expansion/wiki");
+			Msg.msg(p, "&r");
+			Msg.msg(p, "&7/papijsp reload &7- &fReload your javascripts without reloading PlaceholderAPI");
+			Msg.msg(p, "&7/papijsp list &7- &fList loaded script identifiers.");
+			return;
+		}
+		
+		if (msg.equals("/papijsp reload")) {
+			Msg.msg(p, "&aReloading...");
+			int l = this.reloadScripts();
+			Msg.msg(p, l + " &7script" + (l == 1 ? "" : "s")+ " loaded");
+			return;
+		}
+		
+		if (msg.equals("/papijsp list")) {
+			List<String> loaded = this.getLoadedIdentifiers();
+			Msg.msg(p, loaded.size() + " &7script" + (loaded.size() == 1 ? "" : "s")+ " loaded");
+			Msg.msg(p, loaded.toString());
+			return;
+		}
+		
+		event.getPlayer().sendMessage("&cIncorrect usage &7- &f/papijsp");
+	}
 
 	@Override
 	public String getAuthor() {
@@ -63,11 +123,6 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	@Override
 	public String getVersion() {
 		return VERSION;
-	}
-	
-	@Override
-	public boolean canRegister() {
-		return true;
 	}
 	
 	@Override
@@ -96,6 +151,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 		}
 		scripts.clear();
 		globalEngine = null;
+		instance = null;
 	}
 
 	@Override
@@ -119,7 +175,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 		return null;
 	}
 	
-	public boolean addJavascriptPlaceholder(JavascriptPlaceholder p) {
+	public boolean addJSPlaceholder(JavascriptPlaceholder p) {
 		if (p == null) {
 			return false;
 		}
@@ -129,17 +185,32 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 			return true;
 		}
 		
-		for (JavascriptPlaceholder pl : scripts) {
-			if (pl.getIdentifier().equalsIgnoreCase(p.getIdentifier())) {
-				return false;
-			}
+		if (scripts.stream().filter(s -> s.getIdentifier().equalsIgnoreCase(p.getIdentifier())).findFirst().orElse(null) != null) {
+			return false;
 		}
+		
 		scripts.add(p);
 		return true;
 	}
 	
-	public int getJavascriptPlaceholdersAmount() {
-		return scripts == null ? 0 : scripts.size();
+	public Set<JavascriptPlaceholder> getJSPlaceholders() {
+		return scripts;
+	}
+	
+	public List<String> getLoadedIdentifiers() {
+		List<String> l = new ArrayList<>();
+		scripts.stream().forEach(s -> {
+			l.add(s.getIdentifier());
+		});
+		return l;
+	}
+	
+	public JavascriptPlaceholder getJSPlaceholder(String identifier) {
+		return scripts.stream().filter(s -> s.getIdentifier().equalsIgnoreCase(identifier)).findFirst().orElse(null);
+	}
+	
+	public int getAmountLoaded() {
+		return scripts.size();
 	}
 	
 	public ScriptEngine getGlobalEngine() {
@@ -151,5 +222,21 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 		Map<String, Object> def = new HashMap<String, Object>();
 		def.put("engine", "javascript");
 		return def;
+	}
+	
+	private int reloadScripts() {
+		if (!scripts.isEmpty()) {
+			scripts.stream().forEach(s -> {
+				s.saveData();
+				s.cleanup();
+			});
+		}
+		scripts.clear();
+		config.reload();
+		return config.loadPlaceholders();
+	}
+	
+	public static JavascriptExpansion getInstance() {
+		return instance;
 	}
 }

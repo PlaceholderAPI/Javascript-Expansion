@@ -58,6 +58,9 @@ public class JavascriptPlaceholder {
 		Validate.notNull(identifier, "Identifier can not be null");
 		Validate.notNull(script, "script can not be null");
 		this.engine = engine;
+    	engine.put("Data", getData());
+    	engine.put("BukkitServer", Bukkit.getServer());
+    	engine.put("Expansion", JavascriptExpansion.getInstance());
 		this.identifier = identifier;
 		this.script = script;
 		File dir = new File(FILEDIR);
@@ -108,8 +111,6 @@ public class JavascriptPlaceholder {
         	}
 
         	engine.put("args", c);
-        	engine.put("Data", getData());
-        	engine.put("BukkitServer", Bukkit.getServer());
         	engine.put("BukkitPlayer", p);
             Object result = engine.eval(exp);
             return result != null ? PlaceholderAPI.setBracketPlaceholders(p, result.toString()) : "";
@@ -118,7 +119,7 @@ public class JavascriptPlaceholder {
         	PlaceholderAPIPlugin.getInstance().getLogger().severe("Error in javascript for placeholder - " + this.identifier);
         	ex.printStackTrace();
         }
-        return "invalid javascript";
+        return "Script error";
 	}
 	
 	public ScriptData getData() {

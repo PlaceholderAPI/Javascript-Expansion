@@ -173,7 +173,7 @@ public class JavascriptPlaceholdersConfig {
 			
 			JavascriptPlaceholder pl = new JavascriptPlaceholder(engine, identifier, script);
 
-			boolean added = ex.addJavascriptPlaceholder(pl);
+			boolean added = ex.addJSPlaceholder(pl);
 			
 			if (added) {
 				
@@ -185,7 +185,7 @@ public class JavascriptPlaceholdersConfig {
 				plugin.getLogger().warning("Javascript  placeholder %javascript_" + identifier + "% is a duplicate!");
 			}
 		}
-		return ex.getJavascriptPlaceholdersAmount();
+		return ex.getAmountLoaded();
 	}
 	
 	private String getContents(File f) {
