@@ -30,7 +30,6 @@ import java.util.Set;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
-import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.Cacheable;
 import me.clip.placeholderapi.expansion.Configurable;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -131,7 +130,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 			try {
 				globalEngine = new ScriptEngineManager().getEngineByName(getString("engine", "javascript"));
 			} catch (NullPointerException ex) {
-				PlaceholderAPIPlugin.getInstance().getLogger().warning("Javascript engine type was invalid! Defaulting to 'javascript'");
+				getPlaceholderAPI().getLogger().warning("Javascript engine type was invalid! Defaulting to 'javascript'");
 				globalEngine = new ScriptEngineManager().getEngineByName("javascript");
 			}	
 		}
@@ -143,12 +142,10 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	
 	@Override
 	public void clear() {
-		if (!scripts.isEmpty()) {
-			scripts.stream().forEach(s -> {
-				s.saveData();
-				s.cleanup();
-			});
-		}
+		scripts.stream().forEach(s -> {
+			s.saveData();
+			s.cleanup();
+		});
 		scripts.clear();
 		globalEngine = null;
 		instance = null;
@@ -225,12 +222,10 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	}
 	
 	private int reloadScripts() {
-		if (!scripts.isEmpty()) {
-			scripts.stream().forEach(s -> {
-				s.saveData();
-				s.cleanup();
-			});
-		}
+		scripts.stream().forEach(s -> {
+			s.saveData();
+			s.cleanup();
+		});
 		scripts.clear();
 		config.reload();
 		return config.loadPlaceholders();

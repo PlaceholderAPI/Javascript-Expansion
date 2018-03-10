@@ -51,16 +51,13 @@ public class JavascriptPlaceholder {
 	
 	private FileConfiguration cfg;
 	
-	private final String FILEDIR = PlaceholderAPIPlugin.getInstance().getDataFolder() + File.separator + "expansions" + File.separator + "javascript_data";
+	private final String FILEDIR = PlaceholderAPIPlugin.getInstance().getDataFolder() + File.separator + "javascripts" + File.separator + "javascript_data";
 	
 	public JavascriptPlaceholder(ScriptEngine engine, String identifier, String script) {
 		Validate.notNull(engine, "ScriptEngine can not be null");
 		Validate.notNull(identifier, "Identifier can not be null");
 		Validate.notNull(script, "script can not be null");
 		this.engine = engine;
-    	engine.put("Data", getData());
-    	engine.put("BukkitServer", Bukkit.getServer());
-    	engine.put("Expansion", JavascriptExpansion.getInstance());
 		this.identifier = identifier;
 		this.script = script;
 		File dir = new File(FILEDIR);
@@ -74,6 +71,11 @@ public class JavascriptPlaceholder {
 		}
 		
 		dataFile = new File(FILEDIR, identifier + "_data.yml");
+		
+    	engine.put("Data", getData());
+    	engine.put("BukkitServer", Bukkit.getServer());
+    	engine.put("Expansion", JavascriptExpansion.getInstance());
+    	engine.put("Placeholder", this);
 	}
 	
 	public String getIdentifier() {
