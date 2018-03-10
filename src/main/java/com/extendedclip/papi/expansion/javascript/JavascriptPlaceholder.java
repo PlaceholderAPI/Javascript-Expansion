@@ -69,10 +69,9 @@ public class JavascriptPlaceholder {
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		}
-		
+		data = new ScriptData();
 		dataFile = new File(FILEDIR, identifier + "_data.yml");
-		
-    	engine.put("Data", getData());
+    	engine.put("Data", data);
     	engine.put("BukkitServer", Bukkit.getServer());
     	engine.put("Expansion", JavascriptExpansion.getInstance());
     	engine.put("Placeholder", this);
@@ -118,13 +117,13 @@ public class JavascriptPlaceholder {
             return result != null ? PlaceholderAPI.setBracketPlaceholders(p, result.toString()) : "";
                         
         } catch (ScriptException ex) {
-        	PlaceholderAPIPlugin.getInstance().getLogger().severe("Error in javascript for placeholder - " + this.identifier);
         	ex.printStackTrace();
         }
         return "Script error";
 	}
 	
 	public ScriptData getData() {
+		// this should never be null but just in case setData(null) is called
 		if (data == null) {
 			data = new ScriptData();
 		}
@@ -136,6 +135,7 @@ public class JavascriptPlaceholder {
 	}
 	
 	public boolean loadData() {
+		
 		cfg = new YamlConfiguration();
 		
 		if (!dataFile.exists()) {
@@ -157,7 +157,11 @@ public class JavascriptPlaceholder {
 			return false;
 		}
 		
-		ScriptData data = new ScriptData();
+		if (data == null) {
+			data = new ScriptData();
+		} else {
+			data.clear();
+		}
 		
 		keys.stream().forEach(k -> {
 			data.set(k, cfg.get(k));
