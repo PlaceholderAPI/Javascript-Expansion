@@ -77,7 +77,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 		Player p = event.getPlayer();
 		
 		// default command
-		if (msg.indexOf(" ") == -1) {
+		if (!msg.contains(" ")) {
 			Msg.msg(p, "&7Javascript expansion v: &f" + getVersion());
 			Msg.msg(p, "&7Created by: &f" + getAuthor());
 			Msg.msg(p, "&fWiki: &ahttps://github.com/PlaceholderAPI-Expansions/Javascript-Expansion/wiki");
@@ -97,7 +97,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 		if (msg.equals("/papijsp list")) {
 			List<String> loaded = this.getLoadedIdentifiers();
 			Msg.msg(p, loaded.size() + " &7script" + (loaded.size() == 1 ? "" : "s")+ " loaded");
-			Msg.msg(p, loaded.toString());
+			Msg.msg(p, String.join(", ", loaded));
 			return;
 		}
 		
@@ -142,7 +142,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	
 	@Override
 	public void clear() {
-		scripts.stream().forEach(s -> {
+		scripts.forEach(s -> {
 			s.saveData();
 			s.cleanup();
 		});
@@ -164,7 +164,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 		for (JavascriptPlaceholder script : scripts) {
 			if (identifier.startsWith(script.getIdentifier() + "_")) {
 				identifier = identifier.replace(script.getIdentifier() + "_", "");
-				return identifier.indexOf(",") == -1 ? script.evaluate(p, identifier) : script.evaluate(p, identifier.split(","));
+				return !identifier.contains(",") ? script.evaluate(p, identifier) : script.evaluate(p, identifier.split(","));
 			} else if (identifier.equalsIgnoreCase(script.getIdentifier())) {
 				return script.evaluate(p);
 			}
@@ -196,7 +196,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	
 	public List<String> getLoadedIdentifiers() {
 		List<String> l = new ArrayList<>();
-		scripts.stream().forEach(s -> {
+		scripts.forEach(s -> {
 			l.add(s.getIdentifier());
 		});
 		return l;
@@ -222,7 +222,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	}
 	
 	private int reloadScripts() {
-		scripts.stream().forEach(s -> {
+		scripts.forEach(s -> {
 			s.saveData();
 			s.cleanup();
 		});
