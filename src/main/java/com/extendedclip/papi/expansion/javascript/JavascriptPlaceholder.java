@@ -29,6 +29,7 @@ import javax.script.ScriptException;
 
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -201,5 +202,9 @@ public class JavascriptPlaceholder {
 			this.data = null;
 		}
 		this.cfg = null;
+	}
+
+	public String setPAPIPlaceholder(OfflinePlayer p, String identifier) {
+		return PlaceholderAPI.setPlaceholders(p, identifier);
 	}
 }
