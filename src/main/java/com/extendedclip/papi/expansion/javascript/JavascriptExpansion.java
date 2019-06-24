@@ -113,11 +113,6 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	public String getIdentifier() {
 		return "javascript";
 	}
-
-	@Override
-	public String getPlugin() {
-		return null;
-	}
 	
 	@Override
 	public String getVersion() {
