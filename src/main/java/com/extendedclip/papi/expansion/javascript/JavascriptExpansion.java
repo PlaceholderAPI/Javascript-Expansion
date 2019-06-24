@@ -88,7 +88,8 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 		}
 
 		config = new JavascriptPlaceholdersConfig(this);
-		config.loadPlaceholders();
+        int l = reloadScripts();
+        getPlaceholderAPI().getLogger().info("" + l + " script" + (l == 1 ? "" : "s")+ " loaded.");
 		return super.register();
 	}
 	
