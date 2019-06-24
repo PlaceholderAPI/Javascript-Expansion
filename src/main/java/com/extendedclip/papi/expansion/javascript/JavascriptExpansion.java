@@ -74,14 +74,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	
 	@Override
 	public boolean register() {
-		if (globalEngine == null) {
-			try {
-				globalEngine = new ScriptEngineManager().getEngineByName(getString("engine", "javascript"));
-			} catch (NullPointerException ex) {
-				getPlaceholderAPI().getLogger().warning("Javascript engine type was invalid! Defaulting to 'javascript'");
-				globalEngine = new ScriptEngineManager().getEngineByName("javascript");
-			}	
-		}
+        this.getGlobalEngine();
 
 		try {
 			final Field commandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
@@ -170,6 +163,14 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	}
 	
 	public ScriptEngine getGlobalEngine() {
+        if (globalEngine == null) {
+            try {
+                globalEngine = new ScriptEngineManager().getEngineByName(getString("engine", "javascript"));
+            } catch (NullPointerException ex) {
+                getPlaceholderAPI().getLogger().warning("Javascript engine type was invalid! Defaulting to 'javascript'");
+                globalEngine = new ScriptEngineManager().getEngineByName("javascript");
+            }
+        }
 		return globalEngine;
 	}
 
