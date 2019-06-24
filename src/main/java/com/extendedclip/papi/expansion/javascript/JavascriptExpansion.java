@@ -20,6 +20,7 @@
  */
 package com.extendedclip.papi.expansion.javascript;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,14 +34,12 @@ import javax.script.ScriptEngineManager;
 import me.clip.placeholderapi.expansion.Cacheable;
 import me.clip.placeholderapi.expansion.Configurable;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import me.clip.placeholderapi.util.Msg;
 
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandMap;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
-public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable, Listener {
+public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable {
 	
 	private ScriptEngine globalEngine = null;
 	
@@ -51,57 +50,11 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	private final String VERSION = getClass().getPackage().getImplementationVersion();
 	
 	private static JavascriptExpansion instance;
+
+	private CommandMap cmdMap = null;
 	
 	public JavascriptExpansion() {
 		instance = this;
-	}
-	
-	/*
-	 * I am just testing the waters here because there is no command system for expansions...
-	 */
-	@EventHandler
-	public void onCmdExecute(PlayerCommandPreprocessEvent event) {
-		
-		String msg = event.getMessage();
-		
-		if (!msg.startsWith("/papijsp")) {
-			return;
-		}
-		
-		if (!event.getPlayer().hasPermission("placeholderapi.admin")) {
-			return;
-		}
-		
-		event.setCancelled(true);
-		
-		Player p = event.getPlayer();
-		
-		// default command
-		if (!msg.contains(" ")) {
-			Msg.msg(p, "&7Javascript expansion v: &f" + getVersion());
-			Msg.msg(p, "&7Created by: &f" + getAuthor());
-			Msg.msg(p, "&fWiki: &ahttps://github.com/PlaceholderAPI-Expansions/Javascript-Expansion/wiki");
-			Msg.msg(p, "&r");
-			Msg.msg(p, "&7/papijsp reload &7- &fReload your javascripts without reloading PlaceholderAPI");
-			Msg.msg(p, "&7/papijsp list &7- &fList loaded script identifiers.");
-			return;
-		}
-		
-		if (msg.equals("/papijsp reload")) {
-			Msg.msg(p, "&aReloading...");
-			int l = this.reloadScripts();
-			Msg.msg(p, l + " &7script" + (l == 1 ? "" : "s")+ " loaded");
-			return;
-		}
-		
-		if (msg.equals("/papijsp list")) {
-			List<String> loaded = this.getLoadedIdentifiers();
-			Msg.msg(p, loaded.size() + " &7script" + (loaded.size() == 1 ? "" : "s")+ " loaded");
-			Msg.msg(p, String.join(", ", loaded));
-			return;
-		}
-		
-		event.getPlayer().sendMessage("&cIncorrect usage &7- &f/papijsp");
 	}
 
 	@Override
@@ -129,7 +82,18 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 				globalEngine = new ScriptEngineManager().getEngineByName("javascript");
 			}	
 		}
-		
+
+		try {
+			final Field commandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+
+			commandMap.setAccessible(true);
+			cmdMap = (CommandMap) commandMap.get(Bukkit.getServer());
+
+			cmdMap.register("papijsp", new JavascriptCommands(this));
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+
 		config = new JavascriptPlaceholdersConfig(this);
 		config.loadPlaceholders();
 		return super.register();
@@ -211,12 +175,12 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
 	@Override
 	public Map<String, Object> getDefaults() {
-		Map<String, Object> def = new HashMap<String, Object>();
+		Map<String, Object> def = new HashMap<>();
 		def.put("engine", "javascript");
 		return def;
 	}
 	
-	private int reloadScripts() {
+	public int reloadScripts() {
 		scripts.forEach(s -> {
 			s.saveData();
 			s.cleanup();
