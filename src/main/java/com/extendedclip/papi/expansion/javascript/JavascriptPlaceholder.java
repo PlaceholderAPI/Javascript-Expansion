@@ -86,7 +86,7 @@ public class JavascriptPlaceholder {
 		return script;
 	}
 	
-	public String evaluate(Player p, String... args) {
+	public String evaluate(OfflinePlayer p, String... args) {
 		String exp = PlaceholderAPI.setPlaceholders(p, script);
 
         try {

@@ -36,8 +36,8 @@ import me.clip.placeholderapi.expansion.Configurable;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandMap;
-import org.bukkit.entity.Player;
 
 public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable {
 	
@@ -82,7 +82,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 			commandMap.setAccessible(true);
 			cmdMap = (CommandMap) commandMap.get(Bukkit.getServer());
 
-			cmdMap.register("papijsp", new JavascriptCommands(this));
+			cmdMap.register("placeholderapi", new JavascriptCommands(this));
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -105,7 +105,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	}
 
 	@Override
-	public String onPlaceholderRequest(Player p, String identifier) {
+	public String onRequest(OfflinePlayer p, String identifier) {
 		if (p == null) {
 			return "";
 		}
