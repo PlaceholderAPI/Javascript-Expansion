@@ -205,10 +205,10 @@ public class JavascriptPlaceholder {
 	}
 
 	public String setPAPIPlaceholder(OfflinePlayer p, String identifier) {
-		return PlaceholderAPI.setPlaceholders(p, identifier);
+		return PlaceholderAPI.setPlaceholders(p, "%" + identifier + "%");
 	}
 
 	public String setPAPIRelPlaceholder(Player p1, Player p2, String identifier) {
-		return PlaceholderAPI.setRelationalPlaceholders(p1, p2, identifier);
+		return PlaceholderAPI.setRelationalPlaceholders(p1, p2, "%" + identifier + "%");
 	}
 }
