@@ -20,7 +20,10 @@
  */
 package com.extendedclip.papi.expansion.javascript;
 
+import com.extendedclip.papi.expansion.javascript.cloud.GithubScript;
+import com.extendedclip.papi.expansion.javascript.cloud.GithubScriptManager;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +38,7 @@ import me.clip.placeholderapi.expansion.Cacheable;
 import me.clip.placeholderapi.expansion.Configurable;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -47,19 +51,16 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	private ScriptEngine globalEngine = null;
 	
 	private JavascriptPlaceholdersConfig config;
-	
 	private final Set<JavascriptPlaceholder> scripts = new HashSet<>();
-	
 	private final String VERSION = getClass().getPackage().getImplementationVersion();
-	
 	private static JavascriptExpansion instance;
-	
+	private boolean debug = false;
+	private GithubScriptManager githubScripts = null;
+
 	public JavascriptExpansion() {
 		instance = this;
 	}
 
-	private boolean debug = false;
-	
 	/*
 	 * I am just testing the waters here because there is no command system for expansions...
 	 */
@@ -88,6 +89,9 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 			msg(p, "&r");
 			msg(p, "&7/papijsp reload &7- &fReload your javascripts without reloading PlaceholderAPI");
 			msg(p, "&7/papijsp list &7- &fList loaded script identifiers.");
+			msg(p, "&7/papijsp git download <name> &7- &fDownload a script from the js expansion github.");
+			msg(p, "&7/papijsp git list &7- &fList available scripts in the js expansion github.");
+			msg(p, "&7/papijsp git info (name) &7- &fGet the description and url of a specific script.");
 			return;
 		}
 		
@@ -104,12 +108,69 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 			msg(p, String.join(", ", loaded));
 			return;
 		}
+
+		if (msg.equals("/papijsp git list")) {
+			msg(p, GithubScript.values().length + " &7script"
+					+ (GithubScript.values().length == 1 ? "" : "s") + " available on Github.");
+			msg(p, String.join(", ", GithubScript.getAllScriptNames()));
+			return;
+		}
+
+		if (msg.startsWith("/papijsp git info ")) {
+
+			if (this.githubScripts == null) {
+				msg(p, "This feature is disabled in the PAPI config!");
+				return;
+			}
+
+			msg = msg.replace("/papijsp git info ", "");
+
+			GithubScript script = GithubScript.getScript(msg);
+
+			if (script == null) {
+				msg(p, "&cThe script &7" + msg + " &cdoes not exist!");
+				return;
+			}
+
+				msg(p, "&7Name: &f" + script.getName(),
+						"&7Version: &f" + script.getVersion(),
+						"&7Description: &f" + script.getDescription(),
+						"&7Url: &f" + script.getUrl());
+
+			return;
+		}
+
+		if (msg.startsWith("/papijsp git download ")) {
+
+			if (this.githubScripts == null) {
+				msg(p, "This feature is disabled in the PAPI config!");
+				return;
+			}
+
+			msg = msg.replace("/papijsp git download ", "");
+
+			GithubScript script = GithubScript.getScript(msg);
+
+			if (script == null) {
+				msg(p, "&cThe script &7" + msg + " &cdoes not exist!");
+				return;
+			}
+
+			Bukkit.getScheduler().runTaskAsynchronously(getPlaceholderAPI(), new Runnable() {
+				@Override
+				public void run() {
+					githubScripts.downloadScript(script);
+				}
+			});
+			msg(p, "&aDownload initiated... Check the scripts folder in a moment...");
+			return;
+		}
 		
-		event.getPlayer().sendMessage("&cIncorrect usage &7- &f/papijsp");
+		msg(p, "&cIncorrect usage &7- &f/papijsp");
 	}
 
-	public void msg(Player p, String text) {
-		p.sendMessage(ChatColor.translateAlternateColorCodes('&', text));
+	public void msg(Player p, String... text) {
+		Arrays.stream(text).forEach(line -> p.sendMessage(ChatColor.translateAlternateColorCodes('&', line)));
 	}
 
 	@Override
@@ -160,6 +221,9 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 				System.out.println("mime types: " + factory.getMimeTypes());
 				System.out.println("names: " + factory.getNames());
 			}
+		}
+		if ((Boolean) get("github_script_downloads", false)) {
+			githubScripts = new GithubScriptManager(this);
 		}
 		return super.register();
 	}
@@ -238,11 +302,16 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 		return globalEngine;
 	}
 
+	public JavascriptPlaceholdersConfig getConfig() {
+		return config;
+	}
+
 	@Override
 	public Map<String, Object> getDefaults() {
 		Map<String, Object> def = new HashMap<String, Object>();
 		def.put("engine", "javascript");
 		def.put("debug", false);
+		def.put("github_script_downloads", false);
 		return def;
 	}
 	
