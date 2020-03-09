@@ -28,13 +28,15 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
 import me.clip.placeholderapi.expansion.Cacheable;
 import me.clip.placeholderapi.expansion.Configurable;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import me.clip.placeholderapi.util.Msg;
 
+import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -55,6 +57,8 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	public JavascriptExpansion() {
 		instance = this;
 	}
+
+	private boolean debug = false;
 	
 	/*
 	 * I am just testing the waters here because there is no command system for expansions...
@@ -78,30 +82,34 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 		
 		// default command
 		if (!msg.contains(" ")) {
-			Msg.msg(p, "&7Javascript expansion v: &f" + getVersion());
-			Msg.msg(p, "&7Created by: &f" + getAuthor());
-			Msg.msg(p, "&fWiki: &ahttps://github.com/PlaceholderAPI-Expansions/Javascript-Expansion/wiki");
-			Msg.msg(p, "&r");
-			Msg.msg(p, "&7/papijsp reload &7- &fReload your javascripts without reloading PlaceholderAPI");
-			Msg.msg(p, "&7/papijsp list &7- &fList loaded script identifiers.");
+			msg(p, "&7Javascript expansion v: &f" + getVersion());
+			msg(p, "&7Created by: &f" + getAuthor());
+			msg(p, "&fWiki: &ahttps://github.com/PlaceholderAPI-Expansions/Javascript-Expansion/wiki");
+			msg(p, "&r");
+			msg(p, "&7/papijsp reload &7- &fReload your javascripts without reloading PlaceholderAPI");
+			msg(p, "&7/papijsp list &7- &fList loaded script identifiers.");
 			return;
 		}
 		
 		if (msg.equals("/papijsp reload")) {
-			Msg.msg(p, "&aReloading...");
+			msg(p, "&aReloading...");
 			int l = this.reloadScripts();
-			Msg.msg(p, l + " &7script" + (l == 1 ? "" : "s")+ " loaded");
+			msg(p, l + " &7script" + (l == 1 ? "" : "s")+ " loaded");
 			return;
 		}
 		
 		if (msg.equals("/papijsp list")) {
 			List<String> loaded = this.getLoadedIdentifiers();
-			Msg.msg(p, loaded.size() + " &7script" + (loaded.size() == 1 ? "" : "s")+ " loaded");
-			Msg.msg(p, String.join(", ", loaded));
+			msg(p, loaded.size() + " &7script" + (loaded.size() == 1 ? "" : "s")+ " loaded");
+			msg(p, String.join(", ", loaded));
 			return;
 		}
 		
 		event.getPlayer().sendMessage("&cIncorrect usage &7- &f/papijsp");
+	}
+
+	public void msg(Player p, String text) {
+		p.sendMessage(ChatColor.translateAlternateColorCodes('&', text));
 	}
 
 	@Override
@@ -128,15 +136,31 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	public boolean register() {
 		if (globalEngine == null) {
 			try {
-				globalEngine = new ScriptEngineManager().getEngineByName(getString("engine", "javascript"));
+				globalEngine = new ScriptEngineManager().getEngineByName(getString("engine", "nashorn"));
 			} catch (NullPointerException ex) {
-				getPlaceholderAPI().getLogger().warning("Javascript engine type was invalid! Defaulting to 'javascript'");
-				globalEngine = new ScriptEngineManager().getEngineByName("javascript");
-			}	
+				getPlaceholderAPI().getLogger().warning("Javascript engine type was invalid! Defaulting to 'nashorn'");
+				globalEngine = new ScriptEngineManager().getEngineByName("nashorn");
+			}
 		}
-		
+		debug = (boolean) get("debug", false);
 		config = new JavascriptPlaceholdersConfig(this);
 		config.loadPlaceholders();
+		if (debug) {
+			System.out.println("Java version: " + System.getProperty("java.version"));
+
+			ScriptEngineManager manager = new ScriptEngineManager();
+			List<ScriptEngineFactory> factories = manager.getEngineFactories();
+			System.out.println("displaying all script engine factories:");
+			for (ScriptEngineFactory factory : factories) {
+				System.out.println("Engine name: " + factory.getEngineName());
+				System.out.println("version: " + factory.getEngineVersion());
+				System.out.println("lang name: " + factory.getLanguageName());
+				System.out.println("lang version: " + factory.getLanguageVersion());
+				System.out.println("extensions: " + factory.getExtensions());
+				System.out.println("mime types: " + factory.getMimeTypes());
+				System.out.println("names: " + factory.getNames());
+			}
+		}
 		return super.register();
 	}
 	
@@ -152,7 +176,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	}
 
 	@Override
-	public String onPlaceholderRequest(Player p, String identifier) {
+	public String onRequest( OfflinePlayer p, String identifier) {
 		if (p == null) {
 			return "";
 		}
@@ -218,6 +242,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	public Map<String, Object> getDefaults() {
 		Map<String, Object> def = new HashMap<String, Object>();
 		def.put("engine", "javascript");
+		def.put("debug", false);
 		return def;
 	}
 	

@@ -23,183 +23,175 @@ package com.extendedclip.papi.expansion.javascript;
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
-
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
-
+import me.clip.placeholderapi.PlaceholderAPI;
+import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-
-import me.clip.placeholderapi.PlaceholderAPI;
-import me.clip.placeholderapi.PlaceholderAPIPlugin;
 
 public class JavascriptPlaceholder {
-	
-	private ScriptEngine engine = null;
 
-	private String identifier;
-	
-	private String script;
-	
-	private ScriptData data = null;
-	
-	private File dataFile;
-	
-	private FileConfiguration cfg;
-	
-	private final String FILEDIR = PlaceholderAPIPlugin.getInstance().getDataFolder() + File.separator + "javascripts" + File.separator + "javascript_data";
-	
-	public JavascriptPlaceholder(ScriptEngine engine, String identifier, String script) {
-		Validate.notNull(engine, "ScriptEngine can not be null");
-		Validate.notNull(identifier, "Identifier can not be null");
-		Validate.notNull(script, "script can not be null");
-		this.engine = engine;
-		this.identifier = identifier;
-		this.script = script;
-		File dir = new File(FILEDIR);
-		
-		try {
-			if (!dir.exists()) {
-				dir.mkdirs();
-			}
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		}
-		data = new ScriptData();
-		dataFile = new File(FILEDIR, identifier + "_data.yml");
-    	engine.put("Data", data);
-    	engine.put("BukkitServer", Bukkit.getServer());
-    	engine.put("Expansion", JavascriptExpansion.getInstance());
-    	engine.put("Placeholder", this);
-	}
-	
-	public String getIdentifier() {
-		return identifier;
-	}
-	
-	public String getScript() {
-		return script;
-	}
-	
-	public String evaluate(Player p, String... args) {
-		String exp = PlaceholderAPI.setPlaceholders(p, script);
+  private ScriptEngine engine = null;
+  private String identifier;
+  private String script;
+  private ScriptData data = null;
+  private File dataFile;
+  private FileConfiguration cfg;
 
-        try {
-        	String[] c = null;
-        	
-        	if (args != null && args.length > 0) {
-        		for (int i = 0 ; i < args.length ; i++) {
-        			if (args[i] == null || args[i].isEmpty()) {
-        				continue;
-        			}
-        			
-        			String s = PlaceholderAPI.setBracketPlaceholders(p, args[i]);
-        			
-        			if (c == null) {
-        				c = new String[args.length];
-        			}
-        			
-        			c[i] = s;
-        		}
-        	}
-        	
-        	if (c == null) {
-        		c = new String[]{};
-        	}
+  private final String FILEDIR = PlaceholderAPIPlugin.getInstance().getDataFolder() + File.separator + "javascripts"+ File.separator + "javascript_data";
 
-        	engine.put("args", c);
-        	engine.put("BukkitPlayer", p);
-            Object result = engine.eval(exp);
-            return result != null ? PlaceholderAPI.setBracketPlaceholders(p, result.toString()) : "";
-                        
-        } catch (ScriptException ex) {
-        	ex.printStackTrace();
+  public JavascriptPlaceholder(ScriptEngine engine, String identifier, String script) {
+    Validate.notNull(engine, "ScriptEngine can not be null");
+    Validate.notNull(identifier, "Identifier can not be null");
+    Validate.notNull(script, "script can not be null");
+    this.engine = engine;
+    this.identifier = identifier;
+    this.script = script;
+    File dir = new File(FILEDIR);
+
+    try {
+      if (!dir.exists()) {
+        dir.mkdirs();
+      }
+    } catch (SecurityException e) {
+      e.printStackTrace();
+    }
+    data = new ScriptData();
+    dataFile = new File(FILEDIR, identifier + "_data.yml");
+    engine.put("Data", data);
+    engine.put("BukkitServer", Bukkit.getServer());
+    engine.put("Expansion", JavascriptExpansion.getInstance());
+    engine.put("Placeholder", this);
+  }
+
+  public String getIdentifier() {
+    return identifier;
+  }
+
+  public String getScript() {
+    return script;
+  }
+
+  public String evaluate(OfflinePlayer p, String... args) {
+    String exp = PlaceholderAPI.setPlaceholders(p, script);
+
+    try {
+      String[] c = null;
+
+      if (args != null && args.length > 0) {
+        for (int i = 0; i < args.length; i++) {
+          if (args[i] == null || args[i].isEmpty()) {
+            continue;
+          }
+
+          String s = PlaceholderAPI.setBracketPlaceholders(p, args[i]);
+
+          if (c == null) {
+            c = new String[args.length];
+          }
+
+          c[i] = s;
         }
-        return "Script error";
-	}
-	
-	public ScriptData getData() {
-		// this should never be null but just in case setData(null) is called
-		if (data == null) {
-			data = new ScriptData();
-		}
-		return data;
-	}
+      }
 
-	public void setData(ScriptData data) {
-		this.data = data;
-	}
-	
-	public boolean loadData() {
-		
-		cfg = new YamlConfiguration();
-		
-		if (!dataFile.exists()) {
-			return false;
-		}
-		try {
-			cfg.load(dataFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		} catch (InvalidConfigurationException e) {
-			e.printStackTrace();
-			return false;
-		}
-		
-		final Set<String> keys = cfg.getKeys(true);
-		
-		if (keys == null || keys.isEmpty()) {
-			return false;
-		}
-		
-		if (data == null) {
-			data = new ScriptData();
-		} else {
-			data.clear();
-		}
-		
-		keys.stream().forEach(k -> {
-			data.set(k, cfg.get(k));
-		});
-		
-		if (!data.isEmpty()) {
-			this.setData(data);
-			return true;
-		}
-		return false;
-	}
-	
-	public boolean saveData() {
-		if (data == null || data.isEmpty()) {
-			return false;
-		}
-		
-		if (cfg == null) {
-			return false;
-		}
-		
-		data.getData().entrySet().forEach(e -> {
-			cfg.set(e.getKey(), e.getValue());
-		});
-		
-		try {
-			cfg.save(dataFile);
-			return true;
-		} catch (IOException e) {
-			return false;
-		}
-	}
-	
-	public void cleanup() {
-		if (this.data != null) {
-			this.data.clear();
-			this.data = null;
-		}
-		this.cfg = null;
-	}
+      if (c == null) {
+        c = new String[]{};
+      }
+
+      engine.put("args", c);
+      engine.put("BukkitPlayer", p != null && p.isOnline() ? p.getPlayer() : null);
+      engine.put("OfflinePlayer", p);
+      Object result = engine.eval(exp);
+      return result != null ? PlaceholderAPI.setBracketPlaceholders(p, result.toString()) : "";
+    } catch (ScriptException ex) {
+      ex.printStackTrace();
+    }
+    return "Script error";
+  }
+
+  public ScriptData getData() {
+    // this should never be null but just in case setData(null) is called
+    if (data == null) {
+      data = new ScriptData();
+    }
+    return data;
+  }
+
+  public void setData(ScriptData data) {
+    this.data = data;
+  }
+
+  public boolean loadData() {
+
+    cfg = new YamlConfiguration();
+
+    if (!dataFile.exists()) {
+      return false;
+    }
+    try {
+      cfg.load(dataFile);
+    } catch (IOException e) {
+      e.printStackTrace();
+      return false;
+    } catch (InvalidConfigurationException e) {
+      e.printStackTrace();
+      return false;
+    }
+
+    final Set<String> keys = cfg.getKeys(true);
+
+    if (keys == null || keys.isEmpty()) {
+      return false;
+    }
+
+    if (data == null) {
+      data = new ScriptData();
+    } else {
+      data.clear();
+    }
+
+    keys.stream().forEach(k -> {
+      data.set(k, cfg.get(k));
+    });
+
+    if (!data.isEmpty()) {
+      this.setData(data);
+      return true;
+    }
+    return false;
+  }
+
+  public boolean saveData() {
+    if (data == null || data.isEmpty()) {
+      return false;
+    }
+
+    if (cfg == null) {
+      return false;
+    }
+
+    data.getData().entrySet().forEach(e -> {
+      cfg.set(e.getKey(), e.getValue());
+    });
+
+    try {
+      cfg.save(dataFile);
+      return true;
+    } catch (IOException e) {
+      return false;
+    }
+  }
+
+  public void cleanup() {
+    if (this.data != null) {
+      this.data.clear();
+      this.data = null;
+    }
+    this.cfg = null;
+  }
 }
