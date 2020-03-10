@@ -1,0 +1,9 @@
+[
+  {
+    "name": "has_permission", 
+    "author": "aBooDyy", 
+    "version": "1.0.0", 
+    "description": "Checks if a player has a certain permission", 
+    "url": "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/has_permission.js", 
+  }
+]
