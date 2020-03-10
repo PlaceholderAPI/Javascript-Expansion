@@ -39,7 +39,7 @@ public class JavascriptExpansionCommands extends Command {
         msg(s, "&e&e/jsexpansion git refresh &7- &fRefresh available Github scripts",
             "&e/jsexpansion git download <name> &7- &fDownload a script from the js expansion github.",
             "&e/jsexpansion git list &7- &fList available scripts in the js expansion github.",
-            "&7/jsexpansion git info (name) &7- &fGet the description and url of a specific script.");
+            "&e/jsexpansion git info (name) &7- &fGet the description and url of a specific script.");
       }
       return true;
     }
