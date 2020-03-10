@@ -39,11 +39,9 @@ public class GithubScriptManager {
       @Override
       public void run() {
         String json = getContents(MASTER_LIST_URL);
-
         if (json.isEmpty()) {
           return;
         }
-        System.out.println(json);
         availableScripts = GSON.fromJson(json, new TypeToken<ArrayList<GithubScript>>() {
         }.getType());
       }
