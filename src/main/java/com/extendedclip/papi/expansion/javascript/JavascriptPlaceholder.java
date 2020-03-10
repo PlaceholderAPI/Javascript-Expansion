@@ -36,14 +36,15 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public class JavascriptPlaceholder {
 
+  private final String FILEDIR =
+      PlaceholderAPIPlugin.getInstance().getDataFolder() + File.separator + "javascripts"
+          + File.separator + "javascript_data";
   private ScriptEngine engine = null;
   private String identifier;
   private String script;
   private ScriptData data = null;
   private File dataFile;
   private FileConfiguration cfg;
-
-  private final String FILEDIR = PlaceholderAPIPlugin.getInstance().getDataFolder() + File.separator + "javascripts"+ File.separator + "javascript_data";
 
   public JavascriptPlaceholder(ScriptEngine engine, String identifier, String script) {
     Validate.notNull(engine, "ScriptEngine can not be null");

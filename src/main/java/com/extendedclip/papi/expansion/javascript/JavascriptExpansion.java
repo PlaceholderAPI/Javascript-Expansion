@@ -20,10 +20,9 @@
  */
 package com.extendedclip.papi.expansion.javascript;
 
-import com.extendedclip.papi.expansion.javascript.cloud.GithubScript;
 import com.extendedclip.papi.expansion.javascript.cloud.GithubScriptManager;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -39,14 +38,11 @@ import me.clip.placeholderapi.expansion.Configurable;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandMap;
 
-public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable, Listener {
+public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable {
 	
 	private ScriptEngine globalEngine = null;
 	
@@ -54,123 +50,21 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	private final Set<JavascriptPlaceholder> scripts = new HashSet<>();
 	private final String VERSION = getClass().getPackage().getImplementationVersion();
 	private static JavascriptExpansion instance;
-	private boolean debug = false;
-	private GithubScriptManager githubScripts = null;
+	private boolean debug;
+	private GithubScriptManager githubScripts;
+	private JavascriptExpansionCommands commands;
+	private CommandMap commandMap;
+
 
 	public JavascriptExpansion() {
 		instance = this;
-	}
-
-	/*
-	 * I am just testing the waters here because there is no command system for expansions...
-	 */
-	@EventHandler
-	public void onCmdExecute(PlayerCommandPreprocessEvent event) {
-		
-		String msg = event.getMessage();
-		
-		if (!msg.startsWith("/papijsp")) {
-			return;
+		try {
+			final Field f = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+			f.setAccessible(true);
+			commandMap = (CommandMap) f.get(Bukkit.getServer());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		
-		if (!event.getPlayer().hasPermission("placeholderapi.admin")) {
-			return;
-		}
-		
-		event.setCancelled(true);
-		
-		Player p = event.getPlayer();
-		
-		// default command
-		if (!msg.contains(" ")) {
-			msg(p, "&7Javascript expansion v: &f" + getVersion());
-			msg(p, "&7Created by: &f" + getAuthor());
-			msg(p, "&fWiki: &ahttps://github.com/PlaceholderAPI-Expansions/Javascript-Expansion/wiki");
-			msg(p, "&r");
-			msg(p, "&7/papijsp reload &7- &fReload your javascripts without reloading PlaceholderAPI");
-			msg(p, "&7/papijsp list &7- &fList loaded script identifiers.");
-			msg(p, "&7/papijsp git download <name> &7- &fDownload a script from the js expansion github.");
-			msg(p, "&7/papijsp git list &7- &fList available scripts in the js expansion github.");
-			msg(p, "&7/papijsp git info (name) &7- &fGet the description and url of a specific script.");
-			return;
-		}
-		
-		if (msg.equals("/papijsp reload")) {
-			msg(p, "&aReloading...");
-			int l = this.reloadScripts();
-			msg(p, l + " &7script" + (l == 1 ? "" : "s")+ " loaded");
-			return;
-		}
-		
-		if (msg.equals("/papijsp list")) {
-			List<String> loaded = this.getLoadedIdentifiers();
-			msg(p, loaded.size() + " &7script" + (loaded.size() == 1 ? "" : "s")+ " loaded");
-			msg(p, String.join(", ", loaded));
-			return;
-		}
-
-		if (msg.equals("/papijsp git list")) {
-			msg(p, GithubScript.values().length + " &7script"
-					+ (GithubScript.values().length == 1 ? "" : "s") + " available on Github.");
-			msg(p, String.join(", ", GithubScript.getAllScriptNames()));
-			return;
-		}
-
-		if (msg.startsWith("/papijsp git info ")) {
-
-			if (this.githubScripts == null) {
-				msg(p, "This feature is disabled in the PAPI config!");
-				return;
-			}
-
-			msg = msg.replace("/papijsp git info ", "");
-
-			GithubScript script = GithubScript.getScript(msg);
-
-			if (script == null) {
-				msg(p, "&cThe script &7" + msg + " &cdoes not exist!");
-				return;
-			}
-
-				msg(p, "&7Name: &f" + script.getName(),
-						"&7Version: &f" + script.getVersion(),
-						"&7Description: &f" + script.getDescription(),
-						"&7Url: &f" + script.getUrl());
-
-			return;
-		}
-
-		if (msg.startsWith("/papijsp git download ")) {
-
-			if (this.githubScripts == null) {
-				msg(p, "This feature is disabled in the PAPI config!");
-				return;
-			}
-
-			msg = msg.replace("/papijsp git download ", "");
-
-			GithubScript script = GithubScript.getScript(msg);
-
-			if (script == null) {
-				msg(p, "&cThe script &7" + msg + " &cdoes not exist!");
-				return;
-			}
-
-			Bukkit.getScheduler().runTaskAsynchronously(getPlaceholderAPI(), new Runnable() {
-				@Override
-				public void run() {
-					githubScripts.downloadScript(script);
-				}
-			});
-			msg(p, "&aDownload initiated... Check the scripts folder in a moment...");
-			return;
-		}
-		
-		msg(p, "&cIncorrect usage &7- &f/papijsp");
-	}
-
-	public void msg(Player p, String... text) {
-		Arrays.stream(text).forEach(line -> p.sendMessage(ChatColor.translateAlternateColorCodes('&', line)));
 	}
 
 	@Override
@@ -224,16 +118,22 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 		}
 		if ((Boolean) get("github_script_downloads", false)) {
 			githubScripts = new GithubScriptManager(this);
+			githubScripts.fetch();
 		}
+
+		registerCommand();
 		return super.register();
 	}
 	
 	@Override
 	public void clear() {
+		unregisterCommand();
 		scripts.forEach(s -> {
 			s.saveData();
 			s.cleanup();
 		});
+		githubScripts.clear();
+		githubScripts = null;
 		scripts.clear();
 		globalEngine = null;
 		instance = null;
@@ -315,7 +215,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 		return def;
 	}
 	
-	private int reloadScripts() {
+	protected int reloadScripts() {
 		scripts.forEach(s -> {
 			s.saveData();
 			s.cleanup();
@@ -327,5 +227,23 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 	
 	public static JavascriptExpansion getInstance() {
 		return instance;
+	}
+
+	public GithubScriptManager getGithubScriptManager() {
+		return githubScripts;
+	}
+
+	private boolean unregisterCommand() {
+		if (commandMap == null || commands == null) return false;
+		Command c = commandMap.getCommand(commands.getName());
+		if (c == null) return false;
+		return c.unregister(commandMap);
+	}
+
+	private boolean registerCommand() {
+		if (commandMap == null) return false;
+		commands = new JavascriptExpansionCommands(this);
+		commandMap.register(commands.getName(), commands);
+		return commands.isRegistered();
 	}
 }
