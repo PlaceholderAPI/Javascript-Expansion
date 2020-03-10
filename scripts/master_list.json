@@ -19,5 +19,89 @@
     "version": "1.0.0",
     "description": "A simple placeholder which formats DeluxeTags tag spacing",
     "url": "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/tags.js"
+  },
+  {
+    "name": "random_letter",
+    "author": "NathanG",
+    "version": "1.0.0",
+    "description": "Prints a random letter from A to Z",
+    "url": "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/random_letter.js"
+  },
+  {
+    "name": "random_integer_between",
+    "author": "NathanG",
+    "version": "1.0.0",
+    "description": "Generates a random integer between two given integers. %javascript_randomintbetween_<min>,<max>%",
+    "url": "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/random_integer_between.js"
+  },
+  {
+    "name": "data_example",
+    "author": "clip",
+    "version": "1.0.0",
+    "description": "Placeholder that allows you to get and set custom data via the placeholder arguments specified when the placeholder is called",
+    "url": "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/data_example.js"
+  },
+  {
+    "name": "animated_text",
+    "author": "aBooDyy && NathanG",
+    "version": "1.0.0",
+    "description": "Change the return value every 1 seconds the placeholder called. it have 3 different values (you can add more). This placeholder is useful for plugins which don't have animated text feature (e.g. DeluxeMenus Lore).",
+    "url": "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/animated_text.js"
+  },
+  {
+    "name": "health_rounded",
+    "author": "xDizasterCYx",
+    "version": "1.0.0",
+    "description": "Changes the ugly health placeholder to rounded integer",
+    "url": "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/health_rounded.js"
+  },
+  {
+    "name": "max_health_rounded",
+    "author": "xDizasterCYx",
+    "version": "1.0.0",
+    "description": "Changes the ugly max health placeholder to rounded integer",
+    "url": "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/health_rounded.js"
+  },
+  {
+    "name": "has_item",
+    "author": "aBooDyy",
+    "version": "1.0.0",
+    "description": "Check if player has an item you set in the placeholder (Material, Data, Amount, Name, Lore), It supports color codes for Name and Lore also it supports more than one lore line. It returns 'yes' if the player has the item, and 'no' if he doesn't.\nUsage: %javascript_hasitem_mat: [MATERIAL/ID],data: [DATA],amt: [AMOUNT],name: [DISPLAYNAME],lore: [LORE]%",
+    "url": "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/has_item.js"
+  },
+  {
+    "name": "holding_displayname",
+    "author": "aBooDyy",
+    "version": "1.0.0",
+    "description": "Return the display name of the item you're holding in your hand",
+    "url": "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/holding_displayname.js"
+  },
+  {
+    "name": "holding_lore",
+    "author": "aBooDyy",
+    "version": "1.0.0",
+    "description": "eturns the lore of the item you're holding all the lines of one line you specify",
+    "url": "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/holding_lore.js"
+  },
+  {
+    "name": "holding_lore_lines",
+    "author": "aBooDyy",
+    "version": "1.0.0",
+    "description": "Returns how many lore line of the item you're holding",
+    "url": "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/holding_lore_lines.js"
+  },
+  {
+    "name": "difference_dates",
+    "author": "aBooDyy",
+    "version": "1.0.0",
+    "description": "Give you the difference between 2 dates you set or how many until that date or how many time passed from that date",
+    "url": "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/difference_dates.js"
+  },
+  {
+    "name": "cooldown",
+    "author": "aBooDyy",
+    "version": "1.0.0",
+    "description": "Gcooldown placeholder made for DeluxeMenus (not only for DeluxeMenus) to set a duration between clicking an item.\nUsage: %javascript_cooldown_[ID]_[COOLDOWN/Start]%",
+    "url": "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/cooldown.js"
   }
 ]
