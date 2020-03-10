@@ -5,5 +5,12 @@
     "version": "1.0.0", 
     "description": "Checks if a player has a certain permission", 
     "url": "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/has_permission.js", 
+  },
+  {
+    "name": "factions", 
+    "author": "Frosty", 
+    "version": "1.0.0", 
+    "description": "A simple placeholder which will return brackets around the faction name if the user is in a faction, if they are not it will return nothing", 
+    "url": "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/factions.js", 
   }
 ]
