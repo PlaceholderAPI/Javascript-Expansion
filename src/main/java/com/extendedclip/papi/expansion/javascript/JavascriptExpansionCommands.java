@@ -29,17 +29,16 @@ public class JavascriptExpansionCommands extends Command {
     }
 
     if (args.length == 0) {
-      msg(s, "&7Javascript expansion v: &f" + expansion.getVersion(),
-          "&7Created by: &f" + expansion.getAuthor(),
-          "&fWiki: &ahttps://github.com/PlaceholderAPI-Expansions/Javascript-Expansion/wiki",
+      msg(s, "&eJavascript expansion &7v: &f" + expansion.getVersion(),
+          "&eCreated by: &f" + expansion.getAuthor(),
+          "&eWiki: &ahttps://github.com/PlaceholderAPI-Expansions/Javascript-Expansion/wiki",
           "&r",
-          "&7/jsexpansion reload &7- &fReload your javascripts without reloading PlaceholderAPI",
-          "&7/jsexpansion list &7- &fList loaded script identifiers.");
+          "&e/jsexpansion reload &7- &fReload your javascripts without reloading PlaceholderAPI",
+          "&e/jsexpansion list &7- &fList loaded script identifiers.");
       if (expansion.getGithubScriptManager() != null) {
-        msg(s,
-            "&7/jsexpansion git download <name> &7- &fDownload a script from the js expansion github.");
-        msg(s, "&7/jsexpansion git list &7- &fList available scripts in the js expansion github.");
-        msg(s,
+        msg(s, "&e&e/jsexpansion git refresh &7- &fRefresh available Github scripts",
+            "&e/jsexpansion git download <name> &7- &fDownload a script from the js expansion github.",
+            "&e/jsexpansion git list &7- &fList available scripts in the js expansion github.",
             "&7/jsexpansion git info (name) &7- &fGet the description and url of a specific script.");
       }
       return true;
@@ -72,10 +71,16 @@ public class JavascriptExpansionCommands extends Command {
 
       GithubScriptManager manager = expansion.getGithubScriptManager();
 
+      if (args[1].equalsIgnoreCase("refresh")) {
+        expansion.getGithubScriptManager().fetch();
+        msg(s, "&aFetching available scripts... Check back in a sec!");
+        return true;
+      }
+
       if (args[1].equalsIgnoreCase("list")) {
         msg(s, manager.getAvailableScripts().size() + " &escript"
-            + (manager.getAvailableScripts().size() == 1 ? "" : "s") + " available on Github.");
-        msg(s, String.join(", ", manager.getAvailableScripts().stream()
+            + (manager.getAvailableScripts().size() == 1 ? "" : "s") + " available on Github.",
+            String.join(", ", manager.getAvailableScripts().stream()
             .map(GithubScript::getName)
             .collect(Collectors.toSet())));
         return true;
@@ -95,7 +100,7 @@ public class JavascriptExpansionCommands extends Command {
             "&eVersion: &f" + script.getVersion(),
             "&eDescription: &f" + script.getDescription(),
             "&eAuthor: &f" + script.getAuthor(),
-            "&eUrl: &f" + script.getUrl());
+            "&eSource URL: &f" + script.getUrl());
         return true;
       }
       if (args[1].equalsIgnoreCase("download")) {
@@ -111,7 +116,7 @@ public class JavascriptExpansionCommands extends Command {
         }
 
         manager.downloadScript(script);
-        msg(s, "&aDownload initiated... &eCheck the scripts folder in a moment...");
+        msg(s, "&aDownload started... &eCheck the scripts folder in a moment...");
         return true;
       }
       msg(s, "&4Incorrect usage! &f" + this.getName() + " &7for more help.");
