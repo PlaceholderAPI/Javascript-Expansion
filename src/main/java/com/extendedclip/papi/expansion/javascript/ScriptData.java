@@ -25,41 +25,41 @@ import java.util.Map;
 
 public class ScriptData {
 
-  private Map<String, Object> map;
+    private Map<String, Object> map;
 
-  public ScriptData(Map<String, Object> data) {
-    this.map = data;
-  }
+    public ScriptData(Map<String, Object> data) {
+        this.map = data;
+    }
 
-  public ScriptData() {
-    this.map = new HashMap<>();
-  }
+    public ScriptData() {
+        this.map = new HashMap<>();
+    }
 
-  public Map<String, Object> getData() {
-    return map;
-  }
+    public Map<String, Object> getData() {
+        return map;
+    }
 
-  public void clear() {
-    map.clear();
-  }
+    public void clear() {
+        map.clear();
+    }
 
-  public boolean exists(String key) {
-    return map.containsKey(key) && map.get(key) != null;
-  }
+    public boolean exists(String key) {
+        return map.containsKey(key) && map.get(key) != null;
+    }
 
-  public Object get(String key) {
-    return map.get(key);
-  }
+    public Object get(String key) {
+        return map.get(key);
+    }
 
-  public void remove(String key) {
-    map.put(key, null);
-  }
+    public void remove(String key) {
+        map.put(key, null);
+    }
 
-  public void set(String key, Object value) {
-    map.put(key, value);
-  }
+    public void set(String key, Object value) {
+        map.put(key, value);
+    }
 
-  public boolean isEmpty() {
-    return map.isEmpty();
-  }
+    public boolean isEmpty() {
+        return map.isEmpty();
+    }
 }
