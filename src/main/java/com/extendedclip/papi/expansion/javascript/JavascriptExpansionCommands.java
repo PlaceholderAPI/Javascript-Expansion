@@ -57,7 +57,7 @@ public class JavascriptExpansionCommands extends Command {
             msg(sender,
                     "&eJavascript expansion &7v: &f" + expansion.getVersion(),
                     "&eCreated by: &f" + expansion.getAuthor(),
-                    "&eWiki: &fhttps://github.com/PlaceholderAPI-Expansions/Javascript-Expansion/wiki",
+                    "&eWiki: &fhttps://github.com/PlaceholderAPI/Javascript-Expansion/wiki",
                     "&r",
                     "&e/" + command + " reload &7- &fReload your javascripts without reloading PlaceholderAPI",
                     "&e/" + command + " list &7- &fList loaded script identifiers."
@@ -65,7 +65,7 @@ public class JavascriptExpansionCommands extends Command {
 
             if (expansion.getGithubScriptManager() != null) {
                 msg(sender,
-                        "&e&e/" + command + " git refresh &7- &fRefresh available Github scripts",
+                        "&e/" + command + " git refresh &7- &fRefresh available Github scripts",
                         "&e/" + command + " git download <name> &7- &fDownload a script from the js expansion github.",
                         "&e/" + command + " git list &7- &fList available scripts in the js expansion github.",
                         "&e/" + command + " git info (name) &7- &fGet the description and url of a specific script."
