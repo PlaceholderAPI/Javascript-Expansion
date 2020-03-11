@@ -235,15 +235,13 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
 	private boolean unregisterCommand() {
 		if (commandMap == null || commands == null) return false;
-		Command c = commandMap.getCommand(commands.getName());
-		if (c == null) return false;
-		return c.unregister(commandMap);
+		return commands.unregister(commandMap);
 	}
 
 	private boolean registerCommand() {
 		if (commandMap == null) return false;
 		commands = new JavascriptExpansionCommands(this);
-		commandMap.register(commands.getName(), commands);
+		commandMap.register("papi" + commands.getName(), commands);
 		return commands.isRegistered();
 	}
 }
