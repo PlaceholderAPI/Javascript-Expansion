@@ -132,8 +132,10 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 			s.saveData();
 			s.cleanup();
 		});
-		githubScripts.clear();
-		githubScripts = null;
+		if (githubScripts != null) {
+		  githubScripts.clear();
+		  githubScripts = null;	
+		}
 		scripts.clear();
 		globalEngine = null;
 		instance = null;
