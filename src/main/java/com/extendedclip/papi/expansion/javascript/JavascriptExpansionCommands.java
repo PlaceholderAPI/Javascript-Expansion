@@ -22,6 +22,7 @@ package com.extendedclip.papi.expansion.javascript;
 
 import com.extendedclip.papi.expansion.javascript.cloud.GithubScript;
 import com.extendedclip.papi.expansion.javascript.cloud.GithubScriptManager;
+import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -160,6 +161,31 @@ public class JavascriptExpansionCommands extends Command {
                         msg(sender, "&6Download started... &eCheck the scripts folder in a moment...");
                         return true;
                     }
+
+                  case "enabled":
+                    if (args.length < 3) {
+                      msg(sender, "&4Incorrect usage! &f/" + command + " git enabled <true/false>");
+                      return true;
+                    }
+
+                    Boolean enabled = Boolean.parseBoolean(args[2]);
+                    PlaceholderAPIPlugin papi = expansion.getPlaceholderAPI();
+                    papi.getConfig().set("expansions." + this.getName() + ".github_script_downloads", enabled);
+                    papi.saveConfig();
+                    papi.reloadConfig();
+                    if (!enabled) {
+                      if (expansion.getGithubScriptManager() != null) {
+                        expansion.getGithubScriptManager().clear();
+                        expansion.setGithubScriptManager(null);
+                      }
+                    } else {
+                      if (expansion.getGithubScriptManager() == null) {
+                        expansion.setGithubScriptManager(new GithubScriptManager(expansion));
+                      }
+                      expansion.getGithubScriptManager().fetch();
+                    }
+                    msg(sender, "&6Git script downloads set to: &e" + enabled);
+                    return true;
 
                     default: {
                         msg(sender, "&4Incorrect usage! &f/" + command + " &7for more help.");

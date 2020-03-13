@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.extendedclip.papi.expansion.javascript</groupId>
   <artifactId>javascript-expansion</artifactId>
-  <version>1.5.2</version>
+  <version>1.5.3</version>
   <name>PAPI-Expansion-Javascript</name>
   <description>PlaceholderAPI expansion for javascript placeholders</description>
     
