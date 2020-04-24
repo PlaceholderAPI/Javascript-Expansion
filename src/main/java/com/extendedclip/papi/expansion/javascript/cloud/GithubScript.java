@@ -22,7 +22,11 @@ package com.extendedclip.papi.expansion.javascript.cloud;
 
 public class GithubScript {
 
-    private String name, version, author, description, url;
+    private final String name;
+    private final String version;
+    private final String author;
+    private final String description;
+    private final String url;
 
     public GithubScript(String name, String version, String author, String description, String url) {
         this.name = name;

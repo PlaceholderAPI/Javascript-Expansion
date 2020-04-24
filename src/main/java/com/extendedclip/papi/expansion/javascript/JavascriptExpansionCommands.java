@@ -23,20 +23,23 @@ package com.extendedclip.papi.expansion.javascript;
 import com.extendedclip.papi.expansion.javascript.cloud.GithubScript;
 import com.extendedclip.papi.expansion.javascript.cloud.GithubScriptManager;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.io.File;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class JavascriptExpansionCommands extends Command {
 
-    private JavascriptExpansion expansion;
+    private final JavascriptExpansion expansion;
     private final String PERMISSION = "placeholderapi.js.admin";
-    private String command;
+    private final String command;
 
     public JavascriptExpansionCommands(JavascriptExpansion expansion) {
         super("jsexpansion");
@@ -45,6 +48,44 @@ public class JavascriptExpansionCommands extends Command {
         this.setDescription("Javascript expansion commands");
         this.setUsage("/" + command + " <args>");
         this.setPermission(PERMISSION);
+    }
+
+    @Override
+    public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
+        if (!sender.hasPermission(PERMISSION)) {
+            return Collections.emptyList();
+        }
+
+        final List<String> commands = new ArrayList<>(Arrays.asList("list", "parse", "reload"));
+        final List<String> completion = new ArrayList<>();
+
+        if (expansion.getGithubScriptManager() != null) {
+            commands.add(0, "git");
+        }
+
+        if (args.length == 1) {
+            return StringUtil.copyPartialMatches(args[0], commands, completion);
+        }
+
+        if (args[0].equalsIgnoreCase("git")) {
+            if (expansion.getGithubScriptManager() == null) {
+                return Collections.emptyList();
+            }
+
+            if (args.length == 2) {
+                return StringUtil.copyPartialMatches(args[1], Arrays.asList("download", "enable", "info", "list", "refresh"), completion);
+            }
+
+            if (args.length == 3 && args[1].equalsIgnoreCase("download")) {
+                if (expansion.getGithubScriptManager().getAvailableScripts() == null) {
+                    return Collections.emptyList();
+                }
+
+                return StringUtil.copyPartialMatches(args[2], expansion.getGithubScriptManager().getAvailableScripts().stream().map(GithubScript::getName).collect(Collectors.toList()), completion);
+            }
+        }
+
+        return Collections.emptyList();
     }
 
     @Override
@@ -60,16 +101,17 @@ public class JavascriptExpansionCommands extends Command {
                     "&eCreated by: &f" + expansion.getAuthor(),
                     "&eWiki: &fhttps://github.com/PlaceholderAPI/Javascript-Expansion/wiki",
                     "&r",
-                    "&e/" + command + " reload &7- &fReload your javascripts without reloading PlaceholderAPI",
-                    "&e/" + command + " list &7- &fList loaded script identifiers."
+                    "&e/" + command + " reload &7- &fReload your javascripts without reloading PlaceholderAPI.",
+                    "&e/" + command + " list &7- &fList loaded script identifiers.",
+                    "&e/" + command + " parse [me/player] [code] &7- &fTest JavaScript code in chat."
             );
 
             if (expansion.getGithubScriptManager() != null) {
                 msg(sender,
                         "&e/" + command + " git refresh &7- &fRefresh available Github scripts",
-                        "&e/" + command + " git download <name> &7- &fDownload a script from the js expansion github.",
+                        "&e/" + command + " git download [name] &7- &fDownload a script from the js expansion github.",
                         "&e/" + command + " git list &7- &fList available scripts in the js expansion github.",
-                        "&e/" + command + " git info (name) &7- &fGet the description and url of a specific script."
+                        "&e/" + command + " git info [name] &7- &fGet the description and url of a specific script."
                 );
             }
 
@@ -77,30 +119,14 @@ public class JavascriptExpansionCommands extends Command {
         }
 
         switch (args[0].toLowerCase()) {
-            case "reload": {
-                msg(sender, "&aJavascriptExpansion reloading...");
-                final int scripts = expansion.reloadScripts();
-                msg(sender, scripts + " &7script" + plural(scripts) + " loaded");
-                return true;
-            }
-
-            case "list": {
-                final List<String> loaded = expansion.getLoadedIdentifiers();
-                msg(sender,
-                        loaded.size() + " &7script" + plural(loaded.size()) + " loaded.",
-                        String.join(", ", loaded)
-                );
-                return true;
-            }
-
             case "git": {
                 if (expansion.getGithubScriptManager() == null) {
-                    msg(sender, "&8This feature is disabled in the PlaceholderAPI config.");
+                    msg(sender, "&cThis feature is disabled in the PlaceholderAPI config.");
                     return true;
                 }
 
                 if (args.length < 2) {
-                    msg(sender, "&cIncorrect usage!");
+                    msg(sender, "&cIncorrect usage! Type '&f/" + command + "&c' for more help.");
                     return true;
                 }
 
@@ -123,14 +149,14 @@ public class JavascriptExpansionCommands extends Command {
 
                     case "info": {
                         if (args.length < 3) {
-                            msg(sender, "&4Incorrect usage! &f/" + command + " git info <name>");
+                            msg(sender, "&cIncorrect usage! &f/" + command + " git info [name]");
                             return true;
                         }
 
                         final GithubScript script = manager.getScript(args[2]);
 
                         if (script == null) {
-                            msg(sender, "&4The script &f" + args[2] + " &4does not exist!");
+                            msg(sender, "&cThe script &f" + args[2] + " &cdoes not exist!");
                             return true;
                         }
 
@@ -146,52 +172,106 @@ public class JavascriptExpansionCommands extends Command {
 
                     case "download": {
                         if (args.length < 3) {
-                            msg(sender, "&4Incorrect usage! &f/" + command + " git download <name>");
+                            msg(sender, "&cIncorrect usage! &f/" + command + " git download [name]");
                             return true;
                         }
 
                         final GithubScript script = manager.getScript(args[2]);
 
                         if (script == null) {
-                            msg(sender, "&4The script &f" + args[2] + " &4does not exist!");
+                            msg(sender, "&cThe script &f" + args[2] + " &cdoes not exist!");
+                            return true;
+                        }
+
+                        if (new File(expansion.getGithubScriptManager().getJavascriptsFolder(), script.getName() + ".js").exists()) {
+                            msg(sender, "&cCould not download " + script.getName() + " because a file with the same name already exist in the javascripts folder.");
                             return true;
                         }
 
                         manager.downloadScript(script);
-                        msg(sender, "&6Download started... &eCheck the scripts folder in a moment...");
+                        msg(sender, "&aDownload started. &eCheck the scripts folder in a moment...");
                         return true;
                     }
 
-                  case "enabled":
-                    if (args.length < 3) {
-                      msg(sender, "&4Incorrect usage! &f/" + command + " git enabled <true/false>");
-                      return true;
-                    }
+                    case "enabled":
+                        if (args.length < 3) {
+                            msg(sender, "&cIncorrect usage! &f/" + command + " git enabled [true/false]");
+                            return true;
+                        }
 
-                    Boolean enabled = Boolean.parseBoolean(args[2]);
-                    PlaceholderAPIPlugin papi = expansion.getPlaceholderAPI();
-                    papi.getConfig().set("expansions." + this.getName() + ".github_script_downloads", enabled);
-                    papi.saveConfig();
-                    papi.reloadConfig();
-                    if (!enabled) {
-                      if (expansion.getGithubScriptManager() != null) {
-                        expansion.getGithubScriptManager().clear();
-                        expansion.setGithubScriptManager(null);
-                      }
-                    } else {
-                      if (expansion.getGithubScriptManager() == null) {
-                        expansion.setGithubScriptManager(new GithubScriptManager(expansion));
-                      }
-                      expansion.getGithubScriptManager().fetch();
-                    }
-                    msg(sender, "&6Git script downloads set to: &e" + enabled);
-                    return true;
+                        final boolean enabled = Boolean.parseBoolean(args[2]);
+                        final PlaceholderAPIPlugin papi = expansion.getPlaceholderAPI();
+
+                        papi.getConfig().set("expansions." + this.getName() + ".github_script_downloads", enabled);
+                        papi.saveConfig();
+                        papi.reloadConfig();
+
+                        if (!enabled) {
+                            if (expansion.getGithubScriptManager() != null) {
+                                expansion.getGithubScriptManager().clear();
+                                expansion.setGithubScriptManager(null);
+                            }
+                        } else {
+                            if (expansion.getGithubScriptManager() == null) {
+                                expansion.setGithubScriptManager(new GithubScriptManager(expansion));
+                            }
+                            expansion.getGithubScriptManager().fetch();
+                        }
+
+                        msg(sender, "&6Git script downloads set to: &e" + enabled);
+                        return true;
 
                     default: {
-                        msg(sender, "&4Incorrect usage! &f/" + command + " &7for more help.");
+                        msg(sender, "&cIncorrect usage! Type '&f/" + command + "&c' for more help.");
                         return true;
                     }
                 }
+            }
+
+            case "list": {
+                final List<String> loaded = expansion.getLoadedIdentifiers();
+                msg(sender,
+                        loaded.size() + " &7script" + plural(loaded.size()) + " loaded.",
+                        String.join(", ", loaded)
+                );
+                return true;
+            }
+
+            case "parse": {
+                if (args.length < 3) {
+                    msg(sender, "&cIncorrect usage! &f/" + command + " parse [me/player] [code]");
+                    return true;
+                }
+
+                final String script = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+                final JavascriptPlaceholder placeholder = new JavascriptPlaceholder(expansion.getGlobalEngine(), "parse-command", String.join(" ", script));
+
+                if ("me".equalsIgnoreCase(args[1])) {
+                    if (!(sender instanceof Player)) {
+                        msg(sender, "&cOnly players can run this command!");
+                        return true;
+                    }
+
+                    sender.sendMessage(placeholder.evaluate((Player) sender));
+                    return true;
+                }
+
+                final OfflinePlayer player = Bukkit.getOfflinePlayer(args[1]);
+
+                if (!player.hasPlayedBefore() || player.getName() == null) {
+                    msg(sender, "&cUnknown player " + args[1]);
+                    return true;
+                }
+
+                sender.sendMessage(placeholder.evaluate(player));
+                return true;
+            }
+
+            case "reload": {
+                msg(sender, "&aJavascriptExpansion reloading...");
+                final int scripts = expansion.reloadScripts();
+                msg(sender, scripts + " &7script" + plural(scripts) + " loaded");
+                return true;
             }
 
             default: {
@@ -209,6 +289,6 @@ public class JavascriptExpansionCommands extends Command {
             return;
         }
 
-        Arrays.stream(text).forEach(line -> sender.sendMessage(ChatColor.translateAlternateColorCodes('&', line)));
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Arrays.stream(text).filter(Objects::nonNull).collect(Collectors.joining("\n"))));
     }
 }

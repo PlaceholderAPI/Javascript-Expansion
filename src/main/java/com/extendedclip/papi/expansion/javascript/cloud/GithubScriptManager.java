@@ -29,18 +29,21 @@ import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class GithubScriptManager {
 
     private JavascriptExpansion expansion;
-    private String javascriptsFolder;
+    private final String JAVASCRIPTS_FOLDER;
     private List<GithubScript> availableScripts;
     private final String MASTER_LIST_URL = "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/master_list.json";
     private final Gson GSON = new Gson();
 
     public GithubScriptManager(JavascriptExpansion expansion) {
         this.expansion = expansion;
-        javascriptsFolder = expansion.getPlaceholderAPI().getDataFolder()
+        JAVASCRIPTS_FOLDER = expansion.getPlaceholderAPI().getDataFolder()
                 + File.separator
                 + "javascripts"
                 + File.separator;
@@ -51,42 +54,37 @@ public class GithubScriptManager {
     }
 
     public void fetch() {
-        Bukkit.getScheduler().runTaskAsynchronously(expansion.getPlaceholderAPI(), new Runnable() {
-            @Override
-            public void run() {
-                String json = getContents(MASTER_LIST_URL);
-                if (json.isEmpty()) {
-                    return;
-                }
-                availableScripts = GSON.fromJson(json, new TypeToken<ArrayList<GithubScript>>() {
-                }.getType());
+        Bukkit.getScheduler().runTaskAsynchronously(expansion.getPlaceholderAPI(), () -> {
+            final String json = getContents(MASTER_LIST_URL);
+
+            if (json.isEmpty()) {
+                return;
             }
+
+            availableScripts = GSON.fromJson(json, new TypeToken<ArrayList<GithubScript>>() {}.getType());
         });
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void downloadScript(GithubScript script) {
-        Bukkit.getScheduler().runTaskAsynchronously(expansion.getPlaceholderAPI(), new Runnable() {
-            @Override
-            public void run() {
-                List<String> contents = read(script.getUrl());
-                if (contents == null || contents.isEmpty()) {
-                    return;
-                }
-                File f = new File(javascriptsFolder, script.getName() + ".js");
-                try (PrintStream out = new PrintStream(new FileOutputStream(f))) {
-                    contents.forEach(l -> out.println(l));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                    return;
-                }
-                Bukkit.getScheduler().runTask(expansion.getPlaceholderAPI(), new Runnable() {
-                    @Override
-                    public void run() {
-                        expansion.getConfig().load().set(script.getName() + ".file", script.getName() + ".js");
-                        expansion.getConfig().save();
-                    }
-                });
+        Bukkit.getScheduler().runTaskAsynchronously(expansion.getPlaceholderAPI(), () -> {
+            final List<String> contents = read(script.getUrl());
+
+            if (contents.isEmpty()) {
+                return;
             }
+
+            try (final PrintStream out = new PrintStream(new FileOutputStream(new File(JAVASCRIPTS_FOLDER, script.getName() + ".js")))) {
+                contents.forEach(out::println);
+            } catch (FileNotFoundException e) {
+                expansion.getPlaceholderAPI().getLogger().log(Level.SEVERE, "An error occurred while downloading " + script.getName(), e);
+                return;
+            }
+
+            Bukkit.getScheduler().runTask(expansion.getPlaceholderAPI(), () -> {
+                expansion.getConfig().load().set(script.getName() + ".file", script.getName() + ".js");
+                expansion.getConfig().save();
+            });
         });
     }
 
@@ -94,17 +92,19 @@ public class GithubScriptManager {
         return String.join("", read(url));
     }
 
-    private List<String> read(String url) {
+    private List<String> read(final String url) {
+        final List<String> lines = new ArrayList<>();
 
-        List<String> lines = new ArrayList<>();
-
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(new URL(url).openStream()))) {
-
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(url).openStream()))) {
+            lines.addAll(reader.lines().filter(Objects::nonNull).collect(Collectors.toList()));
+            /*
             String inputLine;
+
             while ((inputLine = reader.readLine()) != null) {
                 lines.add(inputLine);
             }
+
+             */
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -116,10 +116,18 @@ public class GithubScriptManager {
         return availableScripts;
     }
 
-    public GithubScript getScript(String name) {
-        if (availableScripts == null) return null;
-        return availableScripts.stream().filter(s -> {
-            return s.getName().equalsIgnoreCase(name);
-        }).findFirst().orElse(null);
+    public GithubScript getScript(final String name) {
+        if (availableScripts == null) {
+            return null;
+        }
+
+        return availableScripts.stream()
+                .filter(s -> s.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public String getJavascriptsFolder() {
+        return JAVASCRIPTS_FOLDER;
     }
 }

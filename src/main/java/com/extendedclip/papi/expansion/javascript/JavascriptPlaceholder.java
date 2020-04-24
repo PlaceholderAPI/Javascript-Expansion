@@ -26,7 +26,6 @@ import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import javax.script.ScriptEngine;
@@ -34,16 +33,17 @@ import javax.script.ScriptException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
+import java.util.logging.Level;
 
 public class JavascriptPlaceholder {
 
     private final String DIRECTORY = PlaceholderAPIPlugin.getInstance().getDataFolder() + "/javascripts/javascript_data";
-    private ScriptEngine engine;
-    private String identifier;
-    private String script;
-    private ScriptData data;
-    private File dataFile;
-    private FileConfiguration config;
+    private final ScriptEngine engine;
+    private final String identifier;
+    private final String script;
+    private ScriptData scriptData;
+    private final File dataFile;
+    private YamlConfiguration yaml;
 
     public JavascriptPlaceholder(ScriptEngine engine, String identifier, String script) {
         Validate.notNull(engine, "ScriptEngine can not be null");
@@ -55,13 +55,13 @@ public class JavascriptPlaceholder {
         this.script = script;
         final File directory = new File(DIRECTORY);
 
-        if (directory.exists()) {
+        if (!directory.exists()) {
             directory.mkdirs();
         }
 
-        data = new ScriptData();
-        dataFile = new File(DIRECTORY, identifier + "_data.yml");
-        engine.put("Data", data);
+        scriptData = new ScriptData();
+        dataFile = new File(directory, identifier + "_data.yml");
+        engine.put("Data", scriptData);
         engine.put("BukkitServer", Bukkit.getServer());
         engine.put("Expansion", JavascriptExpansion.getInstance());
         engine.put("Placeholder", this);
@@ -99,60 +99,70 @@ public class JavascriptPlaceholder {
             }
 
             engine.put("args", arguments);
-            engine.put("BukkitPlayer", player != null && player.isOnline() ? player.getPlayer() : null);
+
+            if (player != null && player.isOnline()) {
+                engine.put("BukkitPlayer", player.getPlayer());
+                engine.put("Player", player.getPlayer());
+            }
+
             engine.put("OfflinePlayer", player);
             Object result = engine.eval(exp);
             return result != null ? PlaceholderAPI.setBracketPlaceholders(player, result.toString()) : "";
         } catch (ScriptException ex) {
-            System.out.println(ex.getMessage());
-            ex.printStackTrace();
+            PlaceholderAPIPlugin.getInstance().getLogger().log(Level.SEVERE, "[JavaScript] An error occurred while executing the script '" + identifier + "'", ex);
         }
 
-        return "Script error";
+        return "Script error! (check console)";
     }
 
     public ScriptData getData() {
         // this should never be null but just in case setData(null) is called
-        if (data == null) {
-            data = new ScriptData();
+        if (scriptData == null) {
+            scriptData = new ScriptData();
         }
-        return data;
+        return scriptData;
     }
 
     public void setData(ScriptData data) {
-        this.data = data;
+        this.scriptData = data;
     }
 
     public boolean loadData() {
-        config = new YamlConfiguration();
+        yaml = new YamlConfiguration();
+        dataFile.getParentFile().mkdirs();
 
         if (!dataFile.exists()) {
-            return false;
+            try {
+                dataFile.createNewFile();
+            } catch (IOException e) {
+                PlaceholderAPIPlugin.getInstance().getLogger().log(Level.SEVERE, "[JavaScript Expansion] An error occurred while creating data file for " + getIdentifier(), e);
+                return false;
+            }
         }
 
         try {
-            config.load(dataFile);
+            yaml.load(dataFile);
         } catch (IOException | InvalidConfigurationException e) {
-            e.printStackTrace();
+            PlaceholderAPIPlugin.getInstance().getLogger().log(Level.SEVERE, "[JavaScript Expansion] An error occurred while loading for " + getIdentifier(), e);
             return false;
         }
 
-        final Set<String> keys = config.getKeys(true);
+        final Set<String> keys = yaml.getKeys(true);
 
         if (keys.size() == 0) {
             return false;
         }
 
-        if (data == null) {
-            data = new ScriptData();
+        if (scriptData == null) {
+            scriptData = new ScriptData();
         } else {
-            data.clear();
+            scriptData.clear();
         }
 
-        keys.forEach(key -> data.set(key, config.get(key)));
+        keys.forEach(key -> scriptData.set(key, yaml.get(key)));
 
-        if (!data.isEmpty()) {
-            this.setData(data);
+        if (!scriptData.isEmpty()) {
+            this.setData(scriptData);
             return true;
         }
 
@@ -160,30 +170,27 @@ public class JavascriptPlaceholder {
     }
 
     public boolean saveData() {
-        if (data == null || data.isEmpty()) {
+        if (scriptData == null || scriptData.isEmpty() || yaml == null) {
             return false;
         }
 
-        if (config == null) {
-            return false;
-        }
-
-        data.getData().forEach((key, value) -> config.set(key, value));
+        scriptData.getData().forEach((key, value) -> yaml.set(key, value));
 
         try {
-            config.save(dataFile);
+            yaml.save(dataFile);
             return true;
         } catch (IOException e) {
+            PlaceholderAPIPlugin.getInstance().getLogger().log(Level.SEVERE, "[JavaScript Expansion] An error occurred while saving data for " + getIdentifier(), e);
             return false;
         }
     }
 
     public void cleanup() {
-        if (this.data != null) {
-            this.data.clear();
-            this.data = null;
+        if (this.scriptData != null) {
+            this.scriptData.clear();
+            this.scriptData = null;
         }
 
-        this.config = null;
+        this.yaml = null;
     }
 }

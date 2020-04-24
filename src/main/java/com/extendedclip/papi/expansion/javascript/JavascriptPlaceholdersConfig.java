@@ -113,42 +113,42 @@ public class JavascriptPlaceholdersConfig {
             return 0;
         }
 
-        File dir = new File(plugin.getDataFolder() + File.separator + "javascripts");
+        final File directory = new File(plugin.getDataFolder(), "javascripts");
 
         try {
-            if (!dir.exists()) {
-                dir.mkdirs();
-                plugin.getLogger().info("Creating directory: plugins/PlaceholderAPI/javascripts");
+            if (!directory.exists()) {
+                directory.mkdirs();
+                plugin.getLogger().info("[JavaScript Expansion] Creating directory: " + directory.getPath());
             }
         } catch (SecurityException e) {
-            plugin.getLogger().severe("Could not create directory: plugins/PlaceholderAPI/javascripts");
+            plugin.getLogger().log(Level.SEVERE, "[JavaScript Expansion] Could not create directory: " + directory.getPath(), e);
         }
 
         for (String identifier : config.getKeys(false)) {
             if (!config.contains(identifier + ".file") || config.getString(identifier + ".file") == null) {
-                plugin.getLogger().warning("Javascript placeholder: " + identifier + " does not have a file specified");
+                plugin.getLogger().warning("[JavaScript Expansion] Javascript placeholder: " + identifier + " does not have a file specified");
                 continue;
             }
 
             File scriptFile = new File(plugin.getDataFolder() + "/javascripts", config.getString(identifier + ".file"));
 
             if (!scriptFile.exists()) {
-                plugin.getLogger().info(scriptFile.getName() + " does not exist. Creating file...");
+                plugin.getLogger().info("[JavaScript Expansion] " +scriptFile.getName() + " does not exist. Creating file...");
 
                 try {
                     scriptFile.createNewFile();
-                    plugin.getLogger().info(scriptFile.getName()
-                            + " created! Add your javascript to this file and use /placeholderapi reload to load it!");
+                    plugin.getLogger().info("[JavaScript Expansion] " + scriptFile.getName() + " created! Add your javascript to this file and use '/jsexpansion reload' to load it!");
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    plugin.getLogger().log(Level.SEVERE, "[JavaScript Expansion] An error occurred while creating " + scriptFile.getName(), e);
                 }
+
                 continue;
             }
 
             String script = getContents(scriptFile);
 
             if (script == null || script.isEmpty()) {
-                plugin.getLogger().warning("File: " + scriptFile.getName() + " for javascript placeholder: " + identifier + " is empty");
+                plugin.getLogger().warning("[JavaScript Expansion] File: " + scriptFile.getName() + " for javascript placeholder: " + identifier + " is empty");
                 continue;
             }
 
@@ -160,27 +160,27 @@ public class JavascriptPlaceholdersConfig {
                 try {
                     engine = new ScriptEngineManager().getEngineByName(config.getString(identifier + ".engine", "nashorn"));
                 } catch (NullPointerException e) {
-                    plugin.getLogger().warning("ScriptEngine type for javascript placeholder: " + identifier + " is invalid! Defaulting to global");
+                    plugin.getLogger().warning("[JavaScript Expansion] ScriptEngine type for javascript placeholder: " + identifier + " is invalid! Defaulting to global");
                     engine = ex.getGlobalEngine();
                 }
             }
 
             if (engine == null) {
-                plugin.getLogger().warning("Failed to set ScriptEngine for javascript placeholder: " + identifier);
+                plugin.getLogger().warning("[JavaScript Expansion] Failed to set ScriptEngine for javascript placeholder: " + identifier);
                 continue;
             }
 
-            final JavascriptPlaceholder pl = new JavascriptPlaceholder(engine, identifier, script);
-            final boolean added = ex.addJSPlaceholder(pl);
+            final JavascriptPlaceholder placeholder = new JavascriptPlaceholder(engine, identifier, script);
+            final boolean added = ex.addJSPlaceholder(placeholder);
 
             if (added) {
-                if (pl.loadData()) {
-                    plugin.getLogger().info("Loaded data for javascript placeholder: " + identifier);
+                if (placeholder.loadData()) {
+                    plugin.getLogger().info("[JavaScript Expansion] Loaded data for javascript placeholder: " + identifier);
                 }
 
-                plugin.getLogger().info("%javascript_" + identifier + "% has been loaded!");
+                plugin.getLogger().info("[JavaScript Expansion] %javascript_" + identifier + "% has been loaded!");
             } else {
-                plugin.getLogger().warning("Javascript  placeholder %javascript_" + identifier + "% is a duplicate!");
+                plugin.getLogger().warning("[JavaScript Expansion] Javascript  placeholder %javascript_" + identifier + "% is a duplicate!");
             }
         }
 
