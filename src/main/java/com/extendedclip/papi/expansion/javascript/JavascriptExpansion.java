@@ -33,6 +33,8 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable {
 
@@ -50,11 +52,11 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     public JavascriptExpansion() {
         instance = this;
         try {
-            final Field f = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-            f.setAccessible(true);
-            commandMap = (CommandMap) f.get(Bukkit.getServer());
-        } catch (Exception e) {
-            e.printStackTrace();
+            final Field field = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+            field.setAccessible(true);
+            commandMap = (CommandMap) field.get(Bukkit.getServer());
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            getPlaceholderAPI().getLogger().log(Level.SEVERE, "[JavaScript Expansion] An error occurred while accessing CommandMap.", e);
         }
     }
 
@@ -69,11 +71,6 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     }
 
     @Override
-    public String getPlugin() {
-        return null;
-    }
-
-    @Override
     public String getVersion() {
         return VERSION;
     }
@@ -84,7 +81,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
             try {
                 globalEngine = new ScriptEngineManager().getEngineByName(getString("engine", "nashorn"));
             } catch (NullPointerException ex) {
-                getPlaceholderAPI().getLogger().warning("Javascript engine type was invalid! Defaulting to 'nashorn'");
+                getPlaceholderAPI().getLogger().warning("[JavaScript Expansion] Javascript engine type was invalid! Defaulting to 'nashorn'");
                 globalEngine = new ScriptEngineManager().getEngineByName("nashorn");
             }
         }
@@ -94,10 +91,10 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         config.loadPlaceholders();
 
         if (debug) {
-            System.out.println("Java version: " + System.getProperty("java.version"));
+            getPlaceholderAPI().getLogger().info("[JavaScript Expansion] Java version: " + System.getProperty("java.version"));
             final ScriptEngineManager manager = new ScriptEngineManager();
             final List<ScriptEngineFactory> factories = manager.getEngineFactories();
-            System.out.println("Displaying all script engine factories.");
+            getPlaceholderAPI().getLogger().info("Displaying all script engine factories.");
 
             for (ScriptEngineFactory factory : factories) {
                 System.out.println(factory.getEngineName());
@@ -122,9 +119,10 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     @Override
     public void clear() {
         unregisterCommand();
-        scripts.forEach(s -> {
-            s.saveData();
-            s.cleanup();
+
+        scripts.forEach(script -> {
+            script.saveData();
+            script.cleanup();
         });
 
         if (githubManager != null) {
@@ -138,43 +136,41 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     }
 
     @Override
-    public String onRequest(OfflinePlayer p, String identifier) {
-        if (p == null) {
+    public String onRequest(OfflinePlayer player, String identifier) {
+        if (player == null || scripts.size() == 0) {
             return "";
-        }
-
-        if (scripts.isEmpty()) {
-            return null;
         }
 
         for (JavascriptPlaceholder script : scripts) {
             if (identifier.startsWith(script.getIdentifier() + "_")) {
                 identifier = identifier.replace(script.getIdentifier() + "_", "");
-                return !identifier.contains(",") ? script.evaluate(p, identifier)
-                        : script.evaluate(p, identifier.split(","));
-            } else if (identifier.equalsIgnoreCase(script.getIdentifier())) {
-                return script.evaluate(p);
+
+                return !identifier.contains(",") ? script.evaluate(player, identifier) : script.evaluate(player, identifier.split(","));
+            }
+
+            if (identifier.equalsIgnoreCase(script.getIdentifier())) {
+                return script.evaluate(player);
             }
         }
+
         return null;
     }
 
-    public boolean addJSPlaceholder(JavascriptPlaceholder p) {
-        if (p == null) {
+    public boolean addJSPlaceholder(JavascriptPlaceholder placeholder) {
+        if (placeholder == null) {
             return false;
         }
 
         if (scripts.isEmpty()) {
-            scripts.add(p);
+            scripts.add(placeholder);
             return true;
         }
 
-        if (scripts.stream().filter(s -> s.getIdentifier().equalsIgnoreCase(p.getIdentifier()))
-                .findFirst().orElse(null) != null) {
+        if (getJSPlaceholder(placeholder.getIdentifier()) != null) {
             return false;
         }
 
-        scripts.add(p);
+        scripts.add(placeholder);
         return true;
     }
 
@@ -183,9 +179,9 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     }
 
     public List<String> getLoadedIdentifiers() {
-        List<String> l = new ArrayList<>();
-        scripts.forEach(s -> l.add(s.getIdentifier()));
-        return l;
+        return scripts.stream()
+                .map(JavascriptPlaceholder::getIdentifier)
+                .collect(Collectors.toList());
     }
 
     public JavascriptPlaceholder getJSPlaceholder(String identifier) {
@@ -209,18 +205,20 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
     @Override
     public Map<String, Object> getDefaults() {
-        Map<String, Object> def = new HashMap<>();
-        def.put("engine", "javascript");
-        def.put("debug", false);
-        def.put("github_script_downloads", false);
-        return def;
+        final Map<String, Object> defaults = new HashMap<>();
+        defaults.put("engine", "javascript");
+        defaults.put("debug", false);
+        defaults.put("github_script_downloads", false);
+
+        return defaults;
     }
 
     protected int reloadScripts() {
-        scripts.forEach(s -> {
-            s.saveData();
-            s.cleanup();
+        scripts.forEach(script -> {
+            script.saveData();
+            script.cleanup();
         });
+
         scripts.clear();
         config.reload();
         return config.loadPlaceholders();
@@ -240,10 +238,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
     @SuppressWarnings("UnusedReturnValue")
     private boolean unregisterCommand() {
-        if (commandMap == null || commands == null) {
-            return false;
-        }
-        return commands.unregister(commandMap);
+        return commandMap != null && commands != null && commands.unregister(commandMap);
     }
 
     @SuppressWarnings("UnusedReturnValue")
