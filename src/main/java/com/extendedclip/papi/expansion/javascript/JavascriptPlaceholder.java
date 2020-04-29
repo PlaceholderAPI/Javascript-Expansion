@@ -41,11 +41,12 @@ public class JavascriptPlaceholder {
     private final ScriptEngine engine;
     private final String identifier;
     private final String script;
+    private final boolean dataPersists;
     private ScriptData scriptData;
     private final File dataFile;
     private YamlConfiguration yaml;
 
-    public JavascriptPlaceholder(ScriptEngine engine, String identifier, String script) {
+    public JavascriptPlaceholder(ScriptEngine engine, String identifier, String script, boolean dataPersists) {
         Validate.notNull(engine, "ScriptEngine can not be null");
         Validate.notNull(identifier, "Identifier can not be null");
         Validate.notNull(script, "Script can not be null");
@@ -53,6 +54,7 @@ public class JavascriptPlaceholder {
         this.engine = engine;
         this.identifier = identifier;
         this.script = script;
+        this.dataPersists = dataPersists;
         final File directory = new File(DIRECTORY);
 
         if (!directory.exists()) {
@@ -170,7 +172,7 @@ public class JavascriptPlaceholder {
     }
 
     public boolean saveData() {
-        if (scriptData == null || scriptData.isEmpty() || yaml == null) {
+        if (!dataPersists || scriptData == null || scriptData.isEmpty() || yaml == null) {
             return false;
         }
 
