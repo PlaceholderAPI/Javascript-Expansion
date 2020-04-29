@@ -44,7 +44,7 @@ public class ScriptData {
     }
 
     public boolean exists(String key) {
-        return map.containsKey(key) && map.get(key) != null;
+        return map.get(key) != null;
     }
 
     public Object get(String key) {
