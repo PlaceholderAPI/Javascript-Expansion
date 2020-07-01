@@ -1,7 +1,6 @@
 var args0;
 var args1;
 var args2;
-var listAll = BukkitServer.getOfflinePlayers();
 var listOnline = BukkitServer.getOnlinePlayers();
 var listOnlineAmount = listOnline.size();
 
@@ -125,8 +124,15 @@ function onlineListNearby() {
 	    var player = listOnline[i];
 	    var zone = args[1]*args[1];
 
-	    if (BukkitPlayer.getWorld() == player.getWorld() && BukkitPlayer.getLocation().distanceSquared(player.getLocation()) < zone) {
-	        players.push(player.getName());
+		if (args.length >= 4 && args[3] == "no") {
+	    	if (BukkitPlayer.getWorld() == player.getWorld() && BukkitPlayer.getLocation().distanceSquared(player.getLocation()) < zone && player.getName() != BukkitPlayer.getName()) {
+	        	players.push(player.getName());
+	    	}
+	    }
+	    else {
+	    	if (BukkitPlayer.getWorld() == player.getWorld() && BukkitPlayer.getLocation().distanceSquared(player.getLocation()) < zone) {
+	        	players.push(player.getName());
+	    	}
 	    }
 	}
 	players.sort();
@@ -170,7 +176,7 @@ function listPlayers() {
 
 	//help
 	if (args0 == undefined) {
-		return " &8>> &3&lValid List Types and Syntaxes:\n     &f- &9all&7:     &7%"+"javascript_listplayers_all,&9#&7%\n      &f- &9perm&7:  &7%"+"javascript_listplayers_perm,&9<permission>&7,&9#&7%\n      &f- &9world&7: &7%"+"javascript_listplayers_world,&9<world>&7,&9#&7%\n&7# can be &9list&7, &9amount&7, or &9a number&7.";
+		return " &8>> &3&lValid List Types and Syntaxes:\n     &f- &9all&7:     &7%"+"javascript_listplayers_all,&9#&7%\n      &f- &9perm&7:  &7%"+"javascript_listplayers_perm,&9<permission>&7,&9#&7%\n      &f- &9world&7: &7%"+"javascript_listplayers_world,&9<world>&7,&9#&7%\n      &f- &9nearby&7: &7%"+"javascript_listplayers_nearby,&9<radius>&7,&9#&7%\n&7# can be &9list&7, &9amount&7, or &9a number&7.";
 	}
 
 		//help all
@@ -188,10 +194,15 @@ function listPlayers() {
 		return "&4&lError&c: &cInvalid Syntax!\n&7Valid Syntax:\n &f- &b%" + "javascript_listplayers_world,&9<world>&b,&9#&b%\n&7# can be &9list&7, &9amount&7, or &9a number&7.";
 	}
 
+		//help nearby
+	else if (args0 == "nearby" && (args1 == undefined || args2 == undefined)) {
+		return "&4&lError&c: &cInvalid Syntax!\n&7Valid Syntax:\n &f- &b%" + "javascript_listplayers_nearby,&9<radius>&b,&9#&b%\n&7# can be &9list&7, &9amount&7, or &9a number&7.\n'no' can be added as 4th argument to not count you in the list";
+	}
+
 	//check for errors
 		//check for type
 	else if (args0 != "all" && args0 != "perm" && args0 != "world" && args0 != "nearby" && args0 != "{1}") {
-		return "&4&lError&c: &cInvalid list type\n&7Valid list types are:\n &f- &ball\n &f- &bperm\n &f- &bworld"
+		return "&4&lError&c: &cInvalid list type\n&7Valid list types are:\n &f- &ball\n &f- &bperm\n &f- &bworld\n &f- &bnearby"
 	}
 
 		//check for args2 lower than 0
@@ -221,7 +232,7 @@ function listPlayers() {
 	}
 
 	else {
-		return "Offline" + BukkitServer.getOfflinePlayers();
+		return "Offline"
 	}
 }
 listPlayers();
