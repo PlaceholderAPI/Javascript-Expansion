@@ -3,6 +3,16 @@ var listOffline = BukkitServer.getOfflinePlayers();
 var listType = listOffline;
 
 function normalListPlayers() {
+	for (var i = 0; i < args.length; i++) {
+
+		if (args[i].indexOf("[") == 0 && args[i].indexOf("]") == args[i].length-1) {
+			args[i] = PlaceholderAPI.static.setPlaceholders(BukkitPlayer, args[i].replace(/\[|]/g, "%"));
+			if (!isNaN(args[i])) {
+				args[i] = parseInt(args[i],10).toPrecision(1);
+			}
+		}
+	}
+
 	if (args[0] == "online") {listType = listOnline}
 
 	var players = [];
@@ -27,6 +37,15 @@ function normalListPlayers() {
 	else {return "Offline"}
 }
 function permListPlayers() {
+	for (var i = 0; i < args.length; i++) {
+
+		if (args[i].indexOf("[") == 0 && args[i].indexOf("]") == args[i].length-1) {
+			args[i] = PlaceholderAPI.static.setPlaceholders(BukkitPlayer, args[i].replace(/\[|]/g, "%"));
+			if (!isNaN(args[i])) {
+				args[i] = parseInt(args[i],10).toPrecision(1);
+			}
+		}
+	}
 
 	var args4 = args[4].split('+');
 	var players = [];
@@ -52,6 +71,16 @@ function permListPlayers() {
 	else {return "Offline"}
 }
 function worldListPlayers() {
+	for (var i = 0; i < args.length; i++) {
+
+		if (args[i].indexOf("[") == 0 && args[i].indexOf("]") == args[i].length-1) {
+			args[i] = PlaceholderAPI.static.setPlaceholders(BukkitPlayer, args[i].replace(/\[|]/g, "%"));
+			if (!isNaN(args[i])) {
+				args[i] = parseInt(args[i],10).toPrecision(1);
+			}
+		}
+	}
+
 	var args4 = args[4].split('+') + ',';
 	var players = [];
 
@@ -74,6 +103,16 @@ function worldListPlayers() {
 	else {return "Offline"}
 }
 function nearbyListPlayers() {
+	for (var i = 0; i < args.length; i++) {
+
+		if (args[i].indexOf("[") == 0 && args[i].indexOf("]") == args[i].length-1) {
+			args[i] = PlaceholderAPI.static.setPlaceholders(BukkitPlayer, args[i].replace(/\[|]/g, "%"));
+			if (!isNaN(args[i])) {
+				args[i] = parseInt(args[i],10).toPrecision(1);
+			}
+		}
+	}
+
 	var players = [];
 
 	for (var i = 0; i < listOnline.length; i++) {
@@ -97,6 +136,15 @@ function nearbyListPlayers() {
 }
 
 function mainListPlayers() {
+	for (var i = 0; i < args.length; i++) {
+
+		if (args[i].indexOf("[") == 0 && args[i].indexOf("]") == args[i].length-1) {
+			args[i] = PlaceholderAPI.static.setPlaceholders(BukkitPlayer, args[i].replace(/\[|]/g, "%"));
+			if (!isNaN(args[i])) {
+				args[i] = parseInt(args[i],10).toPrecision(1);
+			}
+		}
+	}
 		//type
 	var args0;
 	if (args.length >= 1) {args0 = args[0]}
@@ -112,6 +160,7 @@ function mainListPlayers() {
 		//subtype value
 	var args4;
 	if (args.length >= 5) {args4 = args[4]}
+
 
 		//check for types
 	if (args0 != "online" && args0 != "offline" && args0 != "all") {return "&3&lValid List Types: &9online&f, &9offline&f, &9all&f."}
