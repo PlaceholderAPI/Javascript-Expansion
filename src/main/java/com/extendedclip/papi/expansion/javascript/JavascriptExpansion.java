@@ -174,9 +174,9 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         return true;
     }
 
-    public Set<JavascriptPlaceholder> getJSPlaceholders() {
-        return scripts;
-    }
+//    public Set<JavascriptPlaceholder> getJSPlaceholders() {
+//        return scripts;
+//    }
 
     public List<String> getLoadedIdentifiers() {
         return scripts.stream()
@@ -236,19 +236,19 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         this.githubManager = manager;
     }
 
-    @SuppressWarnings("UnusedReturnValue")
-    private boolean unregisterCommand() {
-        return commandMap != null && commands != null && commands.unregister(commandMap);
+    private void unregisterCommand() {
+        if (commandMap != null && commands != null) {
+            commands.unregister(commandMap);
+        }
     }
 
-    @SuppressWarnings("UnusedReturnValue")
-    private boolean registerCommand() {
+    private void registerCommand() {
         if (commandMap == null) {
-            return false;
+            return;
         }
 
         commands = new JavascriptExpansionCommands(this);
         commandMap.register("papi" + commands.getName(), commands);
-        return commands.isRegistered();
+        commands.isRegistered();
     }
 }

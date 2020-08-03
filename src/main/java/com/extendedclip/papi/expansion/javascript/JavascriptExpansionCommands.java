@@ -40,6 +40,7 @@ public class JavascriptExpansionCommands extends Command {
     private final JavascriptExpansion expansion;
     private final String PERMISSION = "placeholderapi.js.admin";
     private final String command;
+    private final String[] aliases;
 
     public JavascriptExpansionCommands(JavascriptExpansion expansion) {
         super("jsexpansion");
@@ -47,6 +48,8 @@ public class JavascriptExpansionCommands extends Command {
         this.expansion = expansion;
         this.setDescription("Javascript expansion commands");
         this.setUsage("/" + command + " <args>");
+        this.aliases = new String[]{"jsexpansion", "jsexp"};
+        this.setAliases(Arrays.asList(aliases));
         this.setPermission(PERMISSION);
     }
 
@@ -288,7 +291,6 @@ public class JavascriptExpansionCommands extends Command {
         if (text == null) {
             return;
         }
-
         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Arrays.stream(text).filter(Objects::nonNull).collect(Collectors.joining("\n"))));
     }
 }

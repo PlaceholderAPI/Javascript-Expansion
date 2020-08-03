@@ -34,12 +34,9 @@ import java.util.logging.Level;
 
 public class JavascriptPlaceholdersConfig {
 
-    private JavascriptExpansion ex;
-
-    private PlaceholderAPIPlugin plugin;
-
+    private final JavascriptExpansion ex;
+    private final PlaceholderAPIPlugin plugin;
     private FileConfiguration config;
-
     private File file;
 
     public JavascriptPlaceholdersConfig(JavascriptExpansion ex) {
@@ -108,6 +105,7 @@ public class JavascriptPlaceholdersConfig {
         }
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public int loadPlaceholders() {
         if (config == null || config.getKeys(false).isEmpty()) {
             return 0;
@@ -125,12 +123,13 @@ public class JavascriptPlaceholdersConfig {
         }
 
         for (String identifier : config.getKeys(false)) {
-            if (!config.contains(identifier + ".file") || config.getString(identifier + ".file") == null) {
+            String fileName = config.getString(identifier + ".file");
+            if (!config.contains(identifier + ".file") || fileName == null) {
                 plugin.getLogger().warning("[JavaScript Expansion] Javascript placeholder: " + identifier + " does not have a file specified");
                 continue;
             }
 
-            File scriptFile = new File(plugin.getDataFolder() + "/javascripts", config.getString(identifier + ".file"));
+            File scriptFile = new File(plugin.getDataFolder() + "/javascripts", fileName);
 
             if (!scriptFile.exists()) {
                 plugin.getLogger().info("[JavaScript Expansion] " +scriptFile.getName() + " does not exist. Creating file...");
@@ -180,7 +179,7 @@ public class JavascriptPlaceholdersConfig {
 
                 plugin.getLogger().info("[JavaScript Expansion] %javascript_" + identifier + "% has been loaded!");
             } else {
-                plugin.getLogger().warning("[JavaScript Expansion] Javascript  placeholder %javascript_" + identifier + "% is a duplicate!");
+                plugin.getLogger().warning("[JavaScript Expansion] Javascript placeholder %javascript_" + identifier + "% is duplicated!");
             }
         }
 
@@ -192,30 +191,18 @@ public class JavascriptPlaceholdersConfig {
 
         try {
             Scanner scanner = new Scanner(file);
-
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-
-                if (line == null || line.isEmpty()) {
-                    continue;
-                }
-
+                if (line == null || line.isEmpty()) continue;
                 line = line.trim();
 
-                /* temp fix for single line comments
-                 * doesnt solve every case though..
-                 * lines that start with code and may have a comment afterward still screw stuff up...
-                 */
-                if (line.startsWith("//")) {
-                    continue;
-                }
-                sb.append(line).append(" ");
+                sb.append(line).append("\n");
             }
             scanner.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
         }
-        return sb.toString();
+        return sb.toString().replaceAll("//.*|/\\*(?:[^/*|*/]|\\\\.|\\n\\*)*\\*/", "");
     }
 }

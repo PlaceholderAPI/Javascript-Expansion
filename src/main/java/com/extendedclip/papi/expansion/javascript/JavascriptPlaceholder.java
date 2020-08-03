@@ -37,7 +37,7 @@ import java.util.logging.Level;
 
 public class JavascriptPlaceholder {
 
-    private final String DIRECTORY = PlaceholderAPIPlugin.getInstance().getDataFolder() + "/javascripts/javascript_data";
+    private final String DIRECTORY;
     private final ScriptEngine engine;
     private final String identifier;
     private final String script;
@@ -50,6 +50,7 @@ public class JavascriptPlaceholder {
         Validate.notNull(identifier, "Identifier can not be null");
         Validate.notNull(script, "Script can not be null");
 
+        this.DIRECTORY = PlaceholderAPIPlugin.getInstance().getDataFolder() + "/javascripts/javascript_data";
         this.engine = engine;
         this.identifier = identifier;
         this.script = script;
@@ -77,7 +78,7 @@ public class JavascriptPlaceholder {
     }
 
     public String evaluate(OfflinePlayer player, String... args) {
-        String exp = PlaceholderAPI.setPlaceholders(player, script);
+        String exp = PlaceholderAPI.setPlaceholders(player, getScript());
 
         try {
             String[] arguments = null;
@@ -89,7 +90,6 @@ public class JavascriptPlaceholder {
                     if (args[i] == null || args[i].isEmpty()) {
                         continue;
                     }
-
                     arguments[i] = PlaceholderAPI.setBracketPlaceholders(player, args[i]);
                 }
             }
@@ -109,24 +109,24 @@ public class JavascriptPlaceholder {
             Object result = engine.eval(exp);
             return result != null ? PlaceholderAPI.setBracketPlaceholders(player, result.toString()) : "";
         } catch (ScriptException ex) {
-            PlaceholderAPIPlugin.getInstance().getLogger().log(Level.SEVERE, "[JavaScript] An error occurred while executing the script '" + identifier + "'", ex);
+            PlaceholderAPIPlugin.getInstance().getLogger().log(
+                    Level.SEVERE, "[JavaScript] An error occurred while executing the script '" + identifier + "'", ex);
         }
-
-        return "Script error! (check console)";
+        return "Script error (check console)";
     }
 
-    public ScriptData getData() {
-        // this should never be null but just in case setData(null) is called
-        if (scriptData == null) {
-            scriptData = new ScriptData();
-        }
-        return scriptData;
-    }
+//    public ScriptData getData() {
+//        if (scriptData == null) {
+//            scriptData = new ScriptData();
+//        }
+//        return scriptData;
+//    }
 
     public void setData(ScriptData data) {
         this.scriptData = data;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public boolean loadData() {
         yaml = new YamlConfiguration();
         dataFile.getParentFile().mkdirs();
@@ -169,19 +169,17 @@ public class JavascriptPlaceholder {
         return false;
     }
 
-    public boolean saveData() {
+    public void saveData() {
         if (scriptData == null || scriptData.isEmpty() || yaml == null) {
-            return false;
+            return;
         }
 
         scriptData.getData().forEach((key, value) -> yaml.set(key, value));
 
         try {
             yaml.save(dataFile);
-            return true;
         } catch (IOException e) {
             PlaceholderAPIPlugin.getInstance().getLogger().log(Level.SEVERE, "[JavaScript Expansion] An error occurred while saving data for " + getIdentifier(), e);
-            return false;
         }
     }
 
@@ -190,7 +188,6 @@ public class JavascriptPlaceholder {
             this.scriptData.clear();
             this.scriptData = null;
         }
-
         this.yaml = null;
     }
 }
