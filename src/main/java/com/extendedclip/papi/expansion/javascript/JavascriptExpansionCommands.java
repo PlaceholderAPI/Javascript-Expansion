@@ -48,7 +48,7 @@ public class JavascriptExpansionCommands extends Command {
         this.expansion = expansion;
         this.setDescription("Javascript expansion commands");
         this.setUsage("/" + command + " <args>");
-        this.aliases = new String[]{"jsexpansion", "jsexp"};
+        this.aliases = new String[]{"javascriptexpansion", "jsexp"};
         this.setAliases(Arrays.asList(aliases));
         this.setPermission(PERMISSION);
     }
