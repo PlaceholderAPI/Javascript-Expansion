@@ -202,7 +202,9 @@ public class JavascriptPlaceholdersConfig {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
-        }
-        return sb.toString().replaceAll("//.*|/\\*(?:[^/*|*/]|\\\\.|\\n\\*)*\\*/", "");
+}
+        // Bruh. Who needs regex for this now...
+        //return sb.toString().replaceAll("//.*|/\\*(?:[^/*|*/]|\\\\.|\\n\\*)*\\*/", "");
+        return sb.toString();
     }
 }
