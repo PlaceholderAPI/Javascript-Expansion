@@ -153,7 +153,7 @@ public class JavascriptPlaceholdersConfig {
                 engine = ex.getGlobalEngine();
             } else {
                 try {
-                    engine = new ScriptEngineManager().getEngineByName(config.getString(identifier + ".engine"));
+                   engine = new ScriptEngineManager(null).getEngineByName(config.getString(identifier + ".engine", "nashorn"));
                 } catch (NullPointerException e) {
                     ExpansionUtils.warnLog("ScriptEngine type for javascript placeholder: " + identifier + " is invalid! Defaulting to global", null);
                     engine = ex.getGlobalEngine();

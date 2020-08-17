@@ -89,7 +89,6 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
                 globalEngine = new ScriptEngineManager(null).getEngineByName(getString("engine", defaultEngine));
             } catch (NullPointerException ex) {
                 ExpansionUtils.warnLog("Javascript engine type was invalid! Defaulting to '" + defaultEngine + "'", null);
-                globalEngine = new ScriptEngineManager(null).getEngineByName(defaultEngine);
             }
         }
 
@@ -108,6 +107,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
         if (debug) {
             ExpansionUtils.infoLog("Java version: " + System.getProperty("java.version"));
+    
             final ScriptEngineManager manager = new ScriptEngineManager(null);
             final List<ScriptEngineFactory> factories = manager.getEngineFactories();
             ExpansionUtils.infoLog("Displaying all script engine factories.", false);
