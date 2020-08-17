@@ -170,7 +170,7 @@ public class JavascriptPlaceholdersConfig {
                 continue;
             }
 
-            final JavascriptPlaceholder placeholder = new JavascriptPlaceholder(engine, identifier, script);
+            final JavascriptPlaceholder placeholder = new JavascriptPlaceholder(engine, identifier, script, (!config.contains(identifier + ".data_persists")) || config.getBoolean(identifier + ".data_persists"));
             final boolean added = ex.addJSPlaceholder(placeholder);
 
             if (added) {

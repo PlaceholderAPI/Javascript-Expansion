@@ -244,7 +244,7 @@ public class JavascriptExpansionCommands extends Command {
                 }
 
                 final String script = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
-                final JavascriptPlaceholder placeholder = new JavascriptPlaceholder(expansion.getGlobalEngine(), "parse-command", String.join(" ", script));
+                final JavascriptPlaceholder placeholder = new JavascriptPlaceholder(expansion.getGlobalEngine(), "parse-command", String.join(" ", script), true);
 
                 if ("me".equalsIgnoreCase(args[1])) {
                     if (!(sender instanceof Player)) {
