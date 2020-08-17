@@ -20,9 +20,12 @@
  */
 package com.extendedclip.papi.expansion.javascript.cloud;
 
+import com.extendedclip.papi.expansion.javascript.ExpansionUtils;
 import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
+import com.extendedclip.papi.expansion.javascript.JavascriptPlaceholdersConfig;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import jdk.nashorn.api.scripting.ScriptUtils;
 import org.bukkit.Bukkit;
 
 import java.io.*;
@@ -35,7 +38,7 @@ import java.util.stream.Collectors;
 
 public class GithubScriptManager {
 
-    private JavascriptExpansion expansion;
+    private final JavascriptExpansion expansion;
     private final String JAVASCRIPTS_FOLDER;
     private List<GithubScript> availableScripts;
     private final String MASTER_LIST_URL = "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/master_list.json";
@@ -65,7 +68,6 @@ public class GithubScriptManager {
         });
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void downloadScript(GithubScript script) {
         Bukkit.getScheduler().runTaskAsynchronously(expansion.getPlaceholderAPI(), () -> {
             final List<String> contents = read(script.getUrl());
@@ -77,13 +79,16 @@ public class GithubScriptManager {
             try (final PrintStream out = new PrintStream(new FileOutputStream(new File(JAVASCRIPTS_FOLDER, script.getName() + ".js")))) {
                 contents.forEach(out::println);
             } catch (FileNotFoundException e) {
-                expansion.getPlaceholderAPI().getLogger().log(Level.SEVERE, "An error occurred while downloading " + script.getName(), e);
+                ExpansionUtils.errorLog("An error occurred while downloading " + script.getName(), e);
                 return;
             }
 
             Bukkit.getScheduler().runTask(expansion.getPlaceholderAPI(), () -> {
-                expansion.getConfig().load().set(script.getName() + ".file", script.getName() + ".js");
-                expansion.getConfig().save();
+                JavascriptPlaceholdersConfig config = expansion.getConfig();
+                config.load().set(script.getName() + ".file", script.getName() + ".js");
+                config.load().set(script.getName() + ".engine", "javascript");
+
+                config.save();
             });
         });
     }
@@ -97,14 +102,6 @@ public class GithubScriptManager {
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(url).openStream()))) {
             lines.addAll(reader.lines().filter(Objects::nonNull).collect(Collectors.toList()));
-            /*
-            String inputLine;
-
-            while ((inputLine = reader.readLine()) != null) {
-                lines.add(inputLine);
-            }
-
-             */
         } catch (Exception ex) {
             ex.printStackTrace();
         }
