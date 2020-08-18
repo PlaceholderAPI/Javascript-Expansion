@@ -60,7 +60,7 @@ public class ScriptData {
     }
 
     public void setIfNull(String key, Object value) {
-        map.putIfAbsent(key, value);
+        map.putIfAbsent(key, ExpansionUtils.jsonToJava(value));
     }
 
     public boolean isEmpty() {
