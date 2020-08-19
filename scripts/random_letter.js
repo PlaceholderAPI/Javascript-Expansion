@@ -4,5 +4,4 @@ function randomLetter() {
 
   return String.fromCharCode(start + Math.floor(random));
 }
-
 randomLetter();

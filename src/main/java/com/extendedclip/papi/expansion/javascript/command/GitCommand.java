@@ -57,10 +57,10 @@ public class GitCommand extends ICommand {
                     return;
                 }
 
-                final GithubScript script = manager.getScript(args[2]);
+                final GithubScript script = manager.getScript(args[1]);
 
                 if (script == null) {
-                    ExpansionUtils.sendMsg(sender, "&cThe script &f" + args[2] + " &cdoes not exist!");
+                    ExpansionUtils.sendMsg(sender, "&cThe script &f" + args[1] + " &cdoes not exist!");
                     return;
                 }
 
@@ -80,10 +80,10 @@ public class GitCommand extends ICommand {
                     return;
                 }
 
-                final GithubScript script = manager.getScript(args[2]);
+                final GithubScript script = manager.getScript(args[1]);
 
                 if (script == null) {
-                    ExpansionUtils.sendMsg(sender, "&cThe script &f" + args[2] + " &cdoes not exist!");
+                    ExpansionUtils.sendMsg(sender, "&cThe script &f" + args[1] + " &cdoes not exist!");
                     return;
                 }
 
