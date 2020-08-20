@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.MemorySection;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -17,8 +18,12 @@ public class ExpansionUtils {
     public static final String PREFIX = "[PAPI] [Javascript-Expansion] ";
     private static final Logger logger = Bukkit.getLogger();
 
+    public static @NotNull String colorize(String s) {
+        return ChatColor.translateAlternateColorCodes('&', s);
+    }
+
     public static void sendMsg(CommandSender sender, String... msg) {
-        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Arrays.stream(msg).filter(Objects::nonNull).collect(Collectors.joining("\n"))));
+        sender.sendMessage(colorize(Arrays.stream(msg).filter(Objects::nonNull).collect(Collectors.joining("\n"))));
     }
 
     public static void warnLog(String log, Throwable throwable) {
@@ -32,7 +37,7 @@ public class ExpansionUtils {
     public static void infoLog(String log, boolean canPrefix) {
         String prefix = "";
         if (canPrefix) prefix = PREFIX;
-        logger.info(prefix + log);
+        logger.info(colorize(prefix + log));
     }
 
     public static void warnLog(String log, Throwable throwable, boolean canPrefix) {

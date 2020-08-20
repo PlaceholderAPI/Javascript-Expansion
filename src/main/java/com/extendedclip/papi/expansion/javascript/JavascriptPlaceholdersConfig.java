@@ -120,13 +120,13 @@ public class JavascriptPlaceholdersConfig {
         }
 
         for (String identifier : config.getKeys(false)) {
-            String fileName = config.getString(identifier + ".file");
+            final String fileName = config.getString(identifier + ".file");
             if (!config.contains(identifier + ".file") || fileName == null) {
                 ExpansionUtils.warnLog("Javascript placeholder: " + identifier + " does not have a file specified", null);
                 continue;
             }
 
-            File scriptFile = new File(plugin.getDataFolder() + "/javascripts", fileName);
+            final File scriptFile = new File(plugin.getDataFolder() + "/javascripts", fileName);
 
             if (!scriptFile.exists()) {
                 ExpansionUtils.infoLog(scriptFile.getName() + " does not exist. Creating one for you...");
@@ -141,7 +141,7 @@ public class JavascriptPlaceholdersConfig {
                 continue;
             }
 
-            String script = getContents(scriptFile);
+            final String script = getContents(scriptFile);
 
             if (script == null || script.isEmpty()) {
                 ExpansionUtils.warnLog("File: " + scriptFile.getName() + " for Javascript placeholder: " + identifier + " is empty", null);
@@ -151,6 +151,7 @@ public class JavascriptPlaceholdersConfig {
             ScriptEngine engine;
             if (!config.contains(identifier + ".engine")) {
                 engine = ex.getGlobalEngine();
+                ExpansionUtils.warnLog("ScriptEngine type for javascript placeholder " + identifier + " isn't initialized! Defaulting to global", null);
             } else {
                 try {
                    engine = new ScriptEngineManager(null).getEngineByName(config.getString(identifier + ".engine", "nashorn"));
@@ -170,10 +171,10 @@ public class JavascriptPlaceholdersConfig {
 
             if (added) {
                 if (placeholder.loadData()) {
-                    ExpansionUtils.infoLog("Loaded data for javascript placeholder: " + identifier);
+                    ExpansionUtils.infoLog("Data for placeholder &b" + identifier + "&r has been loaded");
                 }
 
-                ExpansionUtils.infoLog("%javascript_" + identifier + "% has been loaded!");
+                ExpansionUtils.infoLog("Placeholder &b%javascript_" + identifier + "%&r has been loaded");
             } else {
                 ExpansionUtils.warnLog("Javascript placeholder %javascript_" + identifier + "% is duplicated!", null);
             }

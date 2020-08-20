@@ -28,6 +28,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
+import org.bukkit.command.SimpleCommandMap;
 import org.jetbrains.annotations.NotNull;
 
 import javax.script.ScriptEngine;
@@ -89,7 +90,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
                 globalEngine = new ScriptEngineManager(null).getEngineByName(getString("engine", defaultEngine));
             } catch (NullPointerException ex) {
                 ExpansionUtils.warnLog("Javascript engine type was invalid! Defaulting to '" + defaultEngine + "'", null);
-                globalEngine = new ScriptEngineManager(null).getEngineByName(getString("engine", defaultEngine));
+                globalEngine = new ScriptEngineManager(null).getEngineByName(defaultEngine);
             }
         }
 
@@ -258,7 +259,16 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         if (commandMap != null && commands != null) {
 
             try {
-                final Field f = commandMap.getClass().getDeclaredField("knownCommands");
+                Class<? extends CommandMap> cmdMapClass = commandMap.getClass();
+                final Field f;
+
+                //Check if the server's in 1.13+
+                if (cmdMapClass.getSimpleName().equals("CraftCommandMap")) {
+                    f = cmdMapClass.getSuperclass().getDeclaredField("knownCommands");
+                } else {
+                    f = cmdMapClass.getDeclaredField("knownCommands");
+                }
+
                 f.setAccessible(true);
                 Map<String, Command> knownCmds = (Map<String, Command>) f.get(commandMap);
                 knownCmds.remove(commands.getName());
