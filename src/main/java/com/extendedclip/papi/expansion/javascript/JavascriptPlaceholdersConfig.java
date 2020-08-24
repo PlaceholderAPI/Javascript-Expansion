@@ -27,19 +27,15 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Scanner;
-import java.util.logging.Level;
+import java.nio.file.Files;
+import java.util.List;
 
 public class JavascriptPlaceholdersConfig {
 
-    private JavascriptExpansion ex;
-
-    private PlaceholderAPIPlugin plugin;
-
+    private final JavascriptExpansion ex;
+    private final PlaceholderAPIPlugin plugin;
     private FileConfiguration config;
-
     private File file;
 
     public JavascriptPlaceholdersConfig(JavascriptExpansion ex) {
@@ -83,31 +79,30 @@ public class JavascriptPlaceholdersConfig {
 
         if (config.getKeys(false).isEmpty()) {
             config.set("example.file", "example.js");
-            config.set("example.engine", "nashorn");
+            config.set("example.engine", ExpansionUtils.DEFAULT_ENGINE);
         }
 
         save();
     }
 
     public FileConfiguration load() {
-        if (config == null) {
-            reload();
-        }
+        if (config == null) reload();
         return config;
     }
 
     public void save() {
-        if ((config == null) || (file == null)) {
+        if (config == null || file == null) {
             return;
         }
 
         try {
             load().save(file);
         } catch (IOException ex) {
-            plugin.getLogger().log(Level.SEVERE, "Could not save to " + file, ex);
+            ExpansionUtils.warnLog("Could not save to " + file, ex);
         }
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public int loadPlaceholders() {
         if (config == null || config.getKeys(false).isEmpty()) {
             return 0;
@@ -118,55 +113,56 @@ public class JavascriptPlaceholdersConfig {
         try {
             if (!directory.exists()) {
                 directory.mkdirs();
-                plugin.getLogger().info("[JavaScript Expansion] Creating directory: " + directory.getPath());
+                ExpansionUtils.infoLog("Creating directory: " + directory.getPath());
             }
         } catch (SecurityException e) {
-            plugin.getLogger().log(Level.SEVERE, "[JavaScript Expansion] Could not create directory: " + directory.getPath(), e);
+            ExpansionUtils.errorLog("Could not create directory: " + directory.getPath(), e);
         }
 
         for (String identifier : config.getKeys(false)) {
-            if (!config.contains(identifier + ".file") || config.getString(identifier + ".file") == null) {
-                plugin.getLogger().warning("[JavaScript Expansion] Javascript placeholder: " + identifier + " does not have a file specified");
+            final String fileName = config.getString(identifier + ".file");
+            if (!config.contains(identifier + ".file") || fileName == null) {
+                ExpansionUtils.warnLog("Javascript placeholder: " + identifier + " does not have a file specified", null);
                 continue;
             }
 
-            File scriptFile = new File(plugin.getDataFolder() + "/javascripts", config.getString(identifier + ".file"));
+            final File scriptFile = new File(plugin.getDataFolder() + "/javascripts", fileName);
 
             if (!scriptFile.exists()) {
-                plugin.getLogger().info("[JavaScript Expansion] " +scriptFile.getName() + " does not exist. Creating file...");
+                ExpansionUtils.infoLog(scriptFile.getName() + " does not exist. Creating one for you...");
 
                 try {
                     scriptFile.createNewFile();
-                    plugin.getLogger().info("[JavaScript Expansion] " + scriptFile.getName() + " created! Add your javascript to this file and use '/jsexpansion reload' to load it!");
+                    ExpansionUtils.infoLog(scriptFile.getName() + " created! Add your javascript to this file and use '/jsexpansion reload' to load it!");
                 } catch (IOException e) {
-                    plugin.getLogger().log(Level.SEVERE, "[JavaScript Expansion] An error occurred while creating " + scriptFile.getName(), e);
+                    ExpansionUtils.errorLog("An error occurred while creating " + scriptFile.getName(), e);
                 }
 
                 continue;
             }
 
-            String script = getContents(scriptFile);
+            final String script = getContents(scriptFile);
 
             if (script == null || script.isEmpty()) {
-                plugin.getLogger().warning("[JavaScript Expansion] File: " + scriptFile.getName() + " for javascript placeholder: " + identifier + " is empty");
+                ExpansionUtils.warnLog("File: " + scriptFile.getName() + " for Javascript placeholder: " + identifier + " is empty", null);
                 continue;
             }
 
             ScriptEngine engine;
-
             if (!config.contains(identifier + ".engine")) {
                 engine = ex.getGlobalEngine();
+                ExpansionUtils.warnLog("ScriptEngine type for javascript placeholder " + identifier + " isn't initialized! Defaulting to global", null);
             } else {
                 try {
-                    engine = new ScriptEngineManager(null).getEngineByName(config.getString(identifier + ".engine", "nashorn"));
+                   engine = new ScriptEngineManager(null).getEngineByName(config.getString(identifier + ".engine", "nashorn"));
                 } catch (NullPointerException e) {
-                    plugin.getLogger().warning("[JavaScript Expansion] ScriptEngine type for javascript placeholder: " + identifier + " is invalid! Defaulting to global");
+                    ExpansionUtils.warnLog("ScriptEngine type for javascript placeholder: " + identifier + " is invalid! Defaulting to global", null);
                     engine = ex.getGlobalEngine();
                 }
             }
 
             if (engine == null) {
-                plugin.getLogger().warning("[JavaScript Expansion] Failed to set ScriptEngine for javascript placeholder: " + identifier);
+                ExpansionUtils.warnLog("Failed to set ScriptEngine for javascript placeholder: " + identifier, null);
                 continue;
             }
 
@@ -175,15 +171,14 @@ public class JavascriptPlaceholdersConfig {
 
             if (added) {
                 if (placeholder.loadData()) {
-                    plugin.getLogger().info("[JavaScript Expansion] Loaded data for javascript placeholder: " + identifier);
+                    ExpansionUtils.infoLog("Data for placeholder &b" + identifier + "&r has been loaded");
                 }
 
-                plugin.getLogger().info("[JavaScript Expansion] %javascript_" + identifier + "% has been loaded!");
+                ExpansionUtils.infoLog("Placeholder &b%javascript_" + identifier + "%&r has been loaded");
             } else {
-                plugin.getLogger().warning("[JavaScript Expansion] Javascript  placeholder %javascript_" + identifier + "% is a duplicate!");
+                ExpansionUtils.warnLog("Javascript placeholder %javascript_" + identifier + "% is duplicated!", null);
             }
         }
-
         return ex.getAmountLoaded();
     }
 
@@ -191,31 +186,14 @@ public class JavascriptPlaceholdersConfig {
         final StringBuilder sb = new StringBuilder();
 
         try {
-            Scanner scanner = new Scanner(file);
-
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-
-                if (line == null || line.isEmpty()) {
-                    continue;
-                }
-
-                line = line.trim();
-
-                /* temp fix for single line comments
-                 * doesnt solve every case though..
-                 * lines that start with code and may have a comment afterward still screw stuff up...
-                 */
-                if (line.startsWith("//")) {
-                    continue;
-                }
-                sb.append(line).append(" ");
-            }
-            scanner.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            List<String> lines = Files.readAllLines(file.toPath());
+            lines.forEach((line) -> sb.append(line).append("\n"));
+        } catch (IOException e) {
             return null;
         }
+
+//        This thing is just in case, who needs it now..
+//        return sb.toString().replaceAll("//.*|/\\*(?:[^/*|*/]|\\\\.|\\n\\*)*\\*/", "");
         return sb.toString();
     }
 }

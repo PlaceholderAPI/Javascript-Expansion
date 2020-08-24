@@ -56,7 +56,11 @@ public class ScriptData {
     }
 
     public void set(String key, Object value) {
-        map.put(key, value);
+        map.put(key, ExpansionUtils.jsonToJava(value));
+    }
+
+    public void setIfNull(String key, Object value) {
+        map.putIfAbsent(key, ExpansionUtils.jsonToJava(value));
     }
 
     public boolean isEmpty() {

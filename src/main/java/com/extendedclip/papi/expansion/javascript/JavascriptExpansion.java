@@ -26,14 +26,16 @@ import me.clip.placeholderapi.expansion.Configurable;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
+import org.bukkit.command.SimpleCommandMap;
+import org.jetbrains.annotations.NotNull;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable {
@@ -41,22 +43,26 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     private ScriptEngine globalEngine = null;
 
     private JavascriptPlaceholdersConfig config;
-    private final Set<JavascriptPlaceholder> scripts = new HashSet<>();
-    private final String VERSION = getClass().getPackage().getImplementationVersion();
+    private final Set<JavascriptPlaceholder> scripts;
+    private final String VERSION;
     private static JavascriptExpansion instance;
     private boolean debug;
     private GithubScriptManager githubManager;
     private JavascriptExpansionCommands commands;
     private CommandMap commandMap;
+    private String argument_split;
 
     public JavascriptExpansion() {
         instance = this;
+        this.VERSION = getClass().getPackage().getImplementationVersion();
+        this.scripts = new HashSet<>();
+
         try {
             final Field field = Bukkit.getServer().getClass().getDeclaredField("commandMap");
             field.setAccessible(true);
             commandMap = (CommandMap) field.get(Bukkit.getServer());
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            getPlaceholderAPI().getLogger().log(Level.SEVERE, "[JavaScript Expansion] An error occurred while accessing CommandMap.", e);
+            ExpansionUtils.errorLog("An error occurred while accessing CommandMap.", e, true);
         }
     }
 
@@ -77,24 +83,36 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
     @Override
     public boolean register() {
+        String defaultEngine = ExpansionUtils.DEFAULT_ENGINE;
+
         if (globalEngine == null) {
             try {
-                globalEngine = new ScriptEngineManager(null).getEngineByName(getString("engine", "nashorn"));
+                globalEngine = new ScriptEngineManager(null).getEngineByName(getString("engine", defaultEngine));
             } catch (NullPointerException ex) {
-                getPlaceholderAPI().getLogger().warning("[JavaScript Expansion] Javascript engine type was invalid! Defaulting to 'nashorn'");
-                globalEngine = new ScriptEngineManager(null).getEngineByName("nashorn");
+                ExpansionUtils.warnLog("Javascript engine type was invalid! Defaulting to '" + defaultEngine + "'", null);
+                globalEngine = new ScriptEngineManager(null).getEngineByName(defaultEngine);
             }
+        }
+
+        argument_split = getString("argument_split", ",");
+        if (argument_split.equals("_")) {
+            argument_split = ",";
+            ExpansionUtils.warnLog("Underscore character will not be allowed for splitting. Defaulting to ',' for this", null);
         }
 
         debug = (boolean) get("debug", false);
         config = new JavascriptPlaceholdersConfig(this);
-        config.loadPlaceholders();
+
+        int amountLoaded = config.loadPlaceholders();
+        ExpansionUtils.infoLog(amountLoaded + " script" + plural(amountLoaded) + " loaded!");
+
 
         if (debug) {
-            getPlaceholderAPI().getLogger().info("[JavaScript Expansion] Java version: " + System.getProperty("java.version"));
+            ExpansionUtils.infoLog("Java version: " + System.getProperty("java.version"));
+    
             final ScriptEngineManager manager = new ScriptEngineManager(null);
             final List<ScriptEngineFactory> factories = manager.getEngineFactories();
-            getPlaceholderAPI().getLogger().info("Displaying all script engine factories.");
+            ExpansionUtils.infoLog("Displaying all script engine factories.", false);
 
             for (ScriptEngineFactory factory : factories) {
                 System.out.println(factory.getEngineName());
@@ -107,7 +125,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
             }
         }
 
-        if ((Boolean) get("github_script_downloads", false)) {
+        if ((boolean) get("github_script_downloads", false)) {
             githubManager = new GithubScriptManager(this);
             githubManager.fetch();
         }
@@ -136,16 +154,16 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     }
 
     @Override
-    public String onRequest(OfflinePlayer player, String identifier) {
+    public String onRequest(OfflinePlayer player, @NotNull String identifier) {
         if (player == null || scripts.size() == 0) {
             return "";
         }
 
         for (JavascriptPlaceholder script : scripts) {
             if (identifier.startsWith(script.getIdentifier() + "_")) {
-                identifier = identifier.replace(script.getIdentifier() + "_", "");
+                identifier = identifier.replaceFirst(script.getIdentifier() + "_", "");
 
-                return !identifier.contains(",") ? script.evaluate(player, identifier) : script.evaluate(player, identifier.split(","));
+                return !identifier.contains(argument_split) ? script.evaluate(player, identifier) : script.evaluate(player, identifier.split(argument_split));
             }
 
             if (identifier.equalsIgnoreCase(script.getIdentifier())) {
@@ -174,9 +192,9 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         return true;
     }
 
-    public Set<JavascriptPlaceholder> getJSPlaceholders() {
-        return scripts;
-    }
+//    public Set<JavascriptPlaceholder> getJSPlaceholders() {
+//        return scripts;
+//    }
 
     public List<String> getLoadedIdentifiers() {
         return scripts.stream()
@@ -208,12 +226,13 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         final Map<String, Object> defaults = new HashMap<>();
         defaults.put("engine", "javascript");
         defaults.put("debug", false);
+        defaults.put("argument_split", ",");
         defaults.put("github_script_downloads", false);
 
         return defaults;
     }
 
-    protected int reloadScripts() {
+    public int reloadScripts() {
         scripts.forEach(script -> {
             script.saveData();
             script.cleanup();
@@ -236,19 +255,48 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         this.githubManager = manager;
     }
 
-    @SuppressWarnings("UnusedReturnValue")
-    private boolean unregisterCommand() {
-        return commandMap != null && commands != null && commands.unregister(commandMap);
+    private void unregisterCommand() {
+        if (commandMap != null && commands != null) {
+
+            try {
+                Class<? extends CommandMap> cmdMapClass = commandMap.getClass();
+                final Field f;
+
+                //Check if the server's in 1.13+
+                if (cmdMapClass.getSimpleName().equals("CraftCommandMap")) {
+                    f = cmdMapClass.getSuperclass().getDeclaredField("knownCommands");
+                } else {
+                    f = cmdMapClass.getDeclaredField("knownCommands");
+                }
+
+                f.setAccessible(true);
+                Map<String, Command> knownCmds = (Map<String, Command>) f.get(commandMap);
+                knownCmds.remove(commands.getName());
+                for (String alias : commands.getAliases()) {
+                    if (knownCmds.containsKey(alias) && knownCmds.get(alias).toString().contains(commands.getName())) {
+                        knownCmds.remove(alias);
+                    }
+                }
+
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+
+            commands.unregister(commandMap);
+        }
     }
 
-    @SuppressWarnings("UnusedReturnValue")
-    private boolean registerCommand() {
+    private void registerCommand() {
         if (commandMap == null) {
-            return false;
+            return;
         }
 
         commands = new JavascriptExpansionCommands(this);
         commandMap.register("papi" + commands.getName(), commands);
-        return commands.isRegistered();
+        commands.isRegistered();
+    }
+
+    private String plural(final int amount) {
+        return amount > 1 ? "s" : "";
     }
 }
