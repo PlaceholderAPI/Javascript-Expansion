@@ -47,7 +47,7 @@ public class GitCommand extends ICommand {
                 final List<GithubScript> availableScripts = manager.getAvailableScripts();
                 final Set<String> scripts = availableScripts.stream().map(GithubScript::getName).collect(Collectors.toSet());
 
-                ExpansionUtils.sendMsg(sender, availableScripts.size() + " &escript" + plural(availableScripts.size()) + " available on Github.", String.join(", ", scripts));
+                ExpansionUtils.sendMsg(sender, availableScripts.size() + " &escript" + ExpansionUtils.plural(availableScripts.size()) + " available on Github.", String.join(", ", scripts));
                 return;
             }
 
@@ -134,9 +134,5 @@ public class GitCommand extends ICommand {
     @Override
     public @NotNull String getAlias() {
         return "git";
-    }
-    
-    private String plural(final int amount) {
-        return amount > 1 ? "s" : "";
     }
 }

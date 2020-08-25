@@ -18,16 +18,12 @@ public class ReloadCommand extends ICommand {
 
         ExpansionUtils.sendMsg(sender, "&aJavascriptExpansion reloading...");
         final int scripts = expansion.reloadScripts();
-        ExpansionUtils.sendMsg(sender, scripts + " &7script" + plural(scripts) + " loaded");
+        ExpansionUtils.sendMsg(sender, scripts + " &7script" + ExpansionUtils.plural(scripts) + " loaded");
     }
 
     @Override
     @NotNull
     public String getAlias() {
         return "reload";
-    }
-
-    private String plural(final int amount) {
-        return amount > 1 ? "s" : "";
     }
 }

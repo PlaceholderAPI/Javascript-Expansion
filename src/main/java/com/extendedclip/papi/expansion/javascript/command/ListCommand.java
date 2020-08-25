@@ -19,7 +19,7 @@ public class ListCommand extends ICommand {
     public void execute(CommandSender sender, String[] args) {
 
         final List<String> loaded = expansion.getLoadedIdentifiers();
-        ExpansionUtils.sendMsg(sender,loaded.size() + " &7script" + plural(loaded.size()) + " loaded.",
+        ExpansionUtils.sendMsg(sender,loaded.size() + " &7script" + ExpansionUtils.plural(loaded.size()) + " loaded.",
                 String.join(", ", loaded));
     }
 
@@ -27,9 +27,5 @@ public class ListCommand extends ICommand {
     @NotNull
     public String getAlias() {
         return "list";
-    }
-
-    private String plural(final int amount) {
-        return amount > 1 ? "s" : "";
     }
 }

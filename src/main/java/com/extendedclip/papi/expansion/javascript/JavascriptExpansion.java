@@ -28,7 +28,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
-import org.bukkit.command.SimpleCommandMap;
 import org.jetbrains.annotations.NotNull;
 
 import javax.script.ScriptEngine;
@@ -104,7 +103,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         config = new JavascriptPlaceholdersConfig(this);
 
         int amountLoaded = config.loadPlaceholders();
-        ExpansionUtils.infoLog(amountLoaded + " script" + plural(amountLoaded) + " loaded!");
+        ExpansionUtils.infoLog(amountLoaded + " script" + ExpansionUtils.plural(amountLoaded) + " loaded!");
 
 
         if (debug) {
@@ -294,9 +293,5 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         commands = new JavascriptExpansionCommands(this);
         commandMap.register("papi" + commands.getName(), commands);
         commands.isRegistered();
-    }
-
-    private String plural(final int amount) {
-        return amount > 1 ? "s" : "";
     }
 }

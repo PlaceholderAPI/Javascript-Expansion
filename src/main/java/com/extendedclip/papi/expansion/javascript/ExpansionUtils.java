@@ -26,6 +26,10 @@ public class ExpansionUtils {
         sender.sendMessage(colorize(Arrays.stream(msg).filter(Objects::nonNull).collect(Collectors.joining("\n"))));
     }
 
+    public static String plural(final int amount) {
+        return amount > 1 ? "s" : "";
+    }
+
     public static void warnLog(String log, Throwable throwable) {
         warnLog(log, throwable, true);
     }
