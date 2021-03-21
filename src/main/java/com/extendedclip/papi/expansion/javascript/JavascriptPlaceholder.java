@@ -180,7 +180,7 @@ public class JavascriptPlaceholder {
         keys.forEach(key -> scriptData.set(key, ExpansionUtils.ymlToJavaObj(yaml.get(key))));
 
         if (!scriptData.isEmpty()) {
-            this.setData(scriptData);
+            setData(scriptData);
             return true;
         }
         return false;

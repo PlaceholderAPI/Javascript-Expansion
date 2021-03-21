@@ -154,6 +154,10 @@ public class JavascriptExpansionCommands extends Command {
                     "&e/" + command + " git list &7- &fList available scripts in the js expansion github.",
                     "&e/" + command + " git info [name] &7- &fGet the description and url of a specific script."
             );
+        } else {
+            ExpansionUtils.sendMsg(sender,
+                    "&e/" + command + " git &7- &fGithub command &7(please enable in config)"
+            );
         }
     }
 
