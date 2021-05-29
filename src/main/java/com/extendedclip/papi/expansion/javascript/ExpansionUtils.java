@@ -87,7 +87,7 @@ public class ExpansionUtils {
             } else {
                 return jsObj;
             }
-        } catch (Exception ignored) {return jsObj;}
+        } catch (NoClassDefFoundError ignored) {return jsObj;}
     }
 
     protected static Object ymlToJavaObj(Object obj) {
