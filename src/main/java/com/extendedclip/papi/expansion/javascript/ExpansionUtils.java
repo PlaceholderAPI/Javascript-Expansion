@@ -68,24 +68,26 @@ public class ExpansionUtils {
 
     // Only support for Nashorn engine!
     protected static Object jsonToJava(Object jsObj) {
-        if (jsObj instanceof ScriptObjectMirror) {
-            ScriptObjectMirror jsObjectMirror = (ScriptObjectMirror) jsObj;
-            if (jsObjectMirror.isArray()) {
-                List<Object> list = new ArrayList<>();
-                for (Map.Entry<String, Object> entry : jsObjectMirror.entrySet()) {
-                    list.add(jsonToJava(entry.getValue()));
+        try {
+            if (jsObj instanceof ScriptObjectMirror) {
+                ScriptObjectMirror jsObjectMirror = (ScriptObjectMirror) jsObj;
+                if (jsObjectMirror.isArray()) {
+                    List<Object> list = new ArrayList<>();
+                    for (Map.Entry<String, Object> entry : jsObjectMirror.entrySet()) {
+                        list.add(jsonToJava(entry.getValue()));
+                    }
+                    return list;
+                } else {
+                    Map<String, Object> map = new HashMap<>();
+                    for (Map.Entry<String, Object> entry : jsObjectMirror.entrySet()) {
+                        map.put(entry.getKey(), jsonToJava(entry.getValue()));
+                    }
+                    return map;
                 }
-                return list;
             } else {
-                Map<String, Object> map = new HashMap<>();
-                for (Map.Entry<String, Object> entry : jsObjectMirror.entrySet()) {
-                    map.put(entry.getKey(), jsonToJava(entry.getValue()));
-                }
-                return map;
+                return jsObj;
             }
-        } else {
-            return jsObj;
-        }
+        } catch (Exception ignored) {return jsObj;}
     }
 
     protected static Object ymlToJavaObj(Object obj) {

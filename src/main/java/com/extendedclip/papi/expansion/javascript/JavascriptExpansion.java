@@ -28,6 +28,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
 
 import javax.script.ScriptEngine;
@@ -83,13 +84,16 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     @Override
     public boolean register() {
         String defaultEngine = ExpansionUtils.DEFAULT_ENGINE;
+        RegisteredServiceProvider<ScriptEngineManager> servicesManager = Bukkit.getServer().getServicesManager().getRegistration(ScriptEngineManager.class);
+        ScriptEngineManager scriptEngineManager = servicesManager.getProvider();
+
 
         if (globalEngine == null) {
             try {
-                globalEngine = new ScriptEngineManager(null).getEngineByName(getString("engine", defaultEngine));
+                globalEngine = scriptEngineManager.getEngineByName(getString("engine", defaultEngine));
             } catch (NullPointerException ex) {
                 ExpansionUtils.warnLog("Javascript engine type was invalid! Defaulting to '" + defaultEngine + "'", null);
-                globalEngine = new ScriptEngineManager(null).getEngineByName(defaultEngine);
+                globalEngine = scriptEngineManager.getEngineByName(defaultEngine);
             }
         }
 
@@ -109,7 +113,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         if (debug) {
             ExpansionUtils.infoLog("Java version: " + System.getProperty("java.version"));
     
-            final ScriptEngineManager manager = new ScriptEngineManager(null);
+            final ScriptEngineManager manager = scriptEngineManager;
             final List<ScriptEngineFactory> factories = manager.getEngineFactories();
             ExpansionUtils.infoLog("Displaying all script engine factories.", false);
 
