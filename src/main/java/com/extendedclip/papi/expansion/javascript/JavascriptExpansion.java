@@ -38,9 +38,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable {
-
-    private ScriptEngine globalEngine = null;
-
     private JavascriptPlaceholdersConfig config;
     private final Set<JavascriptPlaceholder> scripts;
     private final String VERSION;
@@ -82,17 +79,6 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
     @Override
     public boolean register() {
-        String defaultEngine = ExpansionUtils.DEFAULT_ENGINE;
-
-        if (globalEngine == null) {
-            try {
-                globalEngine = new ScriptEngineManager(null).getEngineByName(getString("engine", defaultEngine));
-            } catch (NullPointerException ex) {
-                ExpansionUtils.warnLog("Javascript engine type was invalid! Defaulting to '" + defaultEngine + "'", null);
-                globalEngine = new ScriptEngineManager(null).getEngineByName(defaultEngine);
-            }
-        }
-
         argument_split = getString("argument_split", ",");
         if (argument_split.equals("_")) {
             argument_split = ",";
@@ -106,9 +92,11 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         ExpansionUtils.infoLog(amountLoaded + " script" + ExpansionUtils.plural(amountLoaded) + " loaded!");
 
 
+        // todo maybe  remove this?
+
         if (debug) {
             ExpansionUtils.infoLog("Java version: " + System.getProperty("java.version"));
-    
+
             final ScriptEngineManager manager = new ScriptEngineManager(null);
             final List<ScriptEngineFactory> factories = manager.getEngineFactories();
             ExpansionUtils.infoLog("Displaying all script engine factories.", false);
@@ -148,7 +136,6 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         }
 
         scripts.clear();
-        globalEngine = null;
         instance = null;
     }
 
@@ -212,10 +199,6 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         return scripts.size();
     }
 
-    public ScriptEngine getGlobalEngine() {
-        return globalEngine;
-    }
-
     public JavascriptPlaceholdersConfig getConfig() {
         return config;
     }
@@ -223,7 +206,6 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     @Override
     public Map<String, Object> getDefaults() {
         final Map<String, Object> defaults = new HashMap<>();
-        defaults.put("engine", "javascript");
         defaults.put("debug", false);
         defaults.put("argument_split", ",");
         defaults.put("github_script_downloads", false);

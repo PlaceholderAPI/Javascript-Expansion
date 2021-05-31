@@ -1,6 +1,5 @@
 package com.extendedclip.papi.expansion.javascript;
 
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -63,28 +62,6 @@ public class ExpansionUtils {
             logger.log(Level.SEVERE, prefix + log);
         } else {
             logger.log(Level.SEVERE, prefix + log, throwable);
-        }
-    }
-
-    // Only support for Nashorn engine!
-    protected static Object jsonToJava(Object jsObj) {
-        if (jsObj instanceof ScriptObjectMirror) {
-            ScriptObjectMirror jsObjectMirror = (ScriptObjectMirror) jsObj;
-            if (jsObjectMirror.isArray()) {
-                List<Object> list = new ArrayList<>();
-                for (Map.Entry<String, Object> entry : jsObjectMirror.entrySet()) {
-                    list.add(jsonToJava(entry.getValue()));
-                }
-                return list;
-            } else {
-                Map<String, Object> map = new HashMap<>();
-                for (Map.Entry<String, Object> entry : jsObjectMirror.entrySet()) {
-                    map.put(entry.getKey(), jsonToJava(entry.getValue()));
-                }
-                return map;
-            }
-        } else {
-            return jsObj;
         }
     }
 

@@ -148,41 +148,7 @@ public class JavascriptPlaceholdersConfig {
                 continue;
             }
 
-            boolean debug = (boolean) ex.get("debug", false);
-            int errScriptEngine = 0;
-
-            ScriptEngine engine;
-            if (!config.contains(identifier + ".engine")) {
-                engine = ex.getGlobalEngine();
-                if (debug) {
-                    ExpansionUtils.warnLog("ScriptEngine type for javascript placeholder: " + identifier + " is empty! Defaulting to global", null);
-                } else {
-                    errScriptEngine++;
-                }
-            } else {
-                try {
-                   engine = new ScriptEngineManager(null).getEngineByName(config.getString(identifier + ".engine", "nashorn"));
-                } catch (NullPointerException e) {
-                    if (debug) {
-                        ExpansionUtils.warnLog("ScriptEngine type for javascript placeholder: " + identifier + " is invalid! Defaulting to global", null);
-                    } else {
-                        errScriptEngine++;
-                    }
-                    engine = ex.getGlobalEngine();
-                }
-            }
-
-            if (errScriptEngine > 0) {
-                ExpansionUtils.warnLog("ScriptEngine type for " + errScriptEngine + " javascript placeholder" + ExpansionUtils.plural(errScriptEngine) +
-                        " failed! Defaulting all to global. More information by enabling debug mode", null);
-            }
-
-            if (engine == null) {
-                ExpansionUtils.warnLog("Failed to set ScriptEngine for javascript placeholder: " + identifier, null);
-                continue;
-            }
-
-            final JavascriptPlaceholder placeholder = new JavascriptPlaceholder(engine, identifier, script);
+            final JavascriptPlaceholder placeholder = new JavascriptPlaceholder(identifier, script);
             final boolean added = ex.addJSPlaceholder(placeholder);
 
             if (added) {
