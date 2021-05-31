@@ -104,26 +104,21 @@ public class JavascriptPlaceholder {
         }
 
         matcher.appendTail(buffer);
-        String exp = buffer.toString();
-
         try {
-            String[] arguments = null;
+            final int length;
+            if (args != null) {
+                length = args.length;
+            } else {
+                length = 0;
+            }
+            final String[] arguments = new String[length];
 
-            if (args != null && args.length > 0) {
-                arguments = new String[args.length];
-
-                for (int i = 0; i < args.length; i++) {
-                    if (args[i] == null || args[i].isEmpty()) {
-                        continue;
-                    }
-                    arguments[i] = PlaceholderAPI.setBracketPlaceholders(player, args[i]);
+            for (int i = 0; i < length; i++) {
+                if (args[i] == null || args[i].isEmpty()) {
+                    continue;
                 }
+                arguments[i] = PlaceholderAPI.setBracketPlaceholders(player, args[i]);
             }
-
-            if (arguments == null) {
-                arguments = new String[]{};
-            }
-
             bind(runtime, "args", arguments);
 
             if (player != null && player.isOnline()) {
