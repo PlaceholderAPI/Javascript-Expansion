@@ -4,6 +4,11 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
+group = 'com.extendedclip.papi.expansion.javascript'
+version = '1.6.1'
+description = 'PAPI-Expansion-Javascript'
+sourceCompatibility = '1.8'
+
 repositories {
     mavenCentral()
     maven {
@@ -20,11 +25,6 @@ dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'me.clip:placeholderapi:2.10.9'
 }
-
-group = 'com.extendedclip.papi.expansion.javascript'
-version = '1.6.1'
-description = 'PAPI-Expansion-Javascript'
-sourceCompatibility = '1.8'
 
 publishing {
     publications {
