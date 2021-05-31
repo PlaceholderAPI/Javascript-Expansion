@@ -40,7 +40,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class JavascriptPlaceholder {
-    private V8Runtime runtime;
     private final String identifier;
     private final String script;
     private ScriptData scriptData;
@@ -65,19 +64,6 @@ public class JavascriptPlaceholder {
         pattern = Pattern.compile("//.*|/\\*[\\S\\s]*?\\*/|%([^%]+)%");
         scriptData = new ScriptData();
         dataFile = new File(directory, identifier + "_data.yml");
-
-        try {
-            runtime = V8Host.getV8Instance().createV8Runtime();
-            bind(runtime, "Data", scriptData);
-            bind(runtime, "DataVar", scriptData.getData());
-            bind(runtime, "BukkitServer", Bukkit.getServer());
-            bind(runtime, "Expansion", JavascriptExpansion.getInstance());
-            bind(runtime, "Placeholder", this);
-            bind(runtime, "PlaceholderAPI", PlaceholderAPI.class);
-            runtime.allowEval(true);
-        } catch (JavetException ex) {
-            ex.printStackTrace();
-        }
     }
 
     private void bind(final V8Runtime runtime, final String key, final Object value) throws JavetException {
@@ -119,23 +105,37 @@ public class JavascriptPlaceholder {
                 }
                 arguments[i] = PlaceholderAPI.setBracketPlaceholders(player, args[i]);
             }
-            bind(runtime, "args", arguments);
-
-            if (player != null && player.isOnline()) {
-                bind(runtime, "BukkitPlayer", player.getPlayer());
-                bind(runtime, "Player", player.getPlayer());
+            try (final V8Runtime runtime = prepareRuntime()) {
+                bind(runtime, "args", arguments);
+                if (player != null && player.isOnline()) {
+                    bind(runtime, "BukkitPlayer", player.getPlayer());
+                    bind(runtime, "Player", player.getPlayer());
+                }
+                bind(runtime, "OfflinePlayer", player);
+                Object result = runtime.getExecutor(script).execute();
+                return result != null ? PlaceholderAPI.setBracketPlaceholders(player, result.toString()) : "";
+            } catch (final JavetException exception) {
+                ExpansionUtils.errorLog("An error occurred while executing the script '" + identifier + "':\n\t" + exception.getMessage(), null);
+                return "Script error (check console)";
             }
 
-            bind(runtime, "OfflinePlayer", player);
-            Object result = runtime.getExecutor(script).execute();
-            return result != null ? PlaceholderAPI.setBracketPlaceholders(player, result.toString()) : "";
 
         } catch (ArrayIndexOutOfBoundsException ex) {
             ExpansionUtils.errorLog("Argument out of bound while executing script '" + identifier + "':\n\t" + ex.getMessage(), null);
-        } catch (JavetException ex) {
-            ExpansionUtils.errorLog("An error occurred while executing the script '" + identifier + "':\n\t" + ex.getMessage(), null);
         }
         return "Script error (check console)";
+    }
+
+    private V8Runtime prepareRuntime() throws JavetException {
+        final V8Runtime runtime = V8Host.getV8Instance().createV8Runtime();
+        bind(runtime, "Data", scriptData);
+        bind(runtime, "DataVar", scriptData.getData());
+        bind(runtime, "BukkitServer", Bukkit.getServer());
+        bind(runtime, "Expansion", JavascriptExpansion.getInstance());
+        bind(runtime, "Placeholder", this);
+        bind(runtime, "PlaceholderAPI", PlaceholderAPI.class);
+        runtime.allowEval(true);
+        return runtime;
     }
 
     public String getScript() {
