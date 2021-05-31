@@ -24,6 +24,7 @@ dependencies {
     implementation 'com.caoccao.javet:javet:0.8.10'
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'me.clip:placeholderapi:2.10.9'
+    compileOnly 'org.jetbrains:annotations:21.0.1'
 }
 
 publishing {
