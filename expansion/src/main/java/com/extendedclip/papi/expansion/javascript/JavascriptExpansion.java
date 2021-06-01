@@ -21,6 +21,7 @@
 package com.extendedclip.papi.expansion.javascript;
 
 import com.extendedclip.papi.expansion.javascript.cloud.GithubScriptManager;
+import com.extendedclip.papi.expansion.javascript.evaluator.*;
 import me.clip.placeholderapi.expansion.Cacheable;
 import me.clip.placeholderapi.expansion.Configurable;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -32,7 +33,12 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,6 +52,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     private JavascriptExpansionCommands commands;
     private CommandMap commandMap;
     private String argument_split;
+    private final ScriptEvaluatorFactory scriptEvaluatorFactory;
 
     public JavascriptExpansion() {
         instance = this;
@@ -58,6 +65,13 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
             commandMap = (CommandMap) field.get(Bukkit.getServer());
         } catch (NoSuchFieldException | IllegalAccessException e) {
             ExpansionUtils.errorLog("An error occurred while accessing CommandMap.", e, true);
+        }
+
+        try {
+            this.scriptEvaluatorFactory = ScriptEvaluatorFactory.isolated();
+        } catch (final ReflectiveOperationException exception) {
+            // Unrecoverable - Therefore throw wrapped exception with more information
+            throw new EvaluatorException("Unable to create evaluator.", exception);
         }
     }
 
@@ -85,7 +99,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         }
 
         debug = (boolean) get("debug", false);
-        config = new JavascriptPlaceholdersConfig(this);
+        config = new JavascriptPlaceholdersConfig(this, scriptEvaluatorFactory);
 
         int amountLoaded = config.loadPlaceholders();
         ExpansionUtils.infoLog(amountLoaded + " script" + ExpansionUtils.plural(amountLoaded) + " loaded!");
@@ -271,7 +285,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
             return;
         }
 
-        commands = new JavascriptExpansionCommands(this);
+        commands = new JavascriptExpansionCommands(this, scriptEvaluatorFactory);
         commandMap.register("papi" + commands.getName(), commands);
         commands.isRegistered();
     }
