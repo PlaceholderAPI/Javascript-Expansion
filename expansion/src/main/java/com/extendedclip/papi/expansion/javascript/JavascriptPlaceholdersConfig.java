@@ -20,6 +20,7 @@
  */
 package com.extendedclip.papi.expansion.javascript;
 
+import com.extendedclip.papi.expansion.javascript.evaluator.ScriptEvaluatorFactory;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -30,15 +31,16 @@ import java.nio.file.Files;
 import java.util.List;
 
 public class JavascriptPlaceholdersConfig {
-
+    private final ScriptEvaluatorFactory evaluatorFactory;
     private final JavascriptExpansion ex;
     private final PlaceholderAPIPlugin plugin;
     private FileConfiguration config;
     private File file;
 
-    public JavascriptPlaceholdersConfig(JavascriptExpansion ex) {
+    public JavascriptPlaceholdersConfig(JavascriptExpansion ex, final ScriptEvaluatorFactory evaluatorFactory) {
         this.ex = ex;
         plugin = ex.getPlaceholderAPI();
+        this.evaluatorFactory = evaluatorFactory;
         reload();
     }
 
@@ -146,7 +148,7 @@ public class JavascriptPlaceholdersConfig {
                 continue;
             }
 
-            final JavascriptPlaceholder placeholder = new JavascriptPlaceholder(identifier, script, (a, b) -> "");
+            final JavascriptPlaceholder placeholder = new JavascriptPlaceholder(identifier, script, evaluatorFactory);
             final boolean added = ex.addJSPlaceholder(placeholder);
 
             if (added) {
