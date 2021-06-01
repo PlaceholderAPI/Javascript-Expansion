@@ -1,4 +1,4 @@
-rootProject.name = 'com.extendedclip.papi.expansion.javascript-expansion'
+rootProject.name = 'javascript-expansion'
 include 'evaluator'
 include 'evaluator-api'
 include 'expansion'
