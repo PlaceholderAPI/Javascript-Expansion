@@ -21,7 +21,6 @@ public class JavetScriptEvaluator implements ScriptEvaluator {
             applyBindings(runtime, additionalBindings);
             return runtime.getExecutor(script).execute();
         } catch (final JavetException exception) {
-            exception.printStackTrace();
             // This exists because JavetException is not accessible to root module
             throw new RuntimeException(exception.getMessage(), exception.getCause());
         }
