@@ -21,7 +21,6 @@ repositories {
 }
 
 dependencies {
-    implementation project('evaluator')
     implementation project('evaluator-api')
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'me.clip:placeholderapi:2.10.9'
@@ -32,6 +31,18 @@ publishing {
     publications {
         maven(MavenPublication) {
             from(components.java)
+        }
+    }
+}
+
+jar {
+    dependsOn(project(':evaluator').jar)
+    doFirst {
+        copy {
+            from project(':evaluator').getTasks().getByName("jar").outputs.files.singleFile
+            into layout.buildDirectory.file("resources/main/")
+            include('*.jar')
+            rename ('(.*).jar', 'evaluator.isolated-jar')
         }
     }
 }
