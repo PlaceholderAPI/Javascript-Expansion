@@ -21,10 +21,9 @@
 package com.extendedclip.papi.expansion.javascript;
 
 
-import com.extendedclip.papi.expansion.javascript.ExpansionUtils;
-import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
-import com.extendedclip.papi.expansion.javascript.ScriptData;
+
 import com.extendedclip.papi.expansion.javascript.evaluator.ScriptEvaluator;
+import com.extendedclip.papi.expansion.javascript.evaluator.ScriptEvaluatorFactory;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import org.apache.commons.lang.Validate;
@@ -48,10 +47,10 @@ public class JavascriptPlaceholder {
     private final File dataFile;
     private YamlConfiguration yaml;
     private final Pattern pattern;
-    private final ScriptEvaluator evaluator;
+    private final ScriptEvaluatorFactory evaluatorFactory;
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public JavascriptPlaceholder(String identifier, String script, ScriptEvaluator evaluator) {
+    public JavascriptPlaceholder(String identifier, String script, ScriptEvaluatorFactory evaluatorFactory) {
         Validate.notNull(identifier, "Identifier can not be null");
         Validate.notNull(script, "Script can not be null");
 
@@ -67,7 +66,7 @@ public class JavascriptPlaceholder {
         pattern = Pattern.compile("//.*|/\\*[\\S\\s]*?\\*/|%([^%]+)%");
         scriptData = new ScriptData();
         dataFile = new File(directory, identifier + "_data.yml");
-        this.evaluator = evaluator;
+        this.evaluatorFactory = evaluatorFactory;
     }
 
     public String getIdentifier() {
@@ -75,7 +74,6 @@ public class JavascriptPlaceholder {
     }
 
     public String evaluate(OfflinePlayer player, String... args) {
-
         // A checker to deny all placeholders inside comment codes
         Matcher matcher = pattern.matcher(script);
         StringBuffer buffer = new StringBuffer();
@@ -104,6 +102,9 @@ public class JavascriptPlaceholder {
                 arguments[i] = PlaceholderAPI.setBracketPlaceholders(player, args[i]);
             }
             final Map<String, Object> defaultBindings = prepareDefaultBindings();
+
+            final ScriptEvaluator evaluator = evaluatorFactory.create(defaultBindings);
+
             final Map<String, Object> additionalBindings = new HashMap<>();
             additionalBindings.put("args", arguments);
             if (player != null && player.isOnline()) {
@@ -116,6 +117,7 @@ public class JavascriptPlaceholder {
                 return result != null ? PlaceholderAPI.setBracketPlaceholders(player, result.toString()) : "";
             } catch (RuntimeException exception) { // todo:: prepare specific exception and catch that instead of all runtime exceptions
                 ExpansionUtils.errorLog("An error occurred while executing the script '" + identifier + "':\n\t" + exception.getMessage(), null);
+                exception.printStackTrace();
                 return "Script error (check console)";
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
