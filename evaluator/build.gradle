@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow'
 }
 
 group 'com.extendedclip.papi.expansion.javascript'
@@ -13,4 +14,8 @@ dependencies {
     compileOnly project(':evaluator-api')
     implementation 'com.caoccao.javet:javet:0.8.10'
     testImplementation group: 'junit', name: 'junit', version: '4.12'
+}
+
+shadowJar {
+
 }
