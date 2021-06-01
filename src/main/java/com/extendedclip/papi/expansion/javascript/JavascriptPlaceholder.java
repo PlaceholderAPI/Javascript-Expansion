@@ -31,6 +31,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -95,7 +97,7 @@ public class JavascriptPlaceholder {
                 }
                 arguments[i] = PlaceholderAPI.setBracketPlaceholders(player, args[i]);
             }
-            try (final V8Runtime runtime = prepareRuntime()) {
+            /*try (final V8Runtime runtime = prepareRuntime()) {
                 bind(runtime, "args", arguments);
                 if (player != null && player.isOnline()) {
                     bind(runtime, "BukkitPlayer", player.getPlayer());
@@ -107,7 +109,7 @@ public class JavascriptPlaceholder {
             } catch (final JavetException exception) {
                 ExpansionUtils.errorLog("An error occurred while executing the script '" + identifier + "':\n\t" + exception.getMessage(), null);
                 return "Script error (check console)";
-            }
+            }*/
 
 
         } catch (ArrayIndexOutOfBoundsException ex) {
@@ -116,16 +118,15 @@ public class JavascriptPlaceholder {
         return "Script error (check console)";
     }
 
-    private V8Runtime prepareRuntime() throws JavetException {
-        final V8Runtime runtime = V8Host.getV8Instance().createV8Runtime();
-        bind(runtime, "Data", scriptData);
-        bind(runtime, "DataVar", scriptData.getData());
-        bind(runtime, "BukkitServer", Bukkit.getServer());
-        bind(runtime, "Expansion", JavascriptExpansion.getInstance());
-        bind(runtime, "Placeholder", this);
-        bind(runtime, "PlaceholderAPI", PlaceholderAPI.class);
-        runtime.allowEval(true);
-        return runtime;
+    private Map<String, Object> prepareDefaultBindings() {
+        final Map<String, Object> bindings = new HashMap<>();
+        bindings.put("Data", scriptData);
+        bindings.put("DataVar", scriptData.getData());
+        bindings.put("BukkitServer", Bukkit.getServer());
+        bindings.put("Expansion", JavascriptExpansion.getInstance());
+        bindings.put("Placeholder", this);
+        bindings.put("PlaceholderAPI", PlaceholderAPI.class);
+        return bindings;
     }
 
     public String getScript() {
