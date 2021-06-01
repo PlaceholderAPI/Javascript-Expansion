@@ -25,14 +25,13 @@ dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
-jar {
+shadowJar {
     dependsOn(project(':evaluator').shadowJar)
     doFirst {
         copy {
-            from project('evaluator').getTasks().getByName("jar").outputs.files.singleFile
+            from project(':evaluator').getTasks().getByName("shadowJar").outputs.files.singleFile
             into layout.buildDirectory.file("resources/main/")
             include('*.jar')
-            rename ('(.*).jar', 'evaluator.isolated-jar')
         }
     }
 }
