@@ -19,7 +19,9 @@ public class JavetScriptEvaluator implements ScriptEvaluator {
     public Object execute(final Map<String, Object> additionalBindings, final String script) {
         try (final V8Runtime runtime = prepareRuntime()) {
             applyBindings(runtime, additionalBindings);
-            return runtime.getExecutor(script).execute();
+            final Object result = runtime.getExecutor(script).execute();
+            runtime.lowMemoryNotification(); // Schedule bound values for GC
+            return result;
         } catch (final JavetException exception) {
             // This exists because JavetException is not accessible to root module
             throw new RuntimeException(exception.getMessage(), exception.getCause());
@@ -48,6 +50,6 @@ public class JavetScriptEvaluator implements ScriptEvaluator {
          */
         // final V8ValueObject object = runtime.createV8ValueObject();
         runtime.getGlobalObject().set(key, value);
-        //object.bind(value);
+        // object.bind(value);
     }
 }
