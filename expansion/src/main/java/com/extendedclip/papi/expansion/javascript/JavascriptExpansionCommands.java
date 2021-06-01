@@ -22,6 +22,7 @@ package com.extendedclip.papi.expansion.javascript;
 
 import com.extendedclip.papi.expansion.javascript.cloud.GithubScript;
 import com.extendedclip.papi.expansion.javascript.command.*;
+import com.extendedclip.papi.expansion.javascript.evaluator.ScriptEvaluatorFactory;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;
@@ -38,11 +39,13 @@ public class JavascriptExpansionCommands extends Command {
     private final JavascriptExpansion expansion;
     private final String PERMISSION = "placeholderapi.js.admin";
     private final String command;
+    private final ScriptEvaluatorFactory evaluatorFactory;
     private List<ICommand> subCommands;
 
-    public JavascriptExpansionCommands(JavascriptExpansion expansion) {
+    public JavascriptExpansionCommands(JavascriptExpansion expansion, ScriptEvaluatorFactory evaluatorFactory) {
         super("jsexpansion");
         command = getName();
+        this.evaluatorFactory = evaluatorFactory;
         this.expansion = expansion;
         this.setDescription("Javascript expansion commands");
         this.setUsage("/" + command + " <args>");
@@ -58,7 +61,7 @@ public class JavascriptExpansionCommands extends Command {
         subCommands = new ArrayList<>(Arrays.asList(
                 new GitCommand(expansion),
                 new ListCommand(expansion),
-                new ParseCommand(expansion),
+                new ParseCommand(expansion, evaluatorFactory),
                 new ReloadCommand(expansion),
                 new DebugCommand(expansion))
         );
