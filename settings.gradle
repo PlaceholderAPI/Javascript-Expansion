@@ -1,3 +1,4 @@
 rootProject.name = 'javascript-expansion'
 include 'evaluator'
+include 'evaluator-api'
 

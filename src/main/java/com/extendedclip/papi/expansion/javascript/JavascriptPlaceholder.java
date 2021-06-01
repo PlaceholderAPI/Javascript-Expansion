@@ -20,10 +20,7 @@
  */
 package com.extendedclip.papi.expansion.javascript;
 
-import com.caoccao.javet.exceptions.JavetException;
-import com.caoccao.javet.interop.V8Host;
-import com.caoccao.javet.interop.V8Runtime;
-import com.caoccao.javet.values.reference.V8ValueObject;
+
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import org.apache.commons.lang.Validate;
@@ -32,7 +29,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import javax.script.ScriptException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
@@ -64,12 +60,6 @@ public class JavascriptPlaceholder {
         pattern = Pattern.compile("//.*|/\\*[\\S\\s]*?\\*/|%([^%]+)%");
         scriptData = new ScriptData();
         dataFile = new File(directory, identifier + "_data.yml");
-    }
-
-    private void bind(final V8Runtime runtime, final String key, final Object value) throws JavetException {
-        final V8ValueObject object = runtime.createV8ValueObject();
-        runtime.getGlobalObject().set(key, value);
-        object.bind(value);
     }
 
     public String getIdentifier() {
