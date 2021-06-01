@@ -30,7 +30,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.jetbrains.annotations.NotNull;
 
-import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import java.lang.reflect.Field;
@@ -69,7 +68,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
     @Override
     public String getIdentifier() {
-        return "javascript";
+        return "com/extendedclip/papi/expansion/javascript";
     }
 
     @Override

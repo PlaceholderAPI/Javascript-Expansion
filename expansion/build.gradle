@@ -1,0 +1,38 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow'
+}
+
+group 'com.extendedclip.papi.expansion.javascript'
+version '1.6.1'
+
+repositories {
+    mavenCentral()
+    maven {
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+
+    maven {
+        url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/'
+    }
+}
+
+dependencies {
+    implementation project(':evaluator-api')
+    compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+    compileOnly 'me.clip:placeholderapi:2.10.9'
+    compileOnly 'org.jetbrains:annotations:21.0.1'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+}
+
+jar {
+    dependsOn(project(':evaluator').shadowJar)
+    doFirst {
+        copy {
+            from project('evaluator').getTasks().getByName("jar").outputs.files.singleFile
+            into layout.buildDirectory.file("resources/main/")
+            include('*.jar')
+            rename ('(.*).jar', 'evaluator.isolated-jar')
+        }
+    }
+}
