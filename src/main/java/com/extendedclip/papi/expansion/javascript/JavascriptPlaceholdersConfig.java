@@ -148,7 +148,7 @@ public class JavascriptPlaceholdersConfig {
                 continue;
             }
 
-            final JavascriptPlaceholder placeholder = new JavascriptPlaceholder(identifier, script);
+            final JavascriptPlaceholder placeholder = new JavascriptPlaceholder(identifier, script, (a, b) -> "");
             final boolean added = ex.addJSPlaceholder(placeholder);
 
             if (added) {

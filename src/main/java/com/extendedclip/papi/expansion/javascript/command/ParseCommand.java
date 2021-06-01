@@ -27,7 +27,7 @@ public class ParseCommand extends ICommand {
         }
 
         final String script = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
-        final JavascriptPlaceholder placeholder = new JavascriptPlaceholder( "parse-command", String.join(" ", script));
+        final JavascriptPlaceholder placeholder = new JavascriptPlaceholder( "parse-command", String.join(" ", script),  (a, b) -> "");
 
         if ("me".equalsIgnoreCase(args[0])) {
             if (!(sender instanceof Player)) {
