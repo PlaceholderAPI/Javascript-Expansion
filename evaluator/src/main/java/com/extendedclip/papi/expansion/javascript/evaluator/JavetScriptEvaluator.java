@@ -41,8 +41,14 @@ public class JavetScriptEvaluator implements ScriptEvaluator {
     }
 
     private static void bind(final V8Runtime runtime, final String key, final Object value) throws JavetException {
-        final V8ValueObject object = runtime.createV8ValueObject();
+        /*
+         * NOTE:
+         * Reason for commented out segment: This seems to only be required for "interception"
+         * with respective annotations as per -
+         * https://github.com/caoccao/Javet/blob/main/docs/tutorial/interception.rst
+         */
+        // final V8ValueObject object = runtime.createV8ValueObject();
         runtime.getGlobalObject().set(key, value);
-        object.bind(value);
+        //object.bind(value);
     }
 }
