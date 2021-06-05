@@ -67,16 +67,19 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         }
     }
 
+    @NotNull
     @Override
     public String getAuthor() {
         return "clip";
     }
 
+    @NotNull
     @Override
     public String getIdentifier() {
         return "com/extendedclip/papi/expansion/javascript";
     }
 
+    @NotNull
     @Override
     public String getVersion() {
         return VERSION;
