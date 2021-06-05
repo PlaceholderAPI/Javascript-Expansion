@@ -31,14 +31,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.jetbrains.annotations.NotNull;
 
-import javax.script.ScriptEngineFactory;
-import javax.script.ScriptEngineManager;
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,7 +40,6 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     private final Set<JavascriptPlaceholder> scripts;
     private final String VERSION;
     private static JavascriptExpansion instance;
-    private boolean debug;
     private GithubScriptManager githubManager;
     private JavascriptExpansionCommands commands;
     private CommandMap commandMap;
@@ -97,34 +89,10 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
             argument_split = ",";
             ExpansionUtils.warnLog("Underscore character will not be allowed for splitting. Defaulting to ',' for this", null);
         }
-
-        debug = (boolean) get("debug", false);
         config = new JavascriptPlaceholdersConfig(this, scriptEvaluatorFactory);
 
         int amountLoaded = config.loadPlaceholders();
         ExpansionUtils.infoLog(amountLoaded + " script" + ExpansionUtils.plural(amountLoaded) + " loaded!");
-
-
-        // todo maybe  remove this?
-
-        if (debug) {
-            ExpansionUtils.infoLog("Java version: " + System.getProperty("java.version"));
-
-            final ScriptEngineManager manager = new ScriptEngineManager(null);
-            final List<ScriptEngineFactory> factories = manager.getEngineFactories();
-            ExpansionUtils.infoLog("Displaying all script engine factories.", false);
-
-            for (ScriptEngineFactory factory : factories) {
-                System.out.println(factory.getEngineName());
-                System.out.println("  Version: " + factory.getEngineVersion());
-                System.out.println("  Lang name: " + factory.getLanguageName());
-                System.out.println("  Lang version: " + factory.getLanguageVersion());
-                System.out.println("  Extensions: ." + String.join(", .", factory.getExtensions()));
-                System.out.println("  Mime types: " + String.join(", ", factory.getMimeTypes()));
-                System.out.println("  Names: " + String.join(", ", factory.getNames()));
-            }
-        }
-
         if ((boolean) get("github_script_downloads", false)) {
             githubManager = new GithubScriptManager(this);
             githubManager.fetch();
