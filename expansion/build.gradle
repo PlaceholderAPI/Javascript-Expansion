@@ -5,6 +5,7 @@ plugins {
 
 group 'com.extendedclip.papi.expansion.javascript'
 version '1.6.1'
+archivesBaseName = "Javascript-Expansion"
 
 repositories {
     mavenCentral()
