@@ -76,7 +76,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     @NotNull
     @Override
     public String getIdentifier() {
-        return "com/extendedclip/papi/expansion/javascript";
+        return "javascript";
     }
 
     @NotNull

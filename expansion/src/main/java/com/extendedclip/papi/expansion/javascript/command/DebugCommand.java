@@ -26,7 +26,7 @@ public class DebugCommand extends ICommand {
 
         JavascriptPlaceholder jsp = expansion.getJSPlaceholder(getIdentifier(args));
         if (jsp == null) {
-            ExpansionUtils.sendMsg(sender, "&cInvalid com.extendedclip.papi.expansion.javascript identifier! Please re-check your typo");
+            ExpansionUtils.sendMsg(sender, "&cInvalid javascript identifier! Please re-check your typo");
             return;
         }
 

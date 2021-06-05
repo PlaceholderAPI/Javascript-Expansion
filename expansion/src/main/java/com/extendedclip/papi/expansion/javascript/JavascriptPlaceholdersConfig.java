@@ -53,16 +53,16 @@ public class JavascriptPlaceholdersConfig {
         config.options().header("Javascript Expansion: " + ex.getVersion()
                 + "\nThis is the main configuration file for the Javascript Expansion."
                 + "\n"
-                + "\nYou will define your com.extendedclip.papi.expansion.javascript placeholders in this file."
+                + "\nYou will define your javascript placeholders in this file."
                 + "\n"
                 + "\nJavascript files must be located in the:"
                 + "\n /plugins/placeholderapi/javascripts/ folder"
                 + "\n"
-                + "\nA detailed guide on how to create your own com.extendedclip.papi.expansion.javascript placeholders"
+                + "\nA detailed guide on how to create your own javascript placeholders"
                 + "\ncan be found here:"
                 + "\nhttps://github.com/PlaceholderAPI-Expansions/Javascript-Expansion/wiki"
                 + "\n"
-                + "\nYour com.extendedclip.papi.expansion.javascript placeholders will be identified by: %javascript_<identifier>%"
+                + "\nYour javascript placeholders will be identified by: %javascript_<identifier>%"
                 + "\n"
                 + "\nConfiguration format:"
                 + "\n"
@@ -133,7 +133,7 @@ public class JavascriptPlaceholdersConfig {
 
                 try {
                     scriptFile.createNewFile();
-                    ExpansionUtils.infoLog(scriptFile.getName() + " created! Add your com.extendedclip.papi.expansion.javascript to this file and use '/jsexpansion reload' to load it!");
+                    ExpansionUtils.infoLog(scriptFile.getName() + " created! Add your javascript to this file and use '/jsexpansion reload' to load it!");
                 } catch (IOException e) {
                     ExpansionUtils.errorLog("An error occurred while creating " + scriptFile.getName(), e);
                 }

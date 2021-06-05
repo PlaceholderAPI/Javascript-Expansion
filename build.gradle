@@ -4,7 +4,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 allprojects {
-    group = 'com.extendedclip.papi.expansion.com.extendedclip.papi.expansion.javascript'
+    group = 'com.extendedclip.papi.expansion.javascript'
     version = '1.6.1'
     description = 'PAPI-Expansion-Javascript'
 }
