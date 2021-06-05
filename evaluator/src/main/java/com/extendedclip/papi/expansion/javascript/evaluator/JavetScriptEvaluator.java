@@ -1,18 +1,30 @@
 package com.extendedclip.papi.expansion.javascript.evaluator;
 
 import com.caoccao.javet.exceptions.JavetException;
+import com.caoccao.javet.interfaces.IJavetLogger;
 import com.caoccao.javet.interop.V8Host;
 import com.caoccao.javet.interop.V8Runtime;
-import com.caoccao.javet.values.reference.V8ValueObject;
+import com.extendedclip.papi.expansion.javascript.evaluator.binding.Binder;
+import com.extendedclip.papi.expansion.javascript.evaluator.binding.javet.MediatingMethodBinder;
+import com.extendedclip.papi.expansion.javascript.evaluator.binding.javet.ObjectMethodBinder;
+import com.extendedclip.papi.expansion.javascript.evaluator.binding.javet.StaticMethodBinder;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class JavetScriptEvaluator implements ScriptEvaluator {
+    private final IJavetLogger logger;
     private final Map<String, Object> bindings;
+    private final Binder binder;
 
     public JavetScriptEvaluator(final Map<String, Object> bindings) {
+        this(new PassthroughJavetLogger(), bindings, new MediatingMethodBinder(new StaticMethodBinder(), new ObjectMethodBinder()));
+    }
+
+    public JavetScriptEvaluator(final IJavetLogger logger, final Map<String, Object> bindings, Binder binder) {
+        this.logger = logger;
         this.bindings = new HashMap<>(bindings);
+        this.binder = binder;
     }
 
     @Override
@@ -30,8 +42,10 @@ public class JavetScriptEvaluator implements ScriptEvaluator {
 
     private V8Runtime prepareRuntime() throws JavetException {
         final V8Runtime runtime = V8Host.getV8Instance().createV8Runtime();
-        applyBindings(runtime, bindings);
+        runtime.setLogger(logger);
+        runtime.setConverter(new JavetReflectiveObjectConverter(binder));
         runtime.allowEval(true);
+        applyBindings(runtime, bindings);
         return runtime;
     }
 
@@ -42,14 +56,6 @@ public class JavetScriptEvaluator implements ScriptEvaluator {
     }
 
     private static void bind(final V8Runtime runtime, final String key, final Object value) throws JavetException {
-        /*
-         * NOTE:
-         * Reason for commented out segment: This seems to only be required for "interception"
-         * with respective annotations as per -
-         * https://github.com/caoccao/Javet/blob/main/docs/tutorial/interception.rst
-         */
-        // final V8ValueObject object = runtime.createV8ValueObject();
         runtime.getGlobalObject().set(key, value);
-        // object.bind(value);
     }
 }
