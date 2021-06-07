@@ -8,10 +8,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
-public class ParseCommand extends ExpansionCommand {
+public final class ParseCommand extends ExpansionCommand {
+    private static final String ARG_ME = "me";
+    private static final String ARG_PLAYER = "player";
 
     private final ScriptEvaluatorFactory evaluatorFactory;
 
@@ -48,6 +55,27 @@ public class ParseCommand extends ExpansionCommand {
         }
 
         sender.sendMessage(placeholder.evaluate(player));
+    }
+
+    @Override
+    @NotNull
+    public List<String> tabComplete(CommandSender sender, String[] args) {
+        if (args.length == 1) {
+            return StringUtil.copyPartialMatches(args[0], Arrays.asList(ARG_ME, ARG_PLAYER), new ArrayList<>());
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    @NotNull
+    protected String getCommandFormat() {
+        return "parse [me/player] [code]";
+    }
+
+    @Override
+    @NotNull
+    protected String getDescription() {
+        return "Test JavaScript code in chat";
     }
 
 }
