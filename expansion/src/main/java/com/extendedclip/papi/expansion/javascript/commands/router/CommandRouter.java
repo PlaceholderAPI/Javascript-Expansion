@@ -1,5 +1,6 @@
 package com.extendedclip.papi.expansion.javascript.commands.router;
 
+import com.extendedclip.papi.expansion.javascript.ExpansionUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -38,6 +39,11 @@ public abstract class CommandRouter extends Command {
 
     @Override
     public final boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+        final String perm = getPermission();
+        if (perm != null && !sender.hasPermission(perm)) {
+            sender.sendMessage(CommandRouter.translateColors("&cYou don't have permission to do that!"));
+            return true;
+        }
         if (args.length == 0) {
             final String format = getSubCommandHelpFormat();
             final List<String> header = getHelpHeader();
