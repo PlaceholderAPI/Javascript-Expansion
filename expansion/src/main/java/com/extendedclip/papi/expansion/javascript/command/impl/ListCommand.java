@@ -12,7 +12,8 @@ public class ListCommand extends ExpansionCommand {
 
     private final JavascriptExpansion expansion;
 
-    public ListCommand(JavascriptExpansion expansion) {
+    public ListCommand(final String parentCommandName, final JavascriptExpansion expansion) {
+        super(parentCommandName, "list");
         this.expansion = expansion;
     }
 
@@ -24,9 +25,4 @@ public class ListCommand extends ExpansionCommand {
                 String.join(", ", loaded));
     }
 
-    @Override
-    @NotNull
-    public String getAlias() {
-        return "list";
-    }
 }
