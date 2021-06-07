@@ -18,8 +18,10 @@
  *
  *
  */
-package com.extendedclip.papi.expansion.javascript;
+package com.extendedclip.papi.expansion.javascript.command;
 
+import com.extendedclip.papi.expansion.javascript.ExpansionUtils;
+import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
 import com.extendedclip.papi.expansion.javascript.cloud.GithubScript;
 import com.extendedclip.papi.expansion.javascript.command.*;
 import com.extendedclip.papi.expansion.javascript.evaluator.ScriptEvaluatorFactory;
