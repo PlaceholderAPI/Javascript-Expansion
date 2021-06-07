@@ -7,14 +7,20 @@ import com.extendedclip.papi.expansion.javascript.cloud.GithubScriptManager;
 import com.extendedclip.papi.expansion.javascript.command.ExpansionCommand;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import org.bukkit.command.CommandSender;
+import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class GitCommand extends ExpansionCommand {
+public final class GitCommand extends ExpansionCommand {
+    private static final String ARG_REFRESH = "refresh";
+    private static final String ARG_LIST = "list";
+    private static final String ARG_INFO = "info";
+    private static final String ARG_DOWNLOAD = "download";
+    private static final String ARG_ENABLED = "enabled";
+
 
     private final JavascriptExpansion expansion;
 
@@ -131,5 +137,27 @@ public class GitCommand extends ExpansionCommand {
                 ExpansionUtils.sendMsg(sender, "&cIncorrect usage! Type '&f/" + getParentCommandName() + "&c' for more help.");
             }
         }
+    }
+
+    @Override
+    @NotNull
+    public List<String> tabComplete(CommandSender sender, String[] args) {
+        if (args.length == 1) {
+            return StringUtil.copyPartialMatches(args[0], Arrays.asList(ARG_REFRESH, ARG_LIST, ARG_DOWNLOAD, ARG_ENABLED, ARG_INFO), new ArrayList<>());
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    @NotNull
+    protected String getCommandFormat() {
+        final String args = String.join(", ", Arrays.asList(ARG_REFRESH, ARG_LIST, ARG_DOWNLOAD, ARG_ENABLED, ARG_INFO));
+        return "git [" + args + "] [params]";
+    }
+
+    @Override
+    @NotNull
+    protected String getDescription() {
+        return "Manage github scripts";
     }
 }
