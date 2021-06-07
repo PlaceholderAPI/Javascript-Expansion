@@ -5,10 +5,22 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class ExpansionCommand {
 
-    public String command;
+    private final String parentCommandName;
+    public final String name;
+
+    public ExpansionCommand(final String parentCommandName, final String name) {
+        this.parentCommandName = parentCommandName;
+        this.name = name;
+    }
 
     public abstract void execute(CommandSender sender, String[] args);
 
-    public abstract @NotNull String getAlias();
+    public final String getParentCommandName() {
+        return parentCommandName;
+    }
+
+    public final String getName() {
+        return name;
+    }
 
 }
