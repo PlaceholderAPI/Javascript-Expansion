@@ -151,7 +151,7 @@ public final class GitCommand extends ExpansionCommand {
     @Override
     @NotNull
     protected String getCommandFormat() {
-        final String args = String.join(", ", Arrays.asList(ARG_REFRESH, ARG_LIST, ARG_DOWNLOAD, ARG_ENABLED, ARG_INFO));
+        final String args = String.join("/", Arrays.asList(ARG_REFRESH, ARG_LIST, ARG_DOWNLOAD, ARG_ENABLED, ARG_INFO));
         return "git [" + args + "] [params]";
     }
 
