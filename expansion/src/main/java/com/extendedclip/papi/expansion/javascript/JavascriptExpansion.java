@@ -22,6 +22,7 @@ package com.extendedclip.papi.expansion.javascript;
 
 import com.extendedclip.papi.expansion.javascript.cloud.GithubScriptManager;
 import com.extendedclip.papi.expansion.javascript.command.CommandRouter;
+import com.extendedclip.papi.expansion.javascript.command.ExpansionCommandRouter;
 import com.extendedclip.papi.expansion.javascript.evaluator.*;
 import me.clip.placeholderapi.expansion.Cacheable;
 import me.clip.placeholderapi.expansion.Configurable;
@@ -37,12 +38,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable {
+    private static final String WIKI_LINK = "https://github.com/PlaceholderAPI/Javascript-Expansion/wiki";
+
     private JavascriptPlaceholdersConfig config;
     private final Set<JavascriptPlaceholder> scripts;
     private final String VERSION;
     private static JavascriptExpansion instance;
     private GithubScriptManager githubManager;
-    private CommandRouter commands;
+    private CommandRouter commandRouter;
     private CommandMap commandMap;
     private String argument_split;
     private final ScriptEvaluatorFactory scriptEvaluatorFactory;
@@ -222,7 +225,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     }
 
     private void unregisterCommand() {
-        if (commandMap != null && commands != null) {
+        if (commandMap != null && commandRouter != null) {
 
             try {
                 Class<? extends CommandMap> cmdMapClass = commandMap.getClass();
@@ -237,9 +240,9 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
                 f.setAccessible(true);
                 Map<String, Command> knownCmds = (Map<String, Command>) f.get(commandMap);
-                knownCmds.remove(commands.getName());
-                for (String alias : commands.getAliases()) {
-                    if (knownCmds.containsKey(alias) && knownCmds.get(alias).toString().contains(commands.getName())) {
+                knownCmds.remove(commandRouter.getName());
+                for (String alias : commandRouter.getAliases()) {
+                    if (knownCmds.containsKey(alias) && knownCmds.get(alias).toString().contains(commandRouter.getName())) {
                         knownCmds.remove(alias);
                     }
                 }
@@ -248,7 +251,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
                 e.printStackTrace();
             }
 
-            commands.unregister(commandMap);
+            commandRouter.unregister(commandMap);
         }
     }
 
@@ -257,8 +260,8 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
             return;
         }
 
-        commands = new CommandRouter(this, scriptEvaluatorFactory);
-        commandMap.register("papi" + commands.getName(), commands);
-        commands.isRegistered();
+        commandRouter = new ExpansionCommandRouter(scriptEvaluatorFactory, this, getVersion(), getAuthor(), WIKI_LINK);
+        commandMap.register("papi" + commandRouter.getName(), commandRouter);
+        commandRouter.isRegistered();
     }
 }
