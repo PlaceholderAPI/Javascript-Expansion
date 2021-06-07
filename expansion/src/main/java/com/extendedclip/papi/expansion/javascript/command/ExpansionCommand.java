@@ -13,7 +13,7 @@ public abstract class ExpansionCommand {
         this.name = name;
     }
 
-    public abstract void execute(CommandSender sender, String[] args);
+    public abstract void execute(final CommandSender sender, final String[] args);
 
     public final String getParentCommandName() {
         return parentCommandName;
