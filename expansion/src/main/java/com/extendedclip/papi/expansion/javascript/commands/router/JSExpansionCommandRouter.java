@@ -18,12 +18,12 @@
  *
  *
  */
-package com.extendedclip.papi.expansion.javascript.command;
+package com.extendedclip.papi.expansion.javascript.commands.router;
 
 import com.extendedclip.papi.expansion.javascript.ExpansionUtils;
 import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
 import com.extendedclip.papi.expansion.javascript.cloud.GithubScript;
-import com.extendedclip.papi.expansion.javascript.command.impl.*;
+import com.extendedclip.papi.expansion.javascript.commands.*;
 import com.extendedclip.papi.expansion.javascript.evaluator.ScriptEvaluatorFactory;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

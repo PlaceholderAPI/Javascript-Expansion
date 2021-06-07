@@ -1,4 +1,4 @@
-package com.extendedclip.papi.expansion.javascript.command;
+package com.extendedclip.papi.expansion.javascript.commands.router;
 
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;

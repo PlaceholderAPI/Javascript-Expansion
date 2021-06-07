@@ -1,29 +1,29 @@
-package com.extendedclip.papi.expansion.javascript.command.impl;
+package com.extendedclip.papi.expansion.javascript.commands;
 
 import com.extendedclip.papi.expansion.javascript.ExpansionUtils;
 import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
-import com.extendedclip.papi.expansion.javascript.command.ExpansionCommand;
+import com.extendedclip.papi.expansion.javascript.commands.router.ExpansionCommand;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
 
-public final class ListCommand extends ExpansionCommand {
+public final class ReloadCommand extends ExpansionCommand {
 
     private final JavascriptExpansion expansion;
 
-    public ListCommand(final String parentCommandName, final JavascriptExpansion expansion) {
-        super(parentCommandName, "list");
+    public ReloadCommand(final String parentCommandName, final JavascriptExpansion expansion) {
+        super(parentCommandName, "reload");
         this.expansion = expansion;
     }
 
     @Override
     public void execute(final CommandSender sender, final String[] args) {
 
-        final List<String> loaded = expansion.getLoadedIdentifiers();
-        ExpansionUtils.sendMsg(sender,loaded.size() + " &7script" + ExpansionUtils.plural(loaded.size()) + " loaded.",
-                String.join(", ", loaded));
+        ExpansionUtils.sendMsg(sender, "&aJavascriptExpansion reloading...");
+        final int scripts = expansion.reloadScripts();
+        ExpansionUtils.sendMsg(sender, scripts + " &7script" + ExpansionUtils.plural(scripts) + " loaded");
     }
 
     @Override
@@ -35,13 +35,12 @@ public final class ListCommand extends ExpansionCommand {
     @Override
     @NotNull
     protected String getCommandFormat() {
-        return "list";
+        return "reload";
     }
 
     @Override
     @NotNull
     protected String getDescription() {
-        return "List loaded script identifiers";
+        return "Reload your javascripts without reloading PlaceholderAPI";
     }
-
 }

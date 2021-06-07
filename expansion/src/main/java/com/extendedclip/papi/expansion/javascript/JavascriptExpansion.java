@@ -21,8 +21,8 @@
 package com.extendedclip.papi.expansion.javascript;
 
 import com.extendedclip.papi.expansion.javascript.cloud.GithubScriptManager;
-import com.extendedclip.papi.expansion.javascript.command.CommandRouter;
-import com.extendedclip.papi.expansion.javascript.command.ExpansionCommandRouter;
+import com.extendedclip.papi.expansion.javascript.commands.router.CommandRouter;
+import com.extendedclip.papi.expansion.javascript.commands.router.ExpansionCommandRouter;
 import com.extendedclip.papi.expansion.javascript.evaluator.*;
 import me.clip.placeholderapi.expansion.Cacheable;
 import me.clip.placeholderapi.expansion.Configurable;

@@ -1,9 +1,9 @@
-package com.extendedclip.papi.expansion.javascript.command.impl;
+package com.extendedclip.papi.expansion.javascript.commands;
 
 import com.extendedclip.papi.expansion.javascript.ExpansionUtils;
 import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
 import com.extendedclip.papi.expansion.javascript.JavascriptPlaceholder;
-import com.extendedclip.papi.expansion.javascript.command.ExpansionCommand;
+import com.extendedclip.papi.expansion.javascript.commands.router.ExpansionCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
