@@ -1,5 +1,6 @@
 package com.extendedclip.papi.expansion.javascript.commands.router;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;
@@ -52,8 +53,8 @@ public abstract class CommandRouter extends Command {
                             )
                     )
                     .collect(Collectors.toUnmodifiableList());
-            header.forEach(sender::sendMessage);
-            subCommandHelp.forEach(sender::sendMessage);
+            header.stream().map(CommandRouter::translateColors).forEach(sender::sendMessage);
+            subCommandHelp.stream().map(CommandRouter::translateColors).forEach(sender::sendMessage);
             return true;
         }
 
@@ -89,5 +90,9 @@ public abstract class CommandRouter extends Command {
             return command.tabComplete(sender, args);
         }
         return super.tabComplete(sender, alias, args);
+    }
+
+    public static String translateColors(final String input) {
+        return ChatColor.translateAlternateColorCodes('&', input);
     }
 }
