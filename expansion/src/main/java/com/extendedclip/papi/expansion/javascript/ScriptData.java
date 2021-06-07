@@ -20,6 +20,7 @@
  */
 package com.extendedclip.papi.expansion.javascript;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +37,7 @@ public final class ScriptData {
     }
 
     public Map<String, Object> getData() {
-        return map;
+        return Collections.unmodifiableMap(map);
     }
 
     public void clear() {
