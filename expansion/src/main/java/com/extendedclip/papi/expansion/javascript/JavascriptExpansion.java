@@ -260,7 +260,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
             return;
         }
 
-        commandRouter = new ExpansionCommandRouter(scriptEvaluatorFactory, this, getVersion(), getAuthor(), WIKI_LINK);
+        commandRouter = new ExpansionCommandRouter(scriptEvaluatorFactory, this, VERSION, "clip", WIKI_LINK);
         commandMap.register("papi" + commandRouter.getName(), commandRouter);
         commandRouter.isRegistered();
     }
