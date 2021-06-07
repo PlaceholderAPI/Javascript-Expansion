@@ -34,7 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class JavascriptExpansionCommands extends Command {
+public class CommandRouter extends Command {
 
     private final JavascriptExpansion expansion;
     private final String PERMISSION = "placeholderapi.js.admin";
@@ -42,7 +42,7 @@ public class JavascriptExpansionCommands extends Command {
     private final ScriptEvaluatorFactory evaluatorFactory;
     private List<ICommand> subCommands;
 
-    public JavascriptExpansionCommands(JavascriptExpansion expansion, ScriptEvaluatorFactory evaluatorFactory) {
+    public CommandRouter(JavascriptExpansion expansion, ScriptEvaluatorFactory evaluatorFactory) {
         super("jsexpansion");
         command = getName();
         this.evaluatorFactory = evaluatorFactory;

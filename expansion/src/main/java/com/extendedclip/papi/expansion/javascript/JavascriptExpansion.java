@@ -41,7 +41,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     private final String VERSION;
     private static JavascriptExpansion instance;
     private GithubScriptManager githubManager;
-    private JavascriptExpansionCommands commands;
+    private CommandRouter commands;
     private CommandMap commandMap;
     private String argument_split;
     private final ScriptEvaluatorFactory scriptEvaluatorFactory;
@@ -256,7 +256,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
             return;
         }
 
-        commands = new JavascriptExpansionCommands(this, scriptEvaluatorFactory);
+        commands = new CommandRouter(this, scriptEvaluatorFactory);
         commandMap.register("papi" + commands.getName(), commands);
         commands.isRegistered();
     }
