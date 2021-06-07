@@ -6,9 +6,10 @@ import com.extendedclip.papi.expansion.javascript.command.ExpansionCommand;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.List;
 
-public class ListCommand extends ExpansionCommand {
+public final class ListCommand extends ExpansionCommand {
 
     private final JavascriptExpansion expansion;
 
@@ -23,6 +24,24 @@ public class ListCommand extends ExpansionCommand {
         final List<String> loaded = expansion.getLoadedIdentifiers();
         ExpansionUtils.sendMsg(sender,loaded.size() + " &7script" + ExpansionUtils.plural(loaded.size()) + " loaded.",
                 String.join(", ", loaded));
+    }
+
+    @Override
+    @NotNull
+    public List<String> tabComplete(CommandSender sender, String[] args) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    @NotNull
+    protected String getCommandFormat() {
+        return "list";
+    }
+
+    @Override
+    @NotNull
+    protected String getDescription() {
+        return "List loaded script identifiers";
     }
 
 }
