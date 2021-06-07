@@ -34,18 +34,21 @@ public final class ParseCommand extends ExpansionCommand {
             return;
         }
 
-        final String script = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
-        final JavascriptPlaceholder placeholder = new JavascriptPlaceholder( "parse-command", String.join(" ", script),  evaluatorFactory);
-
         if ("me".equalsIgnoreCase(args[0])) {
             if (!(sender instanceof Player)) {
                 ExpansionUtils.sendMsg(sender, "&cOnly players can run this command!");
                 return;
             }
 
+            final String script = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+            final JavascriptPlaceholder placeholder = new JavascriptPlaceholder( "parse-command", String.join(" ", script),  evaluatorFactory);
+
             sender.sendMessage(placeholder.evaluate((Player) sender));
             return;
         }
+
+        final String script = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+        final JavascriptPlaceholder placeholder = new JavascriptPlaceholder( "parse-command", String.join(" ", script),  evaluatorFactory);
 
         final OfflinePlayer player = Bukkit.getOfflinePlayer(args[1]);
 
