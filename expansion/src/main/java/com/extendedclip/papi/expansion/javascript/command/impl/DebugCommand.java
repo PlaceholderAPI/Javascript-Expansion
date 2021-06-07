@@ -14,14 +14,15 @@ public class DebugCommand extends ExpansionCommand {
 
     private final JavascriptExpansion expansion;
 
-    public DebugCommand(JavascriptExpansion expansion) {
+    public DebugCommand(final String parentCommandName, final JavascriptExpansion expansion) {
+        super(parentCommandName, "debug");
         this.expansion = expansion;
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            ExpansionUtils.sendMsg(sender, "&cIncorrect usage! Type '&f/" + command + "&c' for more help.");
+            ExpansionUtils.sendMsg(sender, "&cIncorrect usage! Type '&f/" + getParentCommandName() + "&c' for more help.");
             return;
         }
 
@@ -42,10 +43,5 @@ public class DebugCommand extends ExpansionCommand {
 
     public String getIdentifier(String[] args) {
         return Arrays.stream(args).skip(1).collect(Collectors.joining(" "));
-    }
-
-    @Override
-    public @NotNull String getAlias() {
-        return "debug";
     }
 }
