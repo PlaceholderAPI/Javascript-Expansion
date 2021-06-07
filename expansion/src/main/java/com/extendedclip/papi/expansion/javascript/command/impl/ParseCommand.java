@@ -1,8 +1,9 @@
-package com.extendedclip.papi.expansion.javascript.command;
+package com.extendedclip.papi.expansion.javascript.command.impl;
 
 import com.extendedclip.papi.expansion.javascript.ExpansionUtils;
 import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
 import com.extendedclip.papi.expansion.javascript.JavascriptPlaceholder;
+import com.extendedclip.papi.expansion.javascript.command.ExpansionCommand;
 import com.extendedclip.papi.expansion.javascript.evaluator.ScriptEvaluatorFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
