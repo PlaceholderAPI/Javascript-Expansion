@@ -61,11 +61,11 @@ public class CommandRouter extends Command {
             subCommands.clear();
         }
         subCommands = new ArrayList<>(Arrays.asList(
-                new GitCommand(expansion),
-                new ListCommand(expansion),
-                new ParseCommand(expansion, evaluatorFactory),
-                new ReloadCommand(expansion),
-                new DebugCommand(expansion))
+                new GitCommand("jsexpansion", expansion),
+                new ListCommand("jsexpansion", expansion),
+                new ParseCommand("jsexpansion", evaluatorFactory),
+                new ReloadCommand("jsexpansion", expansion),
+                new DebugCommand("jsexpansion", expansion))
         );
     }
 
@@ -84,9 +84,8 @@ public class CommandRouter extends Command {
 
         ExpansionCommand command = null;
         for (ExpansionCommand icmd : subCommands) {
-            if (icmd.getAlias().equalsIgnoreCase(args[0])) {
+            if (icmd.getName().equalsIgnoreCase(args[0])) {
                 command = icmd;
-                command.command = getName();
                 break;
             }
         }
