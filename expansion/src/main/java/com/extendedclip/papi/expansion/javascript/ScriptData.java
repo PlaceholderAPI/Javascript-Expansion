@@ -23,11 +23,11 @@ package com.extendedclip.papi.expansion.javascript;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ScriptData {
+public final class ScriptData {
 
-    private Map<String, Object> map;
+    private final Map<String, Object> map;
 
-    public ScriptData(Map<String, Object> data) {
+    public ScriptData(final Map<String, Object> data) {
         this.map = data;
     }
 
