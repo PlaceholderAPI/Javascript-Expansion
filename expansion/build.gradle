@@ -35,4 +35,5 @@ shadowJar {
             include('*.jar')
         }
     }
+    exclude('libjavet-node*')
 }
