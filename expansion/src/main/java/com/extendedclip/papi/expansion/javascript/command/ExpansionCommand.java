@@ -3,7 +3,6 @@ package com.extendedclip.papi.expansion.javascript.command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
 import java.util.List;
 
 public abstract class ExpansionCommand {
@@ -22,13 +21,18 @@ public abstract class ExpansionCommand {
     public abstract List<String> tabComplete(final CommandSender sender, final String[] args);
 
     @NotNull
-    public final String getParentCommandName() {
+    protected abstract String getCommandFormat();
+
+    @NotNull
+    protected abstract String getDescription();
+
+    @NotNull
+    protected final String getParentCommandName() {
         return parentCommandName;
     }
 
     @NotNull
-    public final String getName() {
+    protected final String getName() {
         return name;
     }
-
 }
