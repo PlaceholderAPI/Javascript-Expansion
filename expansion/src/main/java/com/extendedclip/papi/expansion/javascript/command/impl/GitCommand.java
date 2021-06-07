@@ -30,7 +30,7 @@ public final class GitCommand extends ExpansionCommand {
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args) {
+    public void execute(final CommandSender sender, final String[] args) {
 
         if (expansion.getGithubScriptManager() == null) {
             ExpansionUtils.sendMsg(sender, "&cThis feature is disabled in the PlaceholderAPI config.");
@@ -141,7 +141,7 @@ public final class GitCommand extends ExpansionCommand {
 
     @Override
     @NotNull
-    public List<String> tabComplete(CommandSender sender, String[] args) {
+    public List<String> tabComplete(final CommandSender sender, final String[] args) {
         if (args.length == 1) {
             return StringUtil.copyPartialMatches(args[0], Arrays.asList(ARG_REFRESH, ARG_LIST, ARG_DOWNLOAD, ARG_ENABLED, ARG_INFO), new ArrayList<>());
         }

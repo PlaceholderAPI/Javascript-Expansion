@@ -19,7 +19,7 @@ public final class ListCommand extends ExpansionCommand {
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args) {
+    public void execute(final CommandSender sender, final String[] args) {
 
         final List<String> loaded = expansion.getLoadedIdentifiers();
         ExpansionUtils.sendMsg(sender,loaded.size() + " &7script" + ExpansionUtils.plural(loaded.size()) + " loaded.",
@@ -28,7 +28,7 @@ public final class ListCommand extends ExpansionCommand {
 
     @Override
     @NotNull
-    public List<String> tabComplete(CommandSender sender, String[] args) {
+    public List<String> tabComplete(final CommandSender sender, final String[] args) {
         return Collections.emptyList();
     }
 

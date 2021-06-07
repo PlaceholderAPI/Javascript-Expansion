@@ -19,7 +19,7 @@ public final class ReloadCommand extends ExpansionCommand {
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args) {
+    public void execute(final CommandSender sender, final String[] args) {
 
         ExpansionUtils.sendMsg(sender, "&aJavascriptExpansion reloading...");
         final int scripts = expansion.reloadScripts();
@@ -28,7 +28,7 @@ public final class ReloadCommand extends ExpansionCommand {
 
     @Override
     @NotNull
-    public List<String> tabComplete(CommandSender sender, String[] args) {
+    public List<String> tabComplete(final CommandSender sender, final String[] args) {
         return Collections.emptyList();
     }
 

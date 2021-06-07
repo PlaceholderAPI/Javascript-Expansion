@@ -28,7 +28,7 @@ public final class ParseCommand extends ExpansionCommand {
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args) {
+    public void execute(final CommandSender sender, final String[] args) {
         if (args.length < 3) {
             ExpansionUtils.sendMsg(sender, "&cIncorrect usage! &f/" + getParentCommandName() + " parse [me/player] [code]");
             return;
@@ -59,7 +59,7 @@ public final class ParseCommand extends ExpansionCommand {
 
     @Override
     @NotNull
-    public List<String> tabComplete(CommandSender sender, String[] args) {
+    public List<String> tabComplete(final CommandSender sender, final String[] args) {
         if (args.length == 1) {
             return StringUtil.copyPartialMatches(args[0], Arrays.asList(ARG_ME, ARG_PLAYER), new ArrayList<>());
         }

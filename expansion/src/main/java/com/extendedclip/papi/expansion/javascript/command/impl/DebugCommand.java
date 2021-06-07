@@ -27,7 +27,7 @@ public final class DebugCommand extends ExpansionCommand {
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args) {
+    public void execute(final CommandSender sender, final String[] args) {
         if (args.length < 2) {
             ExpansionUtils.sendMsg(sender, "&cIncorrect usage! Type '&f/" + getParentCommandName() + "&c' for more help.");
             return;
@@ -66,7 +66,7 @@ public final class DebugCommand extends ExpansionCommand {
         return "Test JavaScript code in chat";
     }
 
-    public String getIdentifier(String[] args) {
+    public String getIdentifier(final String[] args) {
         return Arrays.stream(args).skip(1).collect(Collectors.joining(" "));
     }
 }
