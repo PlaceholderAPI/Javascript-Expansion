@@ -10,7 +10,8 @@ public class ReloadCommand extends ExpansionCommand {
 
     private final JavascriptExpansion expansion;
 
-    public ReloadCommand(JavascriptExpansion expansion) {
+    public ReloadCommand(final String parentCommandName, final JavascriptExpansion expansion) {
+        super(parentCommandName, "reload");
         this.expansion = expansion;
     }
 
@@ -20,11 +21,5 @@ public class ReloadCommand extends ExpansionCommand {
         ExpansionUtils.sendMsg(sender, "&aJavascriptExpansion reloading...");
         final int scripts = expansion.reloadScripts();
         ExpansionUtils.sendMsg(sender, scripts + " &7script" + ExpansionUtils.plural(scripts) + " loaded");
-    }
-
-    @Override
-    @NotNull
-    public String getAlias() {
-        return "reload";
     }
 }
