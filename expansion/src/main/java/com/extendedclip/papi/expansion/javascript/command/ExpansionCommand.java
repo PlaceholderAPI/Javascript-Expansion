@@ -4,6 +4,7 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.List;
 
 public abstract class ExpansionCommand {
 
@@ -18,7 +19,7 @@ public abstract class ExpansionCommand {
     public abstract void execute(final CommandSender sender, final String[] args);
 
     @NotNull
-    public abstract Collection<String> tabComplete(final CommandSender sender, final String[] args);
+    public abstract List<String> tabComplete(final CommandSender sender, final String[] args);
 
     @NotNull
     public final String getParentCommandName() {
