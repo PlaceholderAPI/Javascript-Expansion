@@ -44,7 +44,7 @@ public class CommandRouter extends Command {
     private List<ExpansionCommand> subCommands;
 
     public CommandRouter(JavascriptExpansion expansion, ScriptEvaluatorFactory evaluatorFactory) {
-        super("jsexpansion");
+        super(COMMAND_NAME);
         this.evaluatorFactory = evaluatorFactory;
         this.expansion = expansion;
         this.setDescription(DESCRIPTION);
