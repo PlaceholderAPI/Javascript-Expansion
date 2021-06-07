@@ -40,7 +40,7 @@ public class CommandRouter extends Command {
     private final String PERMISSION = "placeholderapi.js.admin";
     private final String command;
     private final ScriptEvaluatorFactory evaluatorFactory;
-    private List<ICommand> subCommands;
+    private List<ExpansionCommand> subCommands;
 
     public CommandRouter(JavascriptExpansion expansion, ScriptEvaluatorFactory evaluatorFactory) {
         super("jsexpansion");
@@ -80,8 +80,8 @@ public class CommandRouter extends Command {
             return true;
         }
 
-        ICommand command = null;
-        for (ICommand icmd : subCommands) {
+        ExpansionCommand command = null;
+        for (ExpansionCommand icmd : subCommands) {
             if (icmd.getAlias().equalsIgnoreCase(args[0])) {
                 command = icmd;
                 command.command = getName();

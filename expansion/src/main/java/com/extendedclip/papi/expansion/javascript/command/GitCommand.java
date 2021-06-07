@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class GitCommand extends ICommand {
+public class GitCommand extends ExpansionCommand {
 
     private final JavascriptExpansion expansion;
 

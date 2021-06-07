@@ -5,7 +5,7 @@ import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-public class ReloadCommand extends ICommand {
+public class ReloadCommand extends ExpansionCommand {
 
     private final JavascriptExpansion expansion;
 

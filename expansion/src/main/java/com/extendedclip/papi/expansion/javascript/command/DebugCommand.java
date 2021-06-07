@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class DebugCommand extends ICommand {
+public class DebugCommand extends ExpansionCommand {
 
     private final JavascriptExpansion expansion;
 

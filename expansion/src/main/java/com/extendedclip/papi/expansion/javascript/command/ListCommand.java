@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class ListCommand extends ICommand {
+public class ListCommand extends ExpansionCommand {
 
     private final JavascriptExpansion expansion;
 

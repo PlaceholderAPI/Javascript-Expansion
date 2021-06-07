@@ -3,7 +3,7 @@ package com.extendedclip.papi.expansion.javascript.command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class ICommand {
+public abstract class ExpansionCommand {
 
     public String command;
 
