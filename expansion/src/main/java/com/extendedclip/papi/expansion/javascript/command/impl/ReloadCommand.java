@@ -6,7 +6,10 @@ import com.extendedclip.papi.expansion.javascript.command.ExpansionCommand;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-public class ReloadCommand extends ExpansionCommand {
+import java.util.Collections;
+import java.util.List;
+
+public final class ReloadCommand extends ExpansionCommand {
 
     private final JavascriptExpansion expansion;
 
@@ -21,5 +24,23 @@ public class ReloadCommand extends ExpansionCommand {
         ExpansionUtils.sendMsg(sender, "&aJavascriptExpansion reloading...");
         final int scripts = expansion.reloadScripts();
         ExpansionUtils.sendMsg(sender, scripts + " &7script" + ExpansionUtils.plural(scripts) + " loaded");
+    }
+
+    @Override
+    @NotNull
+    public List<String> tabComplete(CommandSender sender, String[] args) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    @NotNull
+    protected String getCommandFormat() {
+        return "reload";
+    }
+
+    @Override
+    @NotNull
+    protected String getDescription() {
+        return "Reload your javascripts without reloading PlaceholderAPI";
     }
 }
