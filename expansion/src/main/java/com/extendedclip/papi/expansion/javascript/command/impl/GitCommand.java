@@ -18,7 +18,8 @@ public class GitCommand extends ExpansionCommand {
 
     private final JavascriptExpansion expansion;
 
-    public GitCommand(JavascriptExpansion expansion) {
+    public GitCommand(final String parentCommandName, final JavascriptExpansion expansion) {
+        super(parentCommandName, "git");
         this.expansion = expansion;
     }
 
@@ -31,7 +32,7 @@ public class GitCommand extends ExpansionCommand {
         }
 
         if (args.length < 1) {
-            ExpansionUtils.sendMsg(sender, "&cIncorrect usage! Type '&f/" + command + "&c' for more help.");
+            ExpansionUtils.sendMsg(sender, "&cIncorrect usage! Type '&f/" + getParentCommandName() + "&c' for more help.");
             return;
         }
 
@@ -54,7 +55,7 @@ public class GitCommand extends ExpansionCommand {
 
             case "info": {
                 if (args.length < 2) {
-                    ExpansionUtils.sendMsg(sender, "&cIncorrect usage! &f/" + command + " git info [name]");
+                    ExpansionUtils.sendMsg(sender, "&cIncorrect usage! &f/" + getParentCommandName() + " git info [name]");
                     return;
                 }
 
@@ -77,7 +78,7 @@ public class GitCommand extends ExpansionCommand {
 
             case "download": {
                 if (args.length < 2) {
-                    ExpansionUtils.sendMsg(sender, "&cIncorrect usage! &f/" + command + " git download [name]");
+                    ExpansionUtils.sendMsg(sender, "&cIncorrect usage! &f/" + getParentCommandName() + " git download [name]");
                     return;
                 }
 
@@ -107,7 +108,7 @@ public class GitCommand extends ExpansionCommand {
                 final boolean enabled = Boolean.parseBoolean(args[1]);
                 final PlaceholderAPIPlugin papi = expansion.getPlaceholderAPI();
 
-                papi.getConfig().set("expansions." + command + ".github_script_downloads", enabled);
+                papi.getConfig().set("expansions." + getParentCommandName() + ".github_script_downloads", enabled);
                 papi.saveConfig();
                 papi.reloadConfig();
 
@@ -127,13 +128,8 @@ public class GitCommand extends ExpansionCommand {
                 return;
 
             default: {
-                ExpansionUtils.sendMsg(sender, "&cIncorrect usage! Type '&f/" + command + "&c' for more help.");
+                ExpansionUtils.sendMsg(sender, "&cIncorrect usage! Type '&f/" + getParentCommandName() + "&c' for more help.");
             }
         }
-    }
-
-    @Override
-    public @NotNull String getAlias() {
-        return "git";
     }
 }
