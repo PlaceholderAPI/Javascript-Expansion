@@ -30,28 +30,26 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CommandRouter extends Command {
+    private static final String COMMAND_NAME = "jsexpansion";
+    private static final String PERMISSION = "placeholderapi.js.admin";
+    private static final String DESCRIPTION = "JavaScript Expansion Commands";
+    private static final List<String> ALIASES = Arrays.asList("javascriptexpansion", "jsexp");
 
     private final JavascriptExpansion expansion;
-    private final String PERMISSION = "placeholderapi.js.admin";
-    private final String command;
     private final ScriptEvaluatorFactory evaluatorFactory;
     private List<ExpansionCommand> subCommands;
 
     public CommandRouter(JavascriptExpansion expansion, ScriptEvaluatorFactory evaluatorFactory) {
         super("jsexpansion");
-        command = getName();
         this.evaluatorFactory = evaluatorFactory;
         this.expansion = expansion;
-        this.setDescription("Javascript expansion commands");
-        this.setUsage("/" + command + " <args>");
-        this.setAliases(new ArrayList<>(Arrays.asList("javascriptexpansion", "jsexp")));
+        this.setDescription(DESCRIPTION);
+        this.setUsage(String.format("/%s <args>", COMMAND_NAME));
+        this.setAliases(ALIASES);
         this.setPermission(PERMISSION);
         initCommands();
     }
@@ -145,22 +143,22 @@ public class CommandRouter extends Command {
                 "&eCreated by: &f" + expansion.getAuthor(),
                 "&eWiki: &fhttps://github.com/PlaceholderAPI/Javascript-Expansion/wiki",
                 "&r",
-                "&e/" + command + " reload &7- &fReload your javascripts without reloading PlaceholderAPI.",
-                "&e/" + command + " list &7- &fList loaded script identifiers.",
-                "&e/" + command + " parse [me/player] [code] &7- &fTest JavaScript code in chat.",
-                "&e/" + command + " debug [savedata/loaddata] [identifier] &7- &fTest JavaScript code in chat."
+                "&e/" + COMMAND_NAME + " reload &7- &fReload your javascripts without reloading PlaceholderAPI.",
+                "&e/" + COMMAND_NAME + " list &7- &fList loaded script identifiers.",
+                "&e/" + COMMAND_NAME + " parse [me/player] [code] &7- &fTest JavaScript code in chat.",
+                "&e/" + COMMAND_NAME + " debug [savedata/loaddata] [identifier] &7- &fTest JavaScript code in chat."
         );
 
         if (expansion.getGithubScriptManager() != null) {
             ExpansionUtils.sendMsg(sender,
-                    "&e/" + command + " git refresh &7- &fRefresh available Github scripts",
-                    "&e/" + command + " git download [name] &7- &fDownload a script from the js expansion github.",
-                    "&e/" + command + " git list &7- &fList available scripts in the js expansion github.",
-                    "&e/" + command + " git info [name] &7- &fGet the description and url of a specific script."
+                    "&e/" + COMMAND_NAME + " git refresh &7- &fRefresh available Github scripts",
+                    "&e/" + COMMAND_NAME + " git download [name] &7- &fDownload a script from the js expansion github.",
+                    "&e/" + COMMAND_NAME + " git list &7- &fList available scripts in the js expansion github.",
+                    "&e/" + COMMAND_NAME + " git info [name] &7- &fGet the description and url of a specific script."
             );
         } else {
             ExpansionUtils.sendMsg(sender,
-                    "&e/" + command + " git &7- &fGithub command &7(please enable in config)"
+                    "&e/" + COMMAND_NAME + " git &7- &fGithub command &7(please enable in config)"
             );
         }
     }
