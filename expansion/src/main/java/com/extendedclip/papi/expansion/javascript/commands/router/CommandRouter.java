@@ -68,7 +68,7 @@ public abstract class CommandRouter extends Command {
         final ExpansionCommand matchedCommand = subCommandMap.get(subCommand);
         if (matchedCommand == null) {
             final String invalidMatchMessage = getInvalidCommandMessage();
-            sender.sendMessage(String.format(invalidMatchMessage, getName()));
+            sender.sendMessage(translateColors(String.format(invalidMatchMessage, getName())));
             return true;
         }
         final String[] subArgs = new String[args.length - 1];
