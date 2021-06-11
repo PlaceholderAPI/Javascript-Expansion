@@ -64,7 +64,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         }
 
         try {
-            this.scriptEvaluatorFactory = ScriptEvaluatorFactory.isolated();
+            this.scriptEvaluatorFactory = new ClosableScriptEvaluatorFactory(ScriptEvaluatorFactory.isolated());
         } catch (final ReflectiveOperationException exception) {
             // Unrecoverable - Therefore throw wrapped exception with more information
             throw new EvaluatorException("Unable to create evaluator.", exception);
@@ -125,6 +125,8 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
         scripts.clear();
         instance = null;
+
+        scriptEvaluatorFactory.cleanBinaries();
     }
 
     @Override
