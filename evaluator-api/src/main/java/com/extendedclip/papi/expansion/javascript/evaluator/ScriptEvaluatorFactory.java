@@ -5,18 +5,20 @@ import java.net.URL;
 import java.util.Map;
 
 public interface ScriptEvaluatorFactory {
-    String IMPLEMENTATION_QUALIFIED_NAME = "com.extendedclip.papi.expansion.javascript.evaluator.JavetScriptEvaluatorFactory";
+    String IMPLEMENTATION_QUALIFIED_NAME = "com#extendedclip#papi#expansion#javascript#evaluator#JavetScriptEvaluatorFactory";
 
     ScriptEvaluator create(final Map<String, Object> bindings);
+
+    void cleanBinaries();
 
     @SuppressWarnings("unchecked")
     static ScriptEvaluatorFactory isolated() throws ReflectiveOperationException {
         final URL selfJar = ScriptEvaluatorFactory.class
                 .getProtectionDomain()
                 .getCodeSource().getLocation();
-        final ExposingClassLoader classLoader = new ExposingClassLoader(new URL[]{selfJar}, ScriptEvaluator.class, ScriptEvaluatorFactory.class);
-        final Class<ScriptEvaluatorFactory> clazz = (Class<ScriptEvaluatorFactory>) Class.forName(IMPLEMENTATION_QUALIFIED_NAME, true, classLoader);
-        final Constructor<ScriptEvaluatorFactory> factoryConstructor = clazz.getConstructor();
-        return factoryConstructor.newInstance();
+        final ExposingClassLoader classLoader = new ExposingClassLoader(new URL[]{selfJar});
+        final Class<?> clazz = Class.forName(IMPLEMENTATION_QUALIFIED_NAME.replace('#', '.'), true, classLoader);
+        final Constructor<?> factoryConstructor = clazz.getConstructor();
+        return (ScriptEvaluatorFactory) factoryConstructor.newInstance();
     }
 }
