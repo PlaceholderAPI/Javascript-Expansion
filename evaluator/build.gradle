@@ -8,11 +8,12 @@ version '1.6.1'
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
     compileOnly project(':evaluator-api')
-    implementation 'com.caoccao.javet:javet:0.8.10'
+    implementation 'com.caoccao.javet:javet:0.9.2-LOCAL'
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
