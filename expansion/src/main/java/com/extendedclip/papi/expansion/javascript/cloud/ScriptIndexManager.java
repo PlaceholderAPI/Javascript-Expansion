@@ -8,5 +8,5 @@ import java.util.function.Consumer;
 
 public interface ScriptIndexManager {
     Optional<ScriptIndex> getScriptIndex();
-    void refreshIndex(final Consumer<ScriptIndex> indexConsumer) throws IOException;
+    void refreshIndex(final Consumer<ScriptIndex> indexConsumer);
 }
