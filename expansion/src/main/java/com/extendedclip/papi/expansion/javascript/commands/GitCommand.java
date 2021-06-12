@@ -2,7 +2,7 @@ package com.extendedclip.papi.expansion.javascript.commands;
 
 import com.extendedclip.papi.expansion.javascript.ExpansionUtils;
 import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
-import com.extendedclip.papi.expansion.javascript.cloud.GithubScript;
+import com.extendedclip.papi.expansion.javascript.cloud.GitScript;
 import com.extendedclip.papi.expansion.javascript.cloud.GithubScriptManager;
 import com.extendedclip.papi.expansion.javascript.commands.router.ExpansionCommand;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
@@ -52,8 +52,8 @@ public final class GitCommand extends ExpansionCommand {
             }
 
             case "list": {
-                final List<GithubScript> availableScripts = manager.getAvailableScripts();
-                final Set<String> scripts = availableScripts.stream().map(GithubScript::getName).collect(Collectors.toSet());
+                final List<GitScript> availableScripts = manager.getAvailableScripts();
+                final Set<String> scripts = availableScripts.stream().map(GitScript::getName).collect(Collectors.toSet());
 
                 ExpansionUtils.sendMsg(sender, availableScripts.size() + " &escript" + ExpansionUtils.plural(availableScripts.size()) + " available on Github.", String.join(", ", scripts));
                 return;
@@ -65,7 +65,7 @@ public final class GitCommand extends ExpansionCommand {
                     return;
                 }
 
-                final GithubScript script = manager.getScript(args[1]);
+                final GitScript script = manager.getScript(args[1]);
 
                 if (script == null) {
                     ExpansionUtils.sendMsg(sender, "&cThe script &f" + args[1] + " &cdoes not exist!");
@@ -88,7 +88,7 @@ public final class GitCommand extends ExpansionCommand {
                     return;
                 }
 
-                final GithubScript script = manager.getScript(args[1]);
+                final GitScript script = manager.getScript(args[1]);
 
                 if (script == null) {
                     ExpansionUtils.sendMsg(sender, "&cThe script &f" + args[1] + " &cdoes not exist!");
