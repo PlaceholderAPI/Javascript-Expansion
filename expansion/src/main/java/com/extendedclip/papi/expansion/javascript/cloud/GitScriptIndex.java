@@ -6,9 +6,6 @@ import java.util.Map;
 import java.util.Optional;
 
 public final class GitScriptIndex implements ScriptIndex {
-    private static final String INDEX_URL =
-            "https://raw.githubusercontent.com/PlaceholderAPI/" +
-            "Javascript-Expansion/master/scripts/master_list.json";
 
     @NotNull
     private final Map<String, GitScript> scriptMap;
