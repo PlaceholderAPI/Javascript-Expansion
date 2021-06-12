@@ -35,12 +35,14 @@ public class JavascriptPlaceholdersConfig {
 
     private final JavascriptExpansion ex;
     private final PlaceholderAPIPlugin plugin;
+    public ScriptEngineManager engineManager;
     private FileConfiguration config;
     private File file;
 
     public JavascriptPlaceholdersConfig(JavascriptExpansion ex) {
         this.ex = ex;
         plugin = ex.getPlaceholderAPI();
+        engineManager = ex.engineManager;
         reload();
     }
 
@@ -161,7 +163,7 @@ public class JavascriptPlaceholdersConfig {
                 }
             } else {
                 try {
-                   engine = new ScriptEngineManager(null).getEngineByName(config.getString(identifier + ".engine", "nashorn"));
+                   engine = engineManager.getEngineByName(config.getString(identifier + ".engine", "nashorn"));
                 } catch (NullPointerException e) {
                     if (debug) {
                         ExpansionUtils.warnLog("ScriptEngine type for javascript placeholder: " + identifier + " is invalid! Defaulting to global", null);

@@ -25,7 +25,6 @@ import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
 import com.extendedclip.papi.expansion.javascript.JavascriptPlaceholdersConfig;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import jdk.nashorn.api.scripting.ScriptUtils;
 import org.bukkit.Bukkit;
 
 import java.io.*;

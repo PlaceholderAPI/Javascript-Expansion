@@ -36,10 +36,12 @@ import javax.script.ScriptEngineManager;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 
 public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable {
 
     private ScriptEngine globalEngine = null;
+    public ScriptEngineManager engineManager = null;
 
     private JavascriptPlaceholdersConfig config;
     private final Set<JavascriptPlaceholder> scripts;
@@ -63,6 +65,10 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         } catch (NoSuchFieldException | IllegalAccessException e) {
             ExpansionUtils.errorLog("An error occurred while accessing CommandMap.", e, true);
         }
+
+        // Register shaded nashorn
+        engineManager = new ScriptEngineManager(null);
+        engineManager.registerEngineName("nashorn", new NashornScriptEngineFactory());
     }
 
     @Override
@@ -86,10 +92,10 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
         if (globalEngine == null) {
             try {
-                globalEngine = new ScriptEngineManager(null).getEngineByName(getString("engine", defaultEngine));
+                globalEngine = engineManager.getEngineByName(getString("engine", defaultEngine));
             } catch (NullPointerException ex) {
                 ExpansionUtils.warnLog("Javascript engine type was invalid! Defaulting to '" + defaultEngine + "'", null);
-                globalEngine = new ScriptEngineManager(null).getEngineByName(defaultEngine);
+                globalEngine = engineManager.getEngineByName(defaultEngine);
             }
         }
 
@@ -108,9 +114,8 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
         if (debug) {
             ExpansionUtils.infoLog("Java version: " + System.getProperty("java.version"));
-    
-            final ScriptEngineManager manager = new ScriptEngineManager(null);
-            final List<ScriptEngineFactory> factories = manager.getEngineFactories();
+
+            final List<ScriptEngineFactory> factories = engineManager.getEngineFactories();
             ExpansionUtils.infoLog("Displaying all script engine factories.", false);
 
             for (ScriptEngineFactory factory : factories) {

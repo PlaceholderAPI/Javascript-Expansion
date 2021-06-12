@@ -1,11 +1,11 @@
 package com.extendedclip.papi.expansion.javascript;
 
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.MemorySection;
 import org.jetbrains.annotations.NotNull;
+import org.openjdk.nashorn.api.scripting.ScriptObjectMirror;
 
 import java.util.*;
 import java.util.logging.Level;
