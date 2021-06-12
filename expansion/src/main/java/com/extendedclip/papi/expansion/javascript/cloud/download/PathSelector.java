@@ -1,4 +1,4 @@
-package com.extendedclip.papi.expansion.javascript.cloud;
+package com.extendedclip.papi.expansion.javascript.cloud.download;
 
 import java.nio.file.Path;
 

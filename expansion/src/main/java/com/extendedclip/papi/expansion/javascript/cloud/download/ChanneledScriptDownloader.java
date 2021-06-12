@@ -1,4 +1,6 @@
-package com.extendedclip.papi.expansion.javascript.cloud;
+package com.extendedclip.papi.expansion.javascript.cloud.download;
+
+import com.extendedclip.papi.expansion.javascript.cloud.GitScript;
 
 import java.io.IOException;
 import java.net.URL;
