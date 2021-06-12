@@ -8,9 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +17,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public final class GitScriptIndexManager implements ScriptIndexManager {
+public final class GitScriptIndexProvider implements ScriptIndexProvider {
     private static final Gson GSON = new Gson();
     private static final String INDEX_URL =
             "https://raw.githubusercontent.com/PlaceholderAPI/" +
@@ -30,7 +28,7 @@ public final class GitScriptIndexManager implements ScriptIndexManager {
 
     private ScriptIndex index = null;
 
-    public GitScriptIndexManager(@NotNull final JavaPlugin plugin) {
+    public GitScriptIndexProvider(@NotNull final JavaPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -47,8 +45,12 @@ public final class GitScriptIndexManager implements ScriptIndexManager {
                 final Map<String, GitScript> map = scripts.stream().collect(
                         Collectors.toMap(GitScript::getName, Function.identity())
                 );
+                final GitScriptIndex localIndex = new GitScriptIndex(map);
                 synchronized (this) {
-                    index = new GitScriptIndex(map);
+                    index = localIndex;
+                }
+                if (indexConsumer != null) {
+                    indexConsumer.accept(localIndex);
                 }
             } catch (final IOException e) {
                 e.printStackTrace();
