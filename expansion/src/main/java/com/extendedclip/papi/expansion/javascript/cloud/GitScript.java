@@ -29,7 +29,13 @@ public final class GitScript {
     private final String description;
     private final String url;
 
-    public GitScript(@NotNull final String name, @NotNull final String version, @NotNull final String author, @NotNull final String description, @NotNull final String url) {
+    public GitScript(
+            @NotNull final String name,
+            @NotNull final String version,
+            @NotNull final String author,
+            @NotNull final String description,
+            @NotNull final String url
+    ) {
         this.name = name;
         this.version = version;
         this.author = author;
