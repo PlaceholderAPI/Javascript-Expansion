@@ -1,16 +1,18 @@
 package com.extendedclip.papi.expansion.javascript.commands;
 
 import com.extendedclip.papi.expansion.javascript.ExpansionUtils;
-import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
-import com.extendedclip.papi.expansion.javascript.cloud.GitScript;
-import com.extendedclip.papi.expansion.javascript.cloud.GithubScriptManager;
+import com.extendedclip.papi.expansion.javascript.cloud.*;
+import com.extendedclip.papi.expansion.javascript.cloud.download.PathSelector;
+import com.extendedclip.papi.expansion.javascript.cloud.download.ScriptDownloader;
 import com.extendedclip.papi.expansion.javascript.commands.router.ExpansionCommand;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,37 +24,38 @@ public final class GitCommand extends ExpansionCommand {
     private static final String ARG_ENABLED = "enabled";
 
 
-    private final JavascriptExpansion expansion;
+    private final GitScriptManager scriptManager;
 
-    public GitCommand(final String parentCommandName, final JavascriptExpansion expansion) {
+    public GitCommand(final String parentCommandName, final GitScriptManager scriptManager) {
         super(parentCommandName, "git");
-        this.expansion = expansion;
+        this.scriptManager = scriptManager;
     }
 
     @Override
     public void execute(final CommandSender sender, final String[] args) {
-
-        if (expansion.getGithubScriptManager() == null) {
-            ExpansionUtils.sendMsg(sender, "&cThis feature is disabled in the PlaceholderAPI config.");
-            return;
-        }
-
         if (args.length < 1) {
             ExpansionUtils.sendMsg(sender, "&cIncorrect usage! Type '&f/" + getParentCommandName() + "&c' for more help.");
             return;
         }
+        final ActiveStateSetter activeStateSetter = scriptManager.getActiveStateSetter();
+        if (!activeStateSetter.isActive() && !"enabled".equalsIgnoreCase(args[0])) {
+            ExpansionUtils.sendMsg(sender, "&cThis feature is disabled in the PlaceholderAPI config.");
+            return;
+        }
 
-        final GithubScriptManager manager = expansion.getGithubScriptManager();
+        final ScriptIndexProvider indexManager = scriptManager.getIndexProvider();
 
         switch (args[0].toLowerCase()) {
             case "refresh": {
-                expansion.getGithubScriptManager().fetch();
                 ExpansionUtils.sendMsg(sender, "&aFetching available scripts... Check back in a sec!");
+                indexManager.refreshIndex(index -> {
+                    ExpansionUtils.sendMsg(sender, "&aFetched " + index.getCount() + " scripts to index!");
+                });
                 return;
             }
 
             case "list": {
-                final List<GitScript> availableScripts = manager.getAvailableScripts();
+                final Collection<GitScript> availableScripts = indexManager.getScriptIndex().map(ScriptIndex::getAllScripts).orElse(Collections.emptyList());
                 final Set<String> scripts = availableScripts.stream().map(GitScript::getName).collect(Collectors.toSet());
 
                 ExpansionUtils.sendMsg(sender, availableScripts.size() + " &escript" + ExpansionUtils.plural(availableScripts.size()) + " available on Github.", String.join(", ", scripts));
@@ -65,7 +68,7 @@ public final class GitCommand extends ExpansionCommand {
                     return;
                 }
 
-                final GitScript script = manager.getScript(args[1]);
+                final GitScript script = indexManager.getScriptIndex().flatMap(index -> index.getScript(args[1])).orElse(null);
 
                 if (script == null) {
                     ExpansionUtils.sendMsg(sender, "&cThe script &f" + args[1] + " &cdoes not exist!");
@@ -88,20 +91,25 @@ public final class GitCommand extends ExpansionCommand {
                     return;
                 }
 
-                final GitScript script = manager.getScript(args[1]);
+                final GitScript script = indexManager.getScriptIndex().flatMap(index -> index.getScript(args[1])).orElse(null);
 
                 if (script == null) {
                     ExpansionUtils.sendMsg(sender, "&cThe script &f" + args[1] + " &cdoes not exist!");
                     return;
                 }
-
-                if (new File(expansion.getGithubScriptManager().getJavascriptsFolder(), script.getName() + ".js").exists()) {
+                final PathSelector selector = scriptManager.getDownloadPathSelector();
+                final Path path = selector.select(script.getName());
+                if (Files.exists(path)) {
                     ExpansionUtils.sendMsg(sender, "&cCould not download " + script.getName() + " because a file with the same name already exist in the javascripts folder.");
                     return;
                 }
-
-                manager.downloadScript(script);
-                ExpansionUtils.sendMsg(sender, "&aDownload started. &eCheck the scripts folder in a moment...");
+                final ScriptDownloader downloader = scriptManager.getScriptDownloader();
+                try {
+                    downloader.download(script);
+                    ExpansionUtils.sendMsg(sender, "&aDownload started. &eCheck the scripts folder in a moment...");
+                } catch (final IOException exception) {
+                    ExpansionUtils.errorLog("Failed to download expansion!", exception);
+                }
                 return;
             }
 
@@ -112,23 +120,7 @@ public final class GitCommand extends ExpansionCommand {
                 }
 
                 final boolean enabled = Boolean.parseBoolean(args[1]);
-                final PlaceholderAPIPlugin papi = expansion.getPlaceholderAPI();
-
-                papi.getConfig().set("expansions." + getParentCommandName() + ".github_script_downloads", enabled);
-                papi.saveConfig();
-                papi.reloadConfig();
-
-                if (!enabled) {
-                    if (expansion.getGithubScriptManager() != null) {
-                        expansion.getGithubScriptManager().clear();
-                        expansion.setGithubScriptManager(null);
-                    }
-                } else {
-                    if (expansion.getGithubScriptManager() == null) {
-                        expansion.setGithubScriptManager(new GithubScriptManager(expansion));
-                    }
-                    expansion.getGithubScriptManager().fetch();
-                }
+                activeStateSetter.setActive(enabled);
 
                 ExpansionUtils.sendMsg(sender, "&6Git script downloads set to: &e" + enabled);
                 return;
