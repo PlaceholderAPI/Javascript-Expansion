@@ -20,15 +20,16 @@
  */
 package com.extendedclip.papi.expansion.javascript.cloud;
 
-public class GithubScript {
+import org.jetbrains.annotations.NotNull;
 
+public final class GithubScript {
     private final String name;
     private final String version;
     private final String author;
     private final String description;
     private final String url;
 
-    public GithubScript(String name, String version, String author, String description, String url) {
+    public GithubScript(@NotNull final String name, @NotNull final String version, @NotNull final String author, @NotNull final String description, @NotNull final String url) {
         this.name = name;
         this.version = version;
         this.author = author;
@@ -36,22 +37,27 @@ public class GithubScript {
         this.url = url;
     }
 
+    @NotNull
     public String getName() {
         return name;
     }
 
+    @NotNull
     public String getVersion() {
         return version;
     }
 
+    @NotNull
     public String getAuthor() {
         return author;
     }
 
+    @NotNull
     public String getDescription() {
         return description;
     }
 
+    @NotNull
     public String getUrl() {
         return url;
     }
