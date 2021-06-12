@@ -38,7 +38,7 @@ public class GithubScriptManager {
 
     private final JavascriptExpansion expansion;
     private final String JAVASCRIPTS_FOLDER;
-    private List<GithubScript> availableScripts;
+    private List<GitScript> availableScripts;
     private final String MASTER_LIST_URL = "https://raw.githubusercontent.com/PlaceholderAPI/Javascript-Expansion/master/scripts/master_list.json";
     private final Gson GSON = new Gson();
 
@@ -62,11 +62,11 @@ public class GithubScriptManager {
                 return;
             }
 
-            availableScripts = GSON.fromJson(json, new TypeToken<ArrayList<GithubScript>>() {}.getType());
+            availableScripts = GSON.fromJson(json, new TypeToken<ArrayList<GitScript>>() {}.getType());
         });
     }
 
-    public void downloadScript(GithubScript script) {
+    public void downloadScript(GitScript script) {
         Bukkit.getScheduler().runTaskAsynchronously(expansion.getPlaceholderAPI(), () -> {
             final List<String> contents = read(script.getUrl());
 
@@ -107,11 +107,11 @@ public class GithubScriptManager {
         return lines;
     }
 
-    public List<GithubScript> getAvailableScripts() {
+    public List<GitScript> getAvailableScripts() {
         return availableScripts;
     }
 
-    public GithubScript getScript(final String name) {
+    public GitScript getScript(final String name) {
         if (availableScripts == null) {
             return null;
         }
