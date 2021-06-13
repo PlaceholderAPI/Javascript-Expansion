@@ -20,7 +20,12 @@
  */
 package com.extendedclip.papi.expansion.javascript;
 
-import com.extendedclip.papi.expansion.javascript.cloud.GithubScriptManager;
+import com.extendedclip.papi.expansion.javascript.cloud.*;
+import com.extendedclip.papi.expansion.javascript.cloud.download.ChanneledScriptDownloader;
+import com.extendedclip.papi.expansion.javascript.cloud.download.GitScriptPathSelector;
+import com.extendedclip.papi.expansion.javascript.cloud.download.PathSelector;
+import com.extendedclip.papi.expansion.javascript.cloud.download.ScriptDownloader;
+import com.extendedclip.papi.expansion.javascript.commands.router.CommandRegistrar;
 import com.extendedclip.papi.expansion.javascript.commands.router.CommandRouter;
 import com.extendedclip.papi.expansion.javascript.commands.router.ExpansionCommandRouter;
 import com.extendedclip.papi.expansion.javascript.evaluator.*;
@@ -33,6 +38,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,23 +51,14 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     private final String VERSION;
     private static JavascriptExpansion instance;
     private GithubScriptManager githubManager;
-    private CommandRouter commandRouter;
-    private CommandMap commandMap;
     private String argument_split;
     private final ScriptEvaluatorFactory scriptEvaluatorFactory;
-
-    public JavascriptExpansion() {
+    private final CommandRegistrar commandRegistrar;
+    private final GitScriptManager scriptManager;
+    public JavascriptExpansion() throws ReflectiveOperationException {
         instance = this;
         this.VERSION = getClass().getPackage().getImplementationVersion();
         this.scripts = new HashSet<>();
-
-        try {
-            final Field field = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-            field.setAccessible(true);
-            commandMap = (CommandMap) field.get(Bukkit.getServer());
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            ExpansionUtils.errorLog("An error occurred while accessing CommandMap.", e, true);
-        }
 
         try {
             this.scriptEvaluatorFactory = new ClosableScriptEvaluatorFactory(ScriptEvaluatorFactory.isolated());
@@ -69,6 +66,13 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
             // Unrecoverable - Therefore throw wrapped exception with more information
             throw new EvaluatorException("Unable to create evaluator.", exception);
         }
+        final PathSelector pathSelector = new GitScriptPathSelector(new File(getPlaceholderAPI().getDataFolder(), "javascripts"));
+        final ScriptDownloader downloader = new ChanneledScriptDownloader(pathSelector);
+        final GitScriptIndexProvider indexProvider = new GitScriptIndexProvider(getPlaceholderAPI());
+        final ActiveStateSetter activeStateSetter = new GitScriptActiveStateSetter(getPlaceholderAPI());
+
+        this.scriptManager = new GitScriptManager(activeStateSetter, indexProvider, downloader, pathSelector);
+        this.commandRegistrar = new CommandRegistrar(this, scriptManager, scriptEvaluatorFactory);
     }
 
     @NotNull
@@ -105,13 +109,13 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
             githubManager.fetch();
         }
 
-        registerCommand();
+        commandRegistrar.register();
         return super.register();
     }
 
     @Override
     public void clear() {
-        unregisterCommand();
+        commandRegistrar.unregister();
 
         scripts.forEach(script -> {
             script.saveData();
@@ -218,52 +222,4 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         return instance;
     }
 
-    public GithubScriptManager getGithubScriptManager() {
-        return githubManager;
-    }
-
-    public void setGithubScriptManager(GithubScriptManager manager) {
-        this.githubManager = manager;
-    }
-
-    private void unregisterCommand() {
-        if (commandMap != null && commandRouter != null) {
-
-            try {
-                Class<? extends CommandMap> cmdMapClass = commandMap.getClass();
-                final Field f;
-
-                //Check if the server's in 1.13+
-                if (cmdMapClass.getSimpleName().equals("CraftCommandMap")) {
-                    f = cmdMapClass.getSuperclass().getDeclaredField("knownCommands");
-                } else {
-                    f = cmdMapClass.getDeclaredField("knownCommands");
-                }
-
-                f.setAccessible(true);
-                Map<String, Command> knownCmds = (Map<String, Command>) f.get(commandMap);
-                knownCmds.remove(commandRouter.getName());
-                for (String alias : commandRouter.getAliases()) {
-                    if (knownCmds.containsKey(alias) && knownCmds.get(alias).toString().contains(commandRouter.getName())) {
-                        knownCmds.remove(alias);
-                    }
-                }
-
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-
-            commandRouter.unregister(commandMap);
-        }
-    }
-
-    private void registerCommand() {
-        if (commandMap == null) {
-            return;
-        }
-
-        commandRouter = new ExpansionCommandRouter(scriptEvaluatorFactory, this, VERSION, "clip", WIKI_LINK);
-        commandMap.register("papi" + commandRouter.getName(), commandRouter);
-        commandRouter.isRegistered();
-    }
 }
