@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class ExpansionCommandRouter extends CommandRouter {
@@ -27,29 +28,12 @@ public final class ExpansionCommandRouter extends CommandRouter {
     private final String wikiLink;
 
     public ExpansionCommandRouter(
-            @NotNull final ScriptEvaluatorFactory evaluatorFactory,
-            @NotNull final JavascriptExpansion expansion, // todo: Validate the dependency of commands on the entrypoint
-            @NotNull final String expansionVersion,
-            @NotNull final String authorName,
-            @NotNull final String wikiLink
-    ) {
-        this(expansionVersion, authorName, wikiLink, Arrays.asList(
-                new GitCommand(COMMAND_NAME, expansion),
-                new ListCommand(COMMAND_NAME, expansion),
-                new ParseCommand(COMMAND_NAME, evaluatorFactory),
-                new ReloadCommand(COMMAND_NAME, expansion),
-                new DebugCommand(COMMAND_NAME, expansion)
-            )
-        );
-    }
-
-    public ExpansionCommandRouter(
             @NotNull final String expansionVersion,
             @NotNull final String authorName,
             @NotNull final String wikiLink,
-            @NotNull final Collection<ExpansionCommand> commands
+            @NotNull final Map<String, ExpansionCommand> commandMap
     ) {
-        super(COMMAND_NAME, DESCRIPTION, USAGE, ALIASES, PERMISSION, commands);
+        super(COMMAND_NAME, DESCRIPTION, USAGE, ALIASES, PERMISSION, commandMap);
         this.expansionVersion = expansionVersion;
         this.authorName = authorName;
         this.wikiLink = wikiLink;

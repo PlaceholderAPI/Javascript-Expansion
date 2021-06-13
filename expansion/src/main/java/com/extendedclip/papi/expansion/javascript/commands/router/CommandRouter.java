@@ -20,15 +20,11 @@ public abstract class CommandRouter extends Command {
             @NotNull final String usageMessage,
             @NotNull final List<String> aliases,
             @Nullable final String permission,
-            @NotNull final Collection<ExpansionCommand> commands
+            @NotNull final Map<String, ExpansionCommand> commandMap
     ) {
         super(name, description, usageMessage, aliases);
         setPermission(permission);
-        this.subCommandMap = new HashMap<>();
-
-        for (final ExpansionCommand command : commands) {
-            subCommandMap.put(command.getName().toLowerCase(), command);
-        }
+        this.subCommandMap = commandMap;
     }
 
     public abstract List<String> getHelpHeader();
