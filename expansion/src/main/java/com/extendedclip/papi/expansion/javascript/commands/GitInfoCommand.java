@@ -1,5 +1,6 @@
 package com.extendedclip.papi.expansion.javascript.commands;
 
+import com.extendedclip.papi.expansion.javascript.ExpansionUtils;
 import com.extendedclip.papi.expansion.javascript.cloud.GitScript;
 import com.extendedclip.papi.expansion.javascript.cloud.GitScriptIndexProvider;
 import com.extendedclip.papi.expansion.javascript.cloud.ScriptIndex;
@@ -10,7 +11,6 @@ import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,8 +24,26 @@ public final class GitInfoCommand extends ExpansionCommand {
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args) {
+    public void execute(final CommandSender sender, final String[] args) {
+        if (args.length < 1) {
+            ExpansionUtils.sendMsg(sender, "&cIncorrect usage! &f/" + getParentCommandName() + " git info [name]");
+            return;
+        }
 
+        final GitScript script = indexProvider.getScriptIndex().flatMap(index -> index.getScript(args[0])).orElse(null);
+
+        if (script == null) {
+            ExpansionUtils.sendMsg(sender, "&cThe script &f" + args[1] + " &cdoes not exist!");
+            return;
+        }
+
+        ExpansionUtils.sendMsg(sender,
+                "&eName: &f" + script.getName(),
+                "&eVersion: &f" + script.getVersion(),
+                "&eDescription: &f" + script.getDescription(),
+                "&eAuthor: &f" + script.getAuthor(),
+                "&eSource URL: &f" + script.getUrl()
+        );
     }
 
     @Override
@@ -36,7 +54,6 @@ public final class GitInfoCommand extends ExpansionCommand {
                     .orElse(Collections.emptyList()).stream()
                     .map(GitScript::getName)
                     .collect(Collectors.toList());
-
             return StringUtil.copyPartialMatches(args[0], scripts, new ArrayList<>());
         }
         return Collections.emptyList();
@@ -44,7 +61,7 @@ public final class GitInfoCommand extends ExpansionCommand {
 
     @Override
     protected @NotNull String getCommandFormat() {
-        return "git info [params]";
+        return "git info [name]";
     }
 
     @Override
