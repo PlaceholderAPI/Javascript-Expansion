@@ -17,7 +17,7 @@ public final class GitListCommand extends ExpansionCommand {
     private final GitScriptIndexProvider indexProvider;
 
     public GitListCommand(final GitScriptIndexProvider indexProvider) {
-        super(ExpansionCommandRouter.COMMAND_NAME + " git", "info");
+        super(ExpansionCommandRouter.COMMAND_NAME + " git", "list");
         this.indexProvider = indexProvider;
     }
 

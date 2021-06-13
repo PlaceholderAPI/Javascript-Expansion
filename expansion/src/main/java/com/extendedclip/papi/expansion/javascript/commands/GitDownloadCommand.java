@@ -22,7 +22,7 @@ public final class GitDownloadCommand extends ExpansionCommand {
     private final GitScriptManager scriptManager;
 
     public GitDownloadCommand(final GitScriptManager scriptManager) {
-        super(ExpansionCommandRouter.COMMAND_NAME + " git", "info");
+        super(ExpansionCommandRouter.COMMAND_NAME + " git", "download");
         this.scriptManager = scriptManager;
     }
 
