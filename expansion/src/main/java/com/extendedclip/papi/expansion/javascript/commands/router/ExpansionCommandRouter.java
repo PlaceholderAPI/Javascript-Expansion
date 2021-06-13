@@ -1,8 +1,5 @@
 package com.extendedclip.papi.expansion.javascript.commands.router;
 
-import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
-import com.extendedclip.papi.expansion.javascript.commands.*;
-import com.extendedclip.papi.expansion.javascript.evaluator.ScriptEvaluatorFactory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
