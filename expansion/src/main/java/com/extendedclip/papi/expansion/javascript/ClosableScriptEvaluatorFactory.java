@@ -27,6 +27,7 @@ public final class ClosableScriptEvaluatorFactory implements ScriptEvaluatorFact
         internalFactory.cleanBinaries();
         internalFactory = null;
         this.isActive = false;
+        // Attempt to unload JNI libraries (ClassLoader gc causes native libraries loaded into it to be unloaded)
         System.gc();
         System.runFinalization();
     }
