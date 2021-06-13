@@ -1,6 +1,5 @@
 package com.extendedclip.papi.expansion.javascript.commands.router;
 
-import com.extendedclip.papi.expansion.javascript.ExpansionUtils;
 import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
 import com.extendedclip.papi.expansion.javascript.cloud.GitScriptManager;
 import com.extendedclip.papi.expansion.javascript.commands.*;
@@ -21,7 +20,24 @@ public final class CommandRegistrar {
     private final CommandMap commandMap;
 
     public CommandRegistrar(final JavascriptExpansion expansion, final GitScriptManager gitScriptManager, final ScriptEvaluatorFactory evaluatorFactory) throws ReflectiveOperationException {
-        final GitCommand gitCommand = new GitCommand(COMMAND_NAME, gitScriptManager);
+        final GitRefreshCommand gitRefreshCommand = new GitRefreshCommand(gitScriptManager.getIndexProvider());
+        final GitListCommand gitListCommand = new GitListCommand(gitScriptManager.getIndexProvider());
+        final GitDownloadCommand gitDownloadCommand = new GitDownloadCommand(gitScriptManager);
+        final GitInfoCommand gitInfoCommand = new GitInfoCommand(gitScriptManager.getIndexProvider());
+        final GitEnabledCommand gitEnabledCommand = new GitEnabledCommand(gitScriptManager.getActiveStateSetter());
+
+
+        final Map<String, ExpansionCommand> gitCommandMap = ImmutableMap.<String, ExpansionCommand>builder()
+                .put("refresh", gitRefreshCommand)
+                .put("list", gitListCommand)
+                .put("download", gitDownloadCommand)
+                .put("info", gitInfoCommand)
+                .put("enabled", gitEnabledCommand)
+                .build();
+
+        final CommandRouter gitCommandRouter = new ExpansionCommandRouter(expansion.getVersion(), expansion.getAuthor(), WIKI_LINK, gitCommandMap);
+
+        final GitCommand gitCommand = new GitCommand(COMMAND_NAME, gitScriptManager.getActiveStateSetter(), gitCommandRouter);
         final ListCommand listCommand = new ListCommand(COMMAND_NAME, expansion);
         final DebugCommand debugCommand = new DebugCommand(COMMAND_NAME, expansion);
         final ParseCommand parseCommand = new ParseCommand(COMMAND_NAME, evaluatorFactory);
