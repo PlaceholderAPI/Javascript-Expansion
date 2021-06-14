@@ -26,20 +26,14 @@ import com.extendedclip.papi.expansion.javascript.cloud.download.GitScriptPathSe
 import com.extendedclip.papi.expansion.javascript.cloud.download.PathSelector;
 import com.extendedclip.papi.expansion.javascript.cloud.download.ScriptDownloader;
 import com.extendedclip.papi.expansion.javascript.commands.router.CommandRegistrar;
-import com.extendedclip.papi.expansion.javascript.commands.router.CommandRouter;
-import com.extendedclip.papi.expansion.javascript.commands.router.ExpansionCommandRouter;
 import com.extendedclip.papi.expansion.javascript.evaluator.*;
 import me.clip.placeholderapi.expansion.Cacheable;
 import me.clip.placeholderapi.expansion.Configurable;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
