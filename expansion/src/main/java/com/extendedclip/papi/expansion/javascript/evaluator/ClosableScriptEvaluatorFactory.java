@@ -1,8 +1,5 @@
 package com.extendedclip.papi.expansion.javascript.evaluator;
 
-import com.extendedclip.papi.expansion.javascript.evaluator.ScriptEvaluator;
-import com.extendedclip.papi.expansion.javascript.evaluator.ScriptEvaluatorFactory;
-
 import java.util.Map;
 
 public final class ClosableScriptEvaluatorFactory implements ScriptEvaluatorFactory{
