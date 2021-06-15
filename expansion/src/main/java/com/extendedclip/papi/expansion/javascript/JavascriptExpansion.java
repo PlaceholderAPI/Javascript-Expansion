@@ -35,7 +35,6 @@ import me.clip.placeholderapi.expansion.Cacheable;
 import me.clip.placeholderapi.expansion.Configurable;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -129,7 +128,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
     @Override
     public String onRequest(OfflinePlayer player, @NotNull String identifier) {
-        if (player == null || registry.getAllPlaceholders().size() == 0) {
+        if (player == null) {
             return "";
         }
 
@@ -145,7 +144,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
             }
         }
 
-        return null;
+        return "";
     }
 
     @Override
