@@ -12,16 +12,16 @@ import java.util.function.Function;
 
 public final class ResourceHeaderWriter implements HeaderWriter {
     @NotNull
-    private final Function<Void, InputStream> inputStreamFunction;
+    private final Function<String, InputStream> inputStreamFunction;
 
-    public ResourceHeaderWriter(@NotNull final Function<Void, InputStream> inputStreamFunction) {
+    public ResourceHeaderWriter(@NotNull final Function<String, InputStream> inputStreamFunction) {
         this.inputStreamFunction = inputStreamFunction;
     }
 
     @Override
     public void writeTo(@NotNull final FileConfiguration configuration) {
-        try (final InputStream stream = inputStreamFunction.apply(null);
-             final ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+        try (final InputStream stream = inputStreamFunction.apply("header.txt");
+            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             stream.transferTo(outputStream);
             final String headerString = outputStream.toString(Charset.defaultCharset());
             configuration.options().header(headerString);
