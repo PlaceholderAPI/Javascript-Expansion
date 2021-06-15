@@ -1,0 +1,23 @@
+Javascript Expansion: @VERSION@
+This is the main configuration file for the Javascript Expansion.
+
+You will define your javascript placeholders in this file.
+
+Javascript files must be located in the:
+ /plugins/placeholderapi/javascripts/ folder
+
+A detailed guide on how to create your own javascript placeholders
+can be found here:
+https://github.com/PlaceholderAPI-Expansions/Javascript-Expansion/wiki
+
+Your javascript placeholders will be identified by: %javascript_<identifier>%
+
+Configuration format:
+
+<identifier>:
+  file: <name of file>.<file extension>
+
+Example:
+
+'my_placeholder':
+  file: 'my_placeholder.js'
