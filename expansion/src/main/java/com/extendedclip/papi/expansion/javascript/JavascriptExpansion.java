@@ -51,7 +51,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     private final ScriptEvaluatorFactory scriptEvaluatorFactory;
     private final CommandRegistrar commandRegistrar;
     private final ScriptConfiguration scriptConfiguration;
-    private final ScriptRegistry registry;
+    private final ScriptRegistry registry = new ScriptRegistry();
     private final ScriptLoader loader;
     private final GitScriptManager scriptManager;
 
@@ -66,7 +66,6 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
         final File configFile = new File(dataFolder, "javascript_placeholders.yml");
         this.scriptConfiguration = new YamlScriptConfiguration(configFile, headerWriter, scriptDirectoryPath);
-        this.registry = new ScriptRegistry();
         final JavascriptPlaceholderFactory placeholderFactory = new SimpleJavascriptPlaceholderFactory(this, scriptEvaluatorFactory);
         this.loader = new ConfigurationScriptLoader(registry, scriptConfiguration, placeholderFactory);
         this.commandRegistrar = new CommandRegistrar(this, scriptManager, placeholderFactory, scriptConfiguration, registry);
