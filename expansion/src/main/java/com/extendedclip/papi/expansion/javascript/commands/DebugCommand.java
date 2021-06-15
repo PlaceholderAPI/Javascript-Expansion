@@ -1,8 +1,8 @@
 package com.extendedclip.papi.expansion.javascript.commands;
 
 import com.extendedclip.papi.expansion.javascript.ExpansionUtils;
-import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
 import com.extendedclip.papi.expansion.javascript.JavascriptPlaceholder;
+import com.extendedclip.papi.expansion.javascript.ScriptRegistry;
 import com.extendedclip.papi.expansion.javascript.commands.router.ExpansionCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;
@@ -19,11 +19,11 @@ public final class DebugCommand extends ExpansionCommand {
     private static final String ARG_SAVE = "savedata";
     private static final String NAME = "debug";
 
-    private final JavascriptExpansion expansion;
+    private final ScriptRegistry registry;
 
-    public DebugCommand(final String parentCommandName, final JavascriptExpansion expansion) {
+    public DebugCommand(final String parentCommandName, final ScriptRegistry registry) {
         super(parentCommandName, NAME);
-        this.expansion = expansion;
+        this.registry = registry;
     }
 
     @Override
@@ -33,7 +33,7 @@ public final class DebugCommand extends ExpansionCommand {
             return;
         }
 
-        JavascriptPlaceholder jsp = expansion.getJSPlaceholder(getIdentifier(args));
+        JavascriptPlaceholder jsp = registry.getPlaceholder(getIdentifier(args));
         if (jsp == null) {
             ExpansionUtils.sendMsg(sender, "&cInvalid javascript identifier! Please re-check your typo");
             return;
