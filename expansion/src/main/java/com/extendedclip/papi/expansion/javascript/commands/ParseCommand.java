@@ -33,6 +33,7 @@ public final class ParseCommand extends ExpansionCommand {
             ExpansionUtils.sendMsg(sender, "&cIncorrect usage! &f/" + getParentCommandName() + " parse [me/player] [code]");
             return;
         }
+        final OfflinePlayer player;
 
         if ("me".equalsIgnoreCase(args[0])) {
             if (!(sender instanceof Player)) {
@@ -40,17 +41,14 @@ public final class ParseCommand extends ExpansionCommand {
                 return;
             }
 
-            final String script = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
-            final JavascriptPlaceholder placeholder = new JavascriptPlaceholder( "parse-command", String.join(" ", script),  evaluatorFactory);
-
-            sender.sendMessage(placeholder.evaluate((Player) sender));
-            return;
+            player = (OfflinePlayer) sender;
+        } else {
+            player = Bukkit.getOfflinePlayer(args[1]);
         }
 
-        final String script = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+        final String script = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
         final JavascriptPlaceholder placeholder = new JavascriptPlaceholder( "parse-command", String.join(" ", script),  evaluatorFactory);
 
-        final OfflinePlayer player = Bukkit.getOfflinePlayer(args[1]);
 
         if (!player.hasPlayedBefore() || player.getName() == null) {
             ExpansionUtils.sendMsg(sender, "&cUnknown player " + args[1]);
