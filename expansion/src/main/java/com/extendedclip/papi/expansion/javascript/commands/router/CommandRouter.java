@@ -89,7 +89,9 @@ public abstract class CommandRouter extends Command {
             if (command == null) {
                 return Collections.emptyList();
             }
-            return command.tabComplete(sender, args);
+            final String[] subArgs = new String[args.length - 1];
+            System.arraycopy(args, 1, subArgs, 0, args.length - 1);
+            return command.tabComplete(sender, subArgs);
         }
         return super.tabComplete(sender, alias, args);
     }
