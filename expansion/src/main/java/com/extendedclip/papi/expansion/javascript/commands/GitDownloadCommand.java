@@ -6,7 +6,9 @@ import com.extendedclip.papi.expansion.javascript.cloud.download.PathSelector;
 import com.extendedclip.papi.expansion.javascript.cloud.download.ScriptDownloader;
 import com.extendedclip.papi.expansion.javascript.commands.router.ExpansionCommand;
 import com.extendedclip.papi.expansion.javascript.commands.router.ExpansionCommandRouter;
+import com.extendedclip.papi.expansion.javascript.config.ScriptConfiguration;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,14 +18,19 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public final class GitDownloadCommand extends ExpansionCommand {
     private final GitScriptManager scriptManager;
+    private final JavaPlugin plugin;
+    private final ScriptConfiguration configuration;
 
-    public GitDownloadCommand(final GitScriptManager scriptManager) {
+    public GitDownloadCommand(final GitScriptManager scriptManager, final JavaPlugin plugin, final ScriptConfiguration configuration) {
         super(ExpansionCommandRouter.COMMAND_NAME + " git", "download");
         this.scriptManager = scriptManager;
+        this.plugin = plugin;
+        this.configuration = configuration;
     }
 
     @Override
@@ -33,10 +40,10 @@ public final class GitDownloadCommand extends ExpansionCommand {
             return;
         }
         final ScriptIndexProvider indexProvider = scriptManager.getIndexProvider();
-        final GitScript script = indexProvider.getScriptIndex().flatMap(index -> index.getScript(args[1])).orElse(null);
+        final GitScript script = indexProvider.getScriptIndex().flatMap(index -> index.getScript(args[0])).orElse(null);
 
         if (script == null) {
-            ExpansionUtils.sendMsg(sender, "&cThe script &f" + args[1] + " &cdoes not exist!");
+            ExpansionUtils.sendMsg(sender, "&cThe script &f" + args[0] + " &cdoes not exist!");
             return;
         }
         final PathSelector selector = scriptManager.getDownloadPathSelector();
@@ -46,12 +53,20 @@ public final class GitDownloadCommand extends ExpansionCommand {
             return;
         }
         final ScriptDownloader downloader = scriptManager.getScriptDownloader();
-        try {
-            downloader.download(script);
+        CompletableFuture.supplyAsync(() -> {
             ExpansionUtils.sendMsg(sender, "&aDownload started. &eCheck the scripts folder in a moment...");
-        } catch (final IOException exception) {
-            ExpansionUtils.errorLog("Failed to download expansion!", exception);
-        }
+            try {
+                return downloader.download(script);
+            } catch (IOException exception) {
+                ExpansionUtils.errorLog("Failed to download expansion!", exception);
+                return null;
+            }
+        }).thenAccept(downloadedPath -> {
+            if (downloadedPath == null) return;
+            ExpansionUtils.sendMsg(sender, "&aDownload complete! " + script.getName());
+            configuration.setPath(script.getName(), downloadedPath.getFileName().toString());
+            configuration.save();
+        });
     }
 
     @Override
@@ -70,7 +85,7 @@ public final class GitDownloadCommand extends ExpansionCommand {
 
     @Override
     protected @NotNull String getCommandFormat() {
-        return "git download [name]";
+        return "download [name]";
     }
 
     @Override
