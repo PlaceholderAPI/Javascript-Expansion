@@ -23,9 +23,8 @@ public final class ChanneledScriptDownloader implements ScriptDownloader {
         final long length = urlConnection.getContentLength();
 
         final Path to = pathSelector.select(script.getName());
-        if (Files.exists(to))
-        try (ReadableByteChannel fromChannel = Channels.newChannel(url.openStream())) {
-            try (FileChannel toChannel = FileChannel.open(to, StandardOpenOption.CREATE)) {
+        try (ReadableByteChannel fromChannel = Channels.newChannel(urlConnection.getInputStream())) {
+            try (FileChannel toChannel = FileChannel.open(to, StandardOpenOption.WRITE, StandardOpenOption.CREATE)) {
                 toChannel.transferFrom(fromChannel, 0, length);
             }
         }
