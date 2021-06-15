@@ -49,6 +49,7 @@ public class JavascriptPlaceholder {
     private YamlConfiguration yaml;
     private final Pattern pattern;
     private final ScriptEvaluatorFactory evaluatorFactory;
+    private final JavascriptExpansion expansion;
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public JavascriptPlaceholder(String identifier, String script, ScriptEvaluatorFactory evaluatorFactory, final JavascriptExpansion expansion) {
@@ -68,6 +69,7 @@ public class JavascriptPlaceholder {
         scriptData = new ScriptData();
         dataFile = new File(directory, identifier + "_data.yml");
         this.evaluatorFactory = evaluatorFactory;
+        this.expansion = expansion;
     }
 
     public String getIdentifier() {
@@ -132,7 +134,7 @@ public class JavascriptPlaceholder {
         bindings.put("Data", scriptData);
         bindings.put("DataVar", scriptData.getData());
         bindings.put("BukkitServer", Bukkit.getServer());
-        bindings.put("Expansion", JavascriptExpansion.getInstance());
+        bindings.put("Expansion", expansion);
         bindings.put("Placeholder", this);
         bindings.put("PlaceholderAPI", PlaceholderAPI.class);
         return bindings;

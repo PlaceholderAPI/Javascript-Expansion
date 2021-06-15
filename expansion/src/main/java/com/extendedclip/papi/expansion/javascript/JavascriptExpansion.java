@@ -46,8 +46,7 @@ import java.util.*;
 public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable {
     private static final URL SELF_JAR_URL = JavascriptExpansion.class.getProtectionDomain()
             .getCodeSource().getLocation();
-    private final String VERSION;
-    private static JavascriptExpansion instance;
+    private final String version;
     private String argument_split;
     private final ScriptEvaluatorFactory scriptEvaluatorFactory;
     private final CommandRegistrar commandRegistrar;
@@ -58,8 +57,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     private final GitScriptManager scriptManager;
 
     public JavascriptExpansion() throws ReflectiveOperationException {
-        instance = this;
-        this.VERSION = getClass().getPackage().getImplementationVersion();
+        this.version = getClass().getPackage().getImplementationVersion();
 
         try {
             this.scriptEvaluatorFactory = new ClosableScriptEvaluatorFactory(ScriptEvaluatorFactory.isolated());
@@ -104,7 +102,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     @NotNull
     @Override
     public String getVersion() {
-        return VERSION;
+        return version;
     }
 
     @Override
@@ -138,11 +136,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     @Override
     public void clear() {
         commandRegistrar.unregister();
-
         loader.clear();
-
-        instance = null;
-
         scriptEvaluatorFactory.cleanBinaries();
     }
 
@@ -185,9 +179,4 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         }
         return 0;
     }
-
-    public static JavascriptExpansion getInstance() {
-        return instance;
-    }
-
 }
