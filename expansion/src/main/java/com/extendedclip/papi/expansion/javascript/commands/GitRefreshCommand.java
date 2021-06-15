@@ -35,7 +35,7 @@ public final class GitRefreshCommand extends ExpansionCommand {
 
     @Override
     protected @NotNull String getCommandFormat() {
-        return "git refresh";
+        return "refresh";
     }
 
     @Override
