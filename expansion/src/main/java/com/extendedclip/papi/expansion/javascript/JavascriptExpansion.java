@@ -97,23 +97,19 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
             argument_split = ",";
             ExpansionUtils.warnLog("Underscore character will not be allowed for splitting. Defaulting to ',' for this", null);
         }
-        scriptConfiguration.reload();
 
-        int amountLoaded = 0;
         try {
-            amountLoaded = loader.reload();
+            final int amountLoaded = loader.reload();
+            ExpansionUtils.infoLog(amountLoaded + " script" + ExpansionUtils.plural(amountLoaded) + " loaded!");
         } catch (final IOException exception) {
             ExpansionUtils.errorLog("Failed to load scripts", exception);
         }
-
-        ExpansionUtils.infoLog(amountLoaded + " script" + ExpansionUtils.plural(amountLoaded) + " loaded!");
         if ((boolean) get("github_script_downloads", false)) {
             scriptManager.getIndexProvider().refreshIndex(scriptIndex -> {
                 long gitIndexed = scriptIndex.getCount();
                 ExpansionUtils.infoLog("Indexed " + gitIndexed + " gitscript" + ExpansionUtils.plural(Math.toIntExact(gitIndexed)));
             });
         }
-
         commandRegistrar.register();
         return super.register();
     }
