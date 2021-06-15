@@ -28,6 +28,9 @@ import com.extendedclip.papi.expansion.javascript.cloud.download.ScriptDownloade
 import com.extendedclip.papi.expansion.javascript.commands.router.CommandRegistrar;
 import com.extendedclip.papi.expansion.javascript.config.*;
 import com.extendedclip.papi.expansion.javascript.evaluator.*;
+import com.extendedclip.papi.expansion.javascript.script.ConfigurationScriptLoader;
+import com.extendedclip.papi.expansion.javascript.script.ScriptLoader;
+import com.extendedclip.papi.expansion.javascript.script.ScriptRegistry;
 import me.clip.placeholderapi.expansion.Cacheable;
 import me.clip.placeholderapi.expansion.Configurable;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -36,12 +39,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.JarURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable {
     private static final URL SELF_JAR_URL = JavascriptExpansion.class.getProtectionDomain()

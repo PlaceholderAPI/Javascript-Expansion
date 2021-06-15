@@ -24,6 +24,7 @@ package com.extendedclip.papi.expansion.javascript;
 
 import com.extendedclip.papi.expansion.javascript.evaluator.ScriptEvaluator;
 import com.extendedclip.papi.expansion.javascript.evaluator.ScriptEvaluatorFactory;
+import com.extendedclip.papi.expansion.javascript.script.ScriptData;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import org.apache.commons.lang.Validate;

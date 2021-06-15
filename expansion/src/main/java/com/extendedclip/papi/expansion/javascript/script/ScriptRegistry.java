@@ -1,5 +1,6 @@
-package com.extendedclip.papi.expansion.javascript;
+package com.extendedclip.papi.expansion.javascript.script;
 
+import com.extendedclip.papi.expansion.javascript.JavascriptPlaceholder;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;

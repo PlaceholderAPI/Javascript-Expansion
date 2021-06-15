@@ -1,4 +1,4 @@
-package com.extendedclip.papi.expansion.javascript;
+package com.extendedclip.papi.expansion.javascript.script;
 
 import java.io.IOException;
 

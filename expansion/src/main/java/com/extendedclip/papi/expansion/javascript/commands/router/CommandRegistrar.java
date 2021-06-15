@@ -1,7 +1,7 @@
 package com.extendedclip.papi.expansion.javascript.commands.router;
 
 import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
-import com.extendedclip.papi.expansion.javascript.ScriptRegistry;
+import com.extendedclip.papi.expansion.javascript.script.ScriptRegistry;
 import com.extendedclip.papi.expansion.javascript.cloud.GitScriptManager;
 import com.extendedclip.papi.expansion.javascript.commands.*;
 import com.extendedclip.papi.expansion.javascript.config.ScriptConfiguration;

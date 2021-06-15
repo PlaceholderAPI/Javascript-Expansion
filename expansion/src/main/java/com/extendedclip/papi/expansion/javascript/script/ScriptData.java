@@ -18,7 +18,7 @@
  *
  *
  */
-package com.extendedclip.papi.expansion.javascript;
+package com.extendedclip.papi.expansion.javascript.script;
 
 import java.util.Collections;
 import java.util.HashMap;
