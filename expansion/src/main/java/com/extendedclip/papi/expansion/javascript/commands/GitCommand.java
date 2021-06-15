@@ -51,6 +51,8 @@ public final class GitCommand extends ExpansionCommand {
     public List<String> tabComplete(final CommandSender sender, final String[] args) {
         if (args.length == 1) {
             return StringUtil.copyPartialMatches(args[0], Arrays.asList(ARG_REFRESH, ARG_LIST, ARG_DOWNLOAD, ARG_ENABLED, ARG_INFO), new ArrayList<>());
+        } else if (args.length > 1) {
+            return subCommandRouter.tabComplete(sender, args[0], args);
         }
         return Collections.emptyList();
     }
