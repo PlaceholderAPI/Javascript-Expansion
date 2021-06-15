@@ -51,7 +51,7 @@ public class JavascriptPlaceholder {
     private final ScriptEvaluatorFactory evaluatorFactory;
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public JavascriptPlaceholder(String identifier, String script, ScriptEvaluatorFactory evaluatorFactory) {
+    public JavascriptPlaceholder(String identifier, String script, ScriptEvaluatorFactory evaluatorFactory, final JavascriptExpansion expansion) {
         Validate.notNull(identifier, "Identifier can not be null");
         Validate.notNull(script, "Script can not be null");
 
