@@ -2,6 +2,7 @@ package com.extendedclip.papi.expansion.javascript.commands.router;
 
 import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
 import com.extendedclip.papi.expansion.javascript.JavascriptPlaceholderFactory;
+import com.extendedclip.papi.expansion.javascript.script.ScriptLoader;
 import com.extendedclip.papi.expansion.javascript.script.ScriptRegistry;
 import com.extendedclip.papi.expansion.javascript.cloud.GitScriptManager;
 import com.extendedclip.papi.expansion.javascript.commands.*;
@@ -11,6 +12,7 @@ import com.google.common.collect.ImmutableMap;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -22,10 +24,10 @@ public final class CommandRegistrar {
     private final CommandRouter router;
     private final CommandMap commandMap;
 
-    public CommandRegistrar(final JavascriptExpansion expansion, final GitScriptManager gitScriptManager, final JavascriptPlaceholderFactory placeholderFactory, final ScriptConfiguration configuration, final ScriptRegistry registry) throws ReflectiveOperationException {
+    public CommandRegistrar(final GitScriptManager gitScriptManager, final JavascriptPlaceholderFactory placeholderFactory, final ScriptConfiguration configuration, final ScriptRegistry registry, final ScriptLoader loader) throws ReflectiveOperationException {
         final GitRefreshCommand gitRefreshCommand = new GitRefreshCommand(gitScriptManager.getIndexProvider());
         final GitListCommand gitListCommand = new GitListCommand(gitScriptManager.getIndexProvider());
-        final GitDownloadCommand gitDownloadCommand = new GitDownloadCommand(gitScriptManager, expansion.getPlaceholderAPI(), configuration);
+        final GitDownloadCommand gitDownloadCommand = new GitDownloadCommand(gitScriptManager, configuration);
         final GitInfoCommand gitInfoCommand = new GitInfoCommand(gitScriptManager.getIndexProvider());
         final GitEnabledCommand gitEnabledCommand = new GitEnabledCommand(gitScriptManager.getActiveStateSetter());
 
@@ -38,13 +40,13 @@ public final class CommandRegistrar {
                 .put("enabled", gitEnabledCommand)
                 .build();
 
-        final CommandRouter gitCommandRouter = new ExpansionCommandRouter(expansion.getVersion(), expansion.getAuthor(), WIKI_LINK, gitCommandMap);
+        final CommandRouter gitCommandRouter = new ExpansionCommandRouter(JavascriptExpansion.VERSION, JavascriptExpansion.AUTHOR, WIKI_LINK, gitCommandMap);
 
         final GitCommand gitCommand = new GitCommand(COMMAND_NAME, gitScriptManager.getActiveStateSetter(), gitCommandRouter);
         final ListCommand listCommand = new ListCommand(COMMAND_NAME, registry);
         final DebugCommand debugCommand = new DebugCommand(COMMAND_NAME, registry);
         final ParseCommand parseCommand = new ParseCommand(COMMAND_NAME, placeholderFactory);
-        final ReloadCommand reloadCommand = new ReloadCommand(COMMAND_NAME, expansion);
+        final ReloadCommand reloadCommand = new ReloadCommand(COMMAND_NAME, loader);
         final Map<String, ExpansionCommand> commandMap = ImmutableMap.<String, ExpansionCommand>builder()
                 .put("git", gitCommand)
                 .put("list", listCommand)
@@ -53,7 +55,7 @@ public final class CommandRegistrar {
                 .put("reload", reloadCommand)
                 .build();
 
-        this.router = new ExpansionCommandRouter(expansion.getVersion(), expansion.getAuthor(), WIKI_LINK, commandMap);
+        this.router = new ExpansionCommandRouter(JavascriptExpansion.VERSION, JavascriptExpansion.AUTHOR, WIKI_LINK, commandMap);
         final Field field = Bukkit.getServer().getClass().getDeclaredField("commandMap");
         field.setAccessible(true);
         this.commandMap = (CommandMap) field.get(Bukkit.getServer());

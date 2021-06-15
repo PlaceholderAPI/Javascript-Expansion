@@ -23,13 +23,11 @@ import java.util.stream.Collectors;
 
 public final class GitDownloadCommand extends ExpansionCommand {
     private final GitScriptManager scriptManager;
-    private final JavaPlugin plugin;
     private final ScriptConfiguration configuration;
 
-    public GitDownloadCommand(final GitScriptManager scriptManager, final JavaPlugin plugin, final ScriptConfiguration configuration) {
+    public GitDownloadCommand(final GitScriptManager scriptManager, final ScriptConfiguration configuration) {
         super(ExpansionCommandRouter.COMMAND_NAME + " git", "download");
         this.scriptManager = scriptManager;
-        this.plugin = plugin;
         this.configuration = configuration;
     }
 

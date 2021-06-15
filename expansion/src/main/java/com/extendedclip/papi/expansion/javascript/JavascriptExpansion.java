@@ -40,7 +40,9 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable {
-    private static final String VERSION = JavascriptExpansion.class.getPackage().getImplementationVersion();
+    public static final String AUTHOR = "clip";
+    public static final String VERSION = JavascriptExpansion.class.getPackage().getImplementationVersion();
+
     private static final URL SELF_JAR_URL = JavascriptExpansion.class.getProtectionDomain()
             .getCodeSource().getLocation();
     private final ScriptEvaluatorFactory scriptEvaluatorFactory;
@@ -63,7 +65,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         ScriptConfiguration scriptConfiguration = new YamlScriptConfiguration(configFile, headerWriter, scriptDirectoryPath);
         final JavascriptPlaceholderFactory placeholderFactory = new SimpleJavascriptPlaceholderFactory(this, scriptEvaluatorFactory);
         this.loader = new ConfigurationScriptLoader(registry, scriptConfiguration, placeholderFactory);
-        this.commandRegistrar = new CommandRegistrar(this, scriptManager, placeholderFactory, scriptConfiguration, registry);
+        this.commandRegistrar = new CommandRegistrar(scriptManager, placeholderFactory, scriptConfiguration, registry, loader);
 
     }
 
