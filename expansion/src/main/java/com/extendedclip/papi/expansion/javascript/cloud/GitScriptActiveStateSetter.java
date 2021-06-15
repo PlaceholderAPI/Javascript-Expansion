@@ -3,7 +3,7 @@ package com.extendedclip.papi.expansion.javascript.cloud;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class GitScriptActiveStateSetter implements ActiveStateSetter {
-    private static final String ACTIVE_STATE_KEY = "expansions.jsexpansion.github_script_downloads";
+    private static final String ACTIVE_STATE_KEY = "expansions.javascript.github_script_downloads";
     private final JavaPlugin plugin;
 
     public GitScriptActiveStateSetter(final JavaPlugin plugin) {
