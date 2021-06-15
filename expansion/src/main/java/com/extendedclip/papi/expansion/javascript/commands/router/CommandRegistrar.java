@@ -1,6 +1,7 @@
 package com.extendedclip.papi.expansion.javascript.commands.router;
 
 import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
+import com.extendedclip.papi.expansion.javascript.JavascriptPlaceholderFactory;
 import com.extendedclip.papi.expansion.javascript.script.ScriptRegistry;
 import com.extendedclip.papi.expansion.javascript.cloud.GitScriptManager;
 import com.extendedclip.papi.expansion.javascript.commands.*;
@@ -21,7 +22,7 @@ public final class CommandRegistrar {
     private final CommandRouter router;
     private final CommandMap commandMap;
 
-    public CommandRegistrar(final JavascriptExpansion expansion, final GitScriptManager gitScriptManager, final ScriptEvaluatorFactory evaluatorFactory, final ScriptConfiguration configuration, final ScriptRegistry registry) throws ReflectiveOperationException {
+    public CommandRegistrar(final JavascriptExpansion expansion, final GitScriptManager gitScriptManager, final JavascriptPlaceholderFactory placeholderFactory, final ScriptConfiguration configuration, final ScriptRegistry registry) throws ReflectiveOperationException {
         final GitRefreshCommand gitRefreshCommand = new GitRefreshCommand(gitScriptManager.getIndexProvider());
         final GitListCommand gitListCommand = new GitListCommand(gitScriptManager.getIndexProvider());
         final GitDownloadCommand gitDownloadCommand = new GitDownloadCommand(gitScriptManager, expansion.getPlaceholderAPI(), configuration);
@@ -42,7 +43,7 @@ public final class CommandRegistrar {
         final GitCommand gitCommand = new GitCommand(COMMAND_NAME, gitScriptManager.getActiveStateSetter(), gitCommandRouter);
         final ListCommand listCommand = new ListCommand(COMMAND_NAME, registry);
         final DebugCommand debugCommand = new DebugCommand(COMMAND_NAME, registry);
-        final ParseCommand parseCommand = new ParseCommand(COMMAND_NAME, evaluatorFactory);
+        final ParseCommand parseCommand = new ParseCommand(COMMAND_NAME, placeholderFactory);
         final ReloadCommand reloadCommand = new ReloadCommand(COMMAND_NAME, expansion);
         final Map<String, ExpansionCommand> commandMap = ImmutableMap.<String, ExpansionCommand>builder()
                 .put("git", gitCommand)

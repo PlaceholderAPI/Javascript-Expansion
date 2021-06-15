@@ -83,8 +83,9 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
         this.scriptConfiguration = new YamlScriptConfiguration(configFile, headerWriter, scriptDirectoryPath);
         this.registry = new ScriptRegistry();
-        this.loader = new ConfigurationScriptLoader(registry, scriptConfiguration, scriptEvaluatorFactory);
-        this.commandRegistrar = new CommandRegistrar(this, scriptManager, scriptEvaluatorFactory, scriptConfiguration, registry);
+        final JavascriptPlaceholderFactory placeholderFactory = new SimpleJavascriptPlaceholderFactory(this, scriptEvaluatorFactory);
+        this.loader = new ConfigurationScriptLoader(registry, scriptConfiguration, placeholderFactory);
+        this.commandRegistrar = new CommandRegistrar(this, scriptManager, placeholderFactory, scriptConfiguration, registry);
 
     }
 
