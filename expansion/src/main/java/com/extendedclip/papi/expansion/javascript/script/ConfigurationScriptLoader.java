@@ -1,6 +1,7 @@
 package com.extendedclip.papi.expansion.javascript.script;
 
 import com.extendedclip.papi.expansion.javascript.JavascriptPlaceholder;
+import com.extendedclip.papi.expansion.javascript.JavascriptPlaceholderFactory;
 import com.extendedclip.papi.expansion.javascript.config.ScriptConfiguration;
 import com.extendedclip.papi.expansion.javascript.evaluator.ScriptEvaluatorFactory;
 
@@ -11,12 +12,12 @@ import java.nio.file.Path;
 public final class ConfigurationScriptLoader implements ScriptLoader {
     private final ScriptRegistry registry;
     private final ScriptConfiguration configuration;
-    private final ScriptEvaluatorFactory evaluatorFactory;
+    private final JavascriptPlaceholderFactory placeholderFactory;
 
-    public ConfigurationScriptLoader(ScriptRegistry registry, ScriptConfiguration configuration, ScriptEvaluatorFactory evaluatorFactory) {
+    public ConfigurationScriptLoader(ScriptRegistry registry, ScriptConfiguration configuration, JavascriptPlaceholderFactory placeholderFactory) {
         this.registry = registry;
         this.configuration = configuration;
-        this.evaluatorFactory = evaluatorFactory;
+        this.placeholderFactory = placeholderFactory;
     }
 
     @Override
@@ -36,7 +37,7 @@ public final class ConfigurationScriptLoader implements ScriptLoader {
                 Files.createFile(path);
             }
             final String script = new String(Files.readAllBytes(path));
-            final JavascriptPlaceholder placeholder = new JavascriptPlaceholder(scriptIdentifier, script, evaluatorFactory);
+            final JavascriptPlaceholder placeholder = placeholderFactory.create(scriptIdentifier, script);
             registry.register(placeholder);
             loaded++;
         }

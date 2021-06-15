@@ -2,6 +2,7 @@ package com.extendedclip.papi.expansion.javascript.commands;
 
 import com.extendedclip.papi.expansion.javascript.ExpansionUtils;
 import com.extendedclip.papi.expansion.javascript.JavascriptPlaceholder;
+import com.extendedclip.papi.expansion.javascript.JavascriptPlaceholderFactory;
 import com.extendedclip.papi.expansion.javascript.commands.router.ExpansionCommand;
 import com.extendedclip.papi.expansion.javascript.evaluator.ScriptEvaluatorFactory;
 import org.bukkit.Bukkit;
@@ -20,11 +21,11 @@ public final class ParseCommand extends ExpansionCommand {
     private static final String ARG_ME = "me";
     private static final String ARG_PLAYER = "player";
 
-    private final ScriptEvaluatorFactory evaluatorFactory;
+    private final JavascriptPlaceholderFactory placeholderFactory;
 
-    public ParseCommand(final String parentCommand, final ScriptEvaluatorFactory evaluatorFactory) {
+    public ParseCommand(final String parentCommand, final JavascriptPlaceholderFactory placeholderFactory) {
         super(parentCommand, "parse");
-        this.evaluatorFactory = evaluatorFactory;
+        this.placeholderFactory = placeholderFactory;
     }
 
     @Override
@@ -43,15 +44,15 @@ public final class ParseCommand extends ExpansionCommand {
 
             player = (OfflinePlayer) sender;
         } else {
-            player = Bukkit.getOfflinePlayer(args[1]);
+            player = Bukkit.getOfflinePlayer(args[0]);
         }
 
         final String script = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
-        final JavascriptPlaceholder placeholder = new JavascriptPlaceholder( "parse-command", String.join(" ", script),  evaluatorFactory);
+        final JavascriptPlaceholder placeholder = placeholderFactory.create( "parse-command", String.join(" ", script));
 
 
         if (!player.hasPlayedBefore() || player.getName() == null) {
-            ExpansionUtils.sendMsg(sender, "&cUnknown player " + args[1]);
+            ExpansionUtils.sendMsg(sender, "&cUnknown player " + args[0]);
             return;
         }
 
