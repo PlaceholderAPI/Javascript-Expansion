@@ -35,6 +35,7 @@ import me.clip.placeholderapi.expansion.Cacheable;
 import me.clip.placeholderapi.expansion.Configurable;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -44,41 +45,27 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable {
+    private static final String VERSION = JavascriptExpansion.class.getPackage().getImplementationVersion();
     private static final URL SELF_JAR_URL = JavascriptExpansion.class.getProtectionDomain()
             .getCodeSource().getLocation();
-    private final String version;
     private String argument_split;
     private final ScriptEvaluatorFactory scriptEvaluatorFactory;
     private final CommandRegistrar commandRegistrar;
     private final ScriptConfiguration scriptConfiguration;
-    private final Path scriptDirectoryPath;
     private final ScriptRegistry registry;
     private final ScriptLoader loader;
     private final GitScriptManager scriptManager;
 
     public JavascriptExpansion() throws ReflectiveOperationException {
-        this.version = getClass().getPackage().getImplementationVersion();
+        this.scriptEvaluatorFactory = new ClosableScriptEvaluatorFactory(ScriptEvaluatorFactory.isolated());
 
-        try {
-            this.scriptEvaluatorFactory = new ClosableScriptEvaluatorFactory(ScriptEvaluatorFactory.isolated());
-        } catch (final ReflectiveOperationException exception) {
-            // Unrecoverable - Therefore throw wrapped exception with more information
-            throw new EvaluatorException("Unable to create evaluator.", exception);
-        }
-        final PathSelector pathSelector = new GitScriptPathSelector(new File(getPlaceholderAPI().getDataFolder(), "javascripts"));
-        final ScriptDownloader downloader = new ChanneledScriptDownloader(pathSelector);
-        final GitScriptIndexProvider indexProvider = new GitScriptIndexProvider(getPlaceholderAPI());
-        final ActiveStateSetter activeStateSetter = new GitScriptActiveStateSetter(getPlaceholderAPI());
-
-        this.scriptManager = new GitScriptManager(activeStateSetter, indexProvider, downloader, pathSelector);
+        this.scriptManager = GitScriptManager.createDefault(getPlaceholderAPI());
+        final HeaderWriter headerWriter = HeaderWriter.fromJar(SELF_JAR_URL);
 
         final File dataFolder = getPlaceholderAPI().getDataFolder();
+        Path scriptDirectoryPath = dataFolder.toPath().resolve("javascripts");
 
         final File configFile = new File(dataFolder, "javascript_placeholders.yml");
-        final HeaderWriter headerWriter = new ResourceHeaderWriter(new JarResourceProvider(SELF_JAR_URL));
-
-        this.scriptDirectoryPath = dataFolder.toPath().resolve("javascripts");
-
         this.scriptConfiguration = new YamlScriptConfiguration(configFile, headerWriter, scriptDirectoryPath);
         this.registry = new ScriptRegistry();
         final JavascriptPlaceholderFactory placeholderFactory = new SimpleJavascriptPlaceholderFactory(this, scriptEvaluatorFactory);
@@ -102,7 +89,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     @NotNull
     @Override
     public String getVersion() {
-        return version;
+        return VERSION;
     }
 
     @Override
