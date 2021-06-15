@@ -45,11 +45,13 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
     private static final URL SELF_JAR_URL = JavascriptExpansion.class.getProtectionDomain()
             .getCodeSource().getLocation();
+
     private final ScriptEvaluatorFactory scriptEvaluatorFactory;
     private final CommandRegistrar commandRegistrar;
     private final ScriptRegistry registry = new ScriptRegistry();
     private final ScriptLoader loader;
     private final GitScriptManager scriptManager;
+
     private String argumentSeparator = "";
 
     public JavascriptExpansion() throws ReflectiveOperationException {
@@ -147,14 +149,5 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         defaults.put("github_script_downloads", false);
 
         return defaults;
-    }
-
-    public int reloadScripts() {
-        try {
-            return loader.reload();
-        } catch (final IOException exception) {
-            ExpansionUtils.errorLog("Failed to reload scripts.", exception);
-        }
-        return 0;
     }
 }
