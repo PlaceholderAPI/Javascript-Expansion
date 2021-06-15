@@ -30,7 +30,7 @@ public final class GitEnabledCommand extends ExpansionCommand {
             return;
         }
 
-        final boolean enabled = Boolean.parseBoolean(args[1]);
+        final boolean enabled = Boolean.parseBoolean(args[0]);
         activeStateSetter.setActive(enabled);
 
         ExpansionUtils.sendMsg(sender, "&6Git script downloads set to: &e" + enabled);
@@ -46,7 +46,7 @@ public final class GitEnabledCommand extends ExpansionCommand {
 
     @Override
     protected @NotNull String getCommandFormat() {
-        return "git enabled (true/false)";
+        return "enabled (true/false)";
     }
 
     @Override
