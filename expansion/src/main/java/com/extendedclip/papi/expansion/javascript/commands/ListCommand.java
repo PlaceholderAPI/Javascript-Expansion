@@ -2,26 +2,29 @@ package com.extendedclip.papi.expansion.javascript.commands;
 
 import com.extendedclip.papi.expansion.javascript.ExpansionUtils;
 import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
+import com.extendedclip.papi.expansion.javascript.JavascriptPlaceholder;
+import com.extendedclip.papi.expansion.javascript.ScriptRegistry;
 import com.extendedclip.papi.expansion.javascript.commands.router.ExpansionCommand;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public final class ListCommand extends ExpansionCommand {
 
-    private final JavascriptExpansion expansion;
+    private final ScriptRegistry registry;
 
-    public ListCommand(final String parentCommandName, final JavascriptExpansion expansion) {
+    public ListCommand(final String parentCommandName, final ScriptRegistry registry) {
         super(parentCommandName, "list");
-        this.expansion = expansion;
+        this.registry = registry;
     }
 
     @Override
     public void execute(final CommandSender sender, final String[] args) {
 
-        final List<String> loaded = expansion.getLoadedIdentifiers();
+        final List<String> loaded = registry.getAllPlaceholders().stream().map(JavascriptPlaceholder::getIdentifier).collect(Collectors.toList());
         ExpansionUtils.sendMsg(sender,loaded.size() + " &7script" + ExpansionUtils.plural(loaded.size()) + " loaded.",
                 String.join(", ", loaded));
     }
