@@ -36,7 +36,7 @@ public final class GitListCommand extends ExpansionCommand {
 
     @Override
     protected @NotNull String getCommandFormat() {
-        return "git list";
+        return "list";
     }
 
     @Override
