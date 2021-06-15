@@ -26,6 +26,7 @@ import com.extendedclip.papi.expansion.javascript.cloud.download.GitScriptPathSe
 import com.extendedclip.papi.expansion.javascript.cloud.download.PathSelector;
 import com.extendedclip.papi.expansion.javascript.cloud.download.ScriptDownloader;
 import com.extendedclip.papi.expansion.javascript.commands.router.CommandRegistrar;
+import com.extendedclip.papi.expansion.javascript.config.*;
 import com.extendedclip.papi.expansion.javascript.evaluator.*;
 import me.clip.placeholderapi.expansion.Cacheable;
 import me.clip.placeholderapi.expansion.Configurable;
@@ -34,25 +35,31 @@ import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.JarURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable {
-    private static final String WIKI_LINK = "https://github.com/PlaceholderAPI/Javascript-Expansion/wiki";
-
-    private JavascriptPlaceholdersConfig config;
-    private final Set<JavascriptPlaceholder> scripts;
+    private static final URL SELF_JAR_URL = JavascriptExpansion.class.getProtectionDomain()
+            .getCodeSource().getLocation();
     private final String VERSION;
     private static JavascriptExpansion instance;
-    private GithubScriptManager githubManager;
     private String argument_split;
     private final ScriptEvaluatorFactory scriptEvaluatorFactory;
     private final CommandRegistrar commandRegistrar;
+    private final ScriptConfiguration scriptConfiguration;
+    private final Path scriptDirectoryPath;
+    private final ScriptRegistry registry;
+    private final ScriptLoader loader;
     private final GitScriptManager scriptManager;
+
     public JavascriptExpansion() throws ReflectiveOperationException {
         instance = this;
         this.VERSION = getClass().getPackage().getImplementationVersion();
-        this.scripts = new HashSet<>();
 
         try {
             this.scriptEvaluatorFactory = new ClosableScriptEvaluatorFactory(ScriptEvaluatorFactory.isolated());
@@ -66,7 +73,19 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         final ActiveStateSetter activeStateSetter = new GitScriptActiveStateSetter(getPlaceholderAPI());
 
         this.scriptManager = new GitScriptManager(activeStateSetter, indexProvider, downloader, pathSelector);
-        this.commandRegistrar = new CommandRegistrar(this, scriptManager, scriptEvaluatorFactory);
+
+        final File dataFolder = getPlaceholderAPI().getDataFolder();
+
+        final File configFile = new File(dataFolder, "javascript_placeholders.yml");
+        final HeaderWriter headerWriter = new ResourceHeaderWriter(new JarResourceProvider(SELF_JAR_URL));
+
+        this.scriptDirectoryPath = dataFolder.toPath().resolve("javascripts");
+
+        this.scriptConfiguration = new YamlScriptConfiguration(configFile, headerWriter, scriptDirectoryPath);
+        this.registry = new ScriptRegistry();
+        this.loader = new ConfigurationScriptLoader(registry, scriptConfiguration, scriptEvaluatorFactory);
+        this.commandRegistrar = new CommandRegistrar(this, scriptManager, scriptEvaluatorFactory, scriptConfiguration, registry);
+
     }
 
     @NotNull
@@ -94,13 +113,21 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
             argument_split = ",";
             ExpansionUtils.warnLog("Underscore character will not be allowed for splitting. Defaulting to ',' for this", null);
         }
-        config = new JavascriptPlaceholdersConfig(this, scriptEvaluatorFactory);
+        scriptConfiguration.reload();
 
-        int amountLoaded = config.loadPlaceholders();
+        int amountLoaded = 0;
+        try {
+            amountLoaded = loader.reload();
+        } catch (final IOException exception) {
+            ExpansionUtils.errorLog("Failed to load scripts", exception);
+        }
+
         ExpansionUtils.infoLog(amountLoaded + " script" + ExpansionUtils.plural(amountLoaded) + " loaded!");
         if ((boolean) get("github_script_downloads", false)) {
-            githubManager = new GithubScriptManager(this);
-            githubManager.fetch();
+            scriptManager.getIndexProvider().refreshIndex(scriptIndex -> {
+                long gitIndexed = scriptIndex.getCount();
+                ExpansionUtils.infoLog("Indexed " + gitIndexed + " gitscript" + ExpansionUtils.plural(Math.toIntExact(gitIndexed)));
+            });
         }
 
         commandRegistrar.register();
@@ -111,17 +138,8 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     public void clear() {
         commandRegistrar.unregister();
 
-        scripts.forEach(script -> {
-            script.saveData();
-            script.cleanup();
-        });
+        loader.clear();
 
-        if (githubManager != null) {
-            githubManager.clear();
-            githubManager = null;
-        }
-
-        scripts.clear();
         instance = null;
 
         scriptEvaluatorFactory.cleanBinaries();
@@ -129,11 +147,11 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
     @Override
     public String onRequest(OfflinePlayer player, @NotNull String identifier) {
-        if (player == null || scripts.size() == 0) {
+        if (player == null || registry.getAllPlaceholders().size() == 0) {
             return "";
         }
 
-        for (JavascriptPlaceholder script : scripts) {
+        for (JavascriptPlaceholder script : registry.getAllPlaceholders()) {
             if (identifier.startsWith(script.getIdentifier() + "_")) {
                 identifier = identifier.replaceFirst(script.getIdentifier() + "_", "");
 
@@ -148,49 +166,6 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         return null;
     }
 
-    public boolean addJSPlaceholder(JavascriptPlaceholder placeholder) {
-        if (placeholder == null) {
-            return false;
-        }
-
-        if (scripts.isEmpty()) {
-            scripts.add(placeholder);
-            return true;
-        }
-
-        if (getJSPlaceholder(placeholder.getIdentifier()) != null) {
-            return false;
-        }
-
-        scripts.add(placeholder);
-        return true;
-    }
-
-//    public Set<JavascriptPlaceholder> getJSPlaceholders() {
-//        return scripts;
-//    }
-
-    public List<String> getLoadedIdentifiers() {
-        return scripts.stream()
-                .map(JavascriptPlaceholder::getIdentifier)
-                .collect(Collectors.toList());
-    }
-
-    public JavascriptPlaceholder getJSPlaceholder(String identifier) {
-        return scripts.stream()
-                .filter(s -> s.getIdentifier().equalsIgnoreCase(identifier))
-                .findFirst()
-                .orElse(null);
-    }
-
-    public int getAmountLoaded() {
-        return scripts.size();
-    }
-
-    public JavascriptPlaceholdersConfig getConfig() {
-        return config;
-    }
-
     @Override
     public Map<String, Object> getDefaults() {
         final Map<String, Object> defaults = new HashMap<>();
@@ -202,14 +177,12 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     }
 
     public int reloadScripts() {
-        scripts.forEach(script -> {
-            script.saveData();
-            script.cleanup();
-        });
-
-        scripts.clear();
-        config.reload();
-        return config.loadPlaceholders();
+        try {
+            return loader.reload();
+        } catch (final IOException exception) {
+            ExpansionUtils.errorLog("Failed to reload scripts.", exception);
+        }
+        return 0;
     }
 
     public static JavascriptExpansion getInstance() {
