@@ -1,7 +1,12 @@
 package com.extendedclip.papi.expansion.javascript.cloud;
 
+import com.extendedclip.papi.expansion.javascript.cloud.download.ChanneledScriptDownloader;
+import com.extendedclip.papi.expansion.javascript.cloud.download.GitScriptPathSelector;
 import com.extendedclip.papi.expansion.javascript.cloud.download.PathSelector;
 import com.extendedclip.papi.expansion.javascript.cloud.download.ScriptDownloader;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
 
 public final class GitScriptManager {
     private final ActiveStateSetter activeStateSetter;
@@ -30,5 +35,13 @@ public final class GitScriptManager {
 
     public PathSelector getDownloadPathSelector() {
         return downloadPathSelector;
+    }
+
+    public static GitScriptManager createDefault(final JavaPlugin plugin) {
+        final PathSelector pathSelector = new GitScriptPathSelector(new File(plugin.getDataFolder(), "javascripts"));
+        final ScriptDownloader downloader = new ChanneledScriptDownloader(pathSelector);
+        final GitScriptIndexProvider indexProvider = new GitScriptIndexProvider(plugin);
+        final ActiveStateSetter activeStateSetter = new GitScriptActiveStateSetter(plugin);
+        return new GitScriptManager(activeStateSetter, indexProvider, downloader, pathSelector);
     }
 }
