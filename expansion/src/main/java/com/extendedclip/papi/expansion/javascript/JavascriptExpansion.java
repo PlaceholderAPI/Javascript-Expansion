@@ -21,10 +21,6 @@
 package com.extendedclip.papi.expansion.javascript;
 
 import com.extendedclip.papi.expansion.javascript.cloud.*;
-import com.extendedclip.papi.expansion.javascript.cloud.download.ChanneledScriptDownloader;
-import com.extendedclip.papi.expansion.javascript.cloud.download.GitScriptPathSelector;
-import com.extendedclip.papi.expansion.javascript.cloud.download.PathSelector;
-import com.extendedclip.papi.expansion.javascript.cloud.download.ScriptDownloader;
 import com.extendedclip.papi.expansion.javascript.commands.router.CommandRegistrar;
 import com.extendedclip.papi.expansion.javascript.config.*;
 import com.extendedclip.papi.expansion.javascript.evaluator.*;
@@ -47,13 +43,13 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     private static final String VERSION = JavascriptExpansion.class.getPackage().getImplementationVersion();
     private static final URL SELF_JAR_URL = JavascriptExpansion.class.getProtectionDomain()
             .getCodeSource().getLocation();
-    private String argument_split;
     private final ScriptEvaluatorFactory scriptEvaluatorFactory;
     private final CommandRegistrar commandRegistrar;
     private final ScriptConfiguration scriptConfiguration;
     private final ScriptRegistry registry = new ScriptRegistry();
     private final ScriptLoader loader;
     private final GitScriptManager scriptManager;
+    private String argumentSeparator = "";
 
     public JavascriptExpansion() throws ReflectiveOperationException {
         this.scriptEvaluatorFactory = new ClosableScriptEvaluatorFactory(ScriptEvaluatorFactory.isolated());
@@ -92,9 +88,9 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
     @Override
     public boolean register() {
-        argument_split = getString("argument_split", ",");
-        if (argument_split.equals("_")) {
-            argument_split = ",";
+        argumentSeparator = getString("argument_split", ",");
+        if (argumentSeparator.equals("_")) {
+            argumentSeparator = ",";
             ExpansionUtils.warnLog("Underscore character will not be allowed for splitting. Defaulting to ',' for this", null);
         }
 
@@ -131,7 +127,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
             if (identifier.startsWith(script.getIdentifier() + "_")) {
                 identifier = identifier.replaceFirst(script.getIdentifier() + "_", "");
 
-                return !identifier.contains(argument_split) ? script.evaluate(player, identifier) : script.evaluate(player, identifier.split(argument_split));
+                return !identifier.contains(argumentSeparator) ? script.evaluate(player, identifier) : script.evaluate(player, identifier.split(argumentSeparator));
             }
 
             if (identifier.equalsIgnoreCase(script.getIdentifier())) {
