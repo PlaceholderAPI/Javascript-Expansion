@@ -61,7 +61,7 @@ public final class GitInfoCommand extends ExpansionCommand {
 
     @Override
     protected @NotNull String getCommandFormat() {
-        return "git info [name]";
+        return "info [name]";
     }
 
     @Override
