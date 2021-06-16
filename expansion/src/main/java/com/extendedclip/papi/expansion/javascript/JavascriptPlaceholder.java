@@ -36,6 +36,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -45,27 +47,27 @@ import java.util.regex.Pattern;
 public class JavascriptPlaceholder {
     private final String identifier;
     private final String script;
-    private ScriptData scriptData;
+    private final ScriptData scriptData = new ScriptData();
     private final File dataFile;
-    private YamlConfiguration yaml;
-    private final Pattern pattern;
+    private final YamlConfiguration yaml = new YamlConfiguration();
+    private final Pattern pattern = Pattern.compile("//.*|/\\*[\\S\\s]*?\\*/|%([^%]+)%");
     private final ScriptEvaluatorFactory evaluatorFactory;
     private final JavascriptExpansion expansion;
 
     public JavascriptPlaceholder(@NotNull final String identifier, @NotNull final String script, @NotNull final ScriptEvaluatorFactory evaluatorFactory, @NotNull final JavascriptExpansion expansion) {
-        String dir = PlaceholderAPIPlugin.getInstance().getDataFolder() + "/javascripts/javascript_data";
+        final Path dataFilePath = expansion.getPlaceholderAPI().getDataFolder()
+                .toPath()
+                .resolve("javascripts")
+                .resolve("javascript_data")
+                .resolve(identifier + "_data.yml");
+        try {
+            Files.createFile(dataFilePath);
+        } catch (IOException exception) {
+            ExpansionUtils.errorLog("Unable to create placeholder data file", exception);
+        }
+        this.dataFile = dataFilePath.toFile();
         this.identifier = identifier;
         this.script = script;
-        final File directory = new File(dir);
-
-        if (!directory.exists()) {
-            //noinspection ResultOfMethodCallIgnored
-            directory.mkdirs();
-        }
-
-        pattern = Pattern.compile("//.*|/\\*[\\S\\s]*?\\*/|%([^%]+)%");
-        scriptData = new ScriptData();
-        dataFile = new File(directory, identifier + "_data.yml");
         this.evaluatorFactory = evaluatorFactory;
         this.expansion = expansion;
     }
@@ -143,21 +145,11 @@ public class JavascriptPlaceholder {
     }
 
     public ScriptData getData() {
-        if (scriptData == null) {
-            scriptData = new ScriptData();
-        }
         return scriptData;
-    }
-
-    public void setData(ScriptData data) {
-        this.scriptData = data;
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public void loadData() {
-        yaml = new YamlConfiguration();
-        dataFile.getParentFile().mkdirs();
-
         if (!dataFile.exists()) {
             try {
                 dataFile.createNewFile();
@@ -166,7 +158,6 @@ public class JavascriptPlaceholder {
                 return;
             }
         }
-
         try {
             yaml.load(dataFile);
         } catch (IOException | InvalidConfigurationException e) {
@@ -180,22 +171,12 @@ public class JavascriptPlaceholder {
             return;
         }
 
-        if (scriptData == null)
-            scriptData = new ScriptData();
-        else scriptData.clear();
+        scriptData.clear();
 
         keys.forEach(key -> scriptData.set(key, ExpansionUtils.ymlToJavaObj(yaml.get(key))));
-
-        if (!scriptData.isEmpty()) {
-            setData(scriptData);
-        }
     }
 
     public void saveData() {
-        if (scriptData == null || scriptData.isEmpty() || yaml == null) {
-            return;
-        }
-
         try {
             yaml.save(dataFile);
         } catch (IOException e) {
@@ -204,10 +185,6 @@ public class JavascriptPlaceholder {
     }
 
     public void cleanup() {
-        if (this.scriptData != null) {
-            this.scriptData.clear();
-            this.scriptData = null;
-        }
-        this.yaml = null;
+        this.scriptData.clear();
     }
 }
