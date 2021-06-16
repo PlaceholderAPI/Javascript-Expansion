@@ -44,7 +44,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class JavascriptPlaceholder {
+public final class JavascriptPlaceholder {
     private final String identifier;
     private final String script;
     private final ScriptData scriptData = new ScriptData();
