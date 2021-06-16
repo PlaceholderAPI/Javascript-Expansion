@@ -36,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -61,7 +62,12 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         final HeaderWriter headerWriter = HeaderWriter.fromJar(SELF_JAR_URL);
 
         final File dataFolder = getPlaceholderAPI().getDataFolder();
-        Path scriptDirectoryPath = dataFolder.toPath().resolve("javascripts");
+        final Path scriptDirectoryPath = dataFolder.toPath().resolve("javascripts");
+        try {
+            Files.createDirectories(scriptDirectoryPath);
+        } catch (IOException exception) {
+            ExpansionUtils.errorLog("Failed to create script folder.", exception);
+        }
 
         final File configFile = new File(dataFolder, "javascript_placeholders.yml");
         ScriptConfiguration scriptConfiguration = new YamlScriptConfiguration(configFile, headerWriter, scriptDirectoryPath);
