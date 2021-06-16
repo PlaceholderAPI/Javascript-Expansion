@@ -60,10 +60,13 @@ public final class JavascriptPlaceholder {
                 .resolve("javascripts")
                 .resolve("javascript_data")
                 .resolve(identifier + "_data.yml");
-        try {
-            Files.createFile(dataFilePath);
-        } catch (IOException exception) {
-            ExpansionUtils.errorLog("Unable to create placeholder data file", exception);
+        if (!Files.exists(dataFilePath)) {
+            try {
+                Files.createDirectories(dataFilePath.getParent());
+                Files.createFile(dataFilePath);
+            } catch (IOException exception) {
+                ExpansionUtils.errorLog("Unable to create placeholder data file", exception);
+            }
         }
         this.dataFile = dataFilePath.toFile();
         this.identifier = identifier;
