@@ -32,6 +32,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,10 +53,7 @@ public class JavascriptPlaceholder {
     private final JavascriptExpansion expansion;
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public JavascriptPlaceholder(String identifier, String script, ScriptEvaluatorFactory evaluatorFactory, final JavascriptExpansion expansion) {
-        Validate.notNull(identifier, "Identifier can not be null");
-        Validate.notNull(script, "Script can not be null");
-
+    public JavascriptPlaceholder(@NotNull final String identifier, @NotNull final String script, @NotNull final ScriptEvaluatorFactory evaluatorFactory, @NotNull final JavascriptExpansion expansion) {
         String dir = PlaceholderAPIPlugin.getInstance().getDataFolder() + "/javascripts/javascript_data";
         this.identifier = identifier;
         this.script = script;
