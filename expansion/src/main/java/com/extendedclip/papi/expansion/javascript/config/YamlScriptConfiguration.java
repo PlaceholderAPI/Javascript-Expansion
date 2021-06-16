@@ -40,7 +40,6 @@ public final class YamlScriptConfiguration implements ScriptConfiguration {
         if (!Files.isDirectory(scriptDirectoryPath)) {
             throw new AssertionError("Expected directory for scripts to be saved/loaded from. Found non-directory path.");
         }
-        setPath("example", "example.js");
     }
 
     @Override
@@ -86,6 +85,7 @@ public final class YamlScriptConfiguration implements ScriptConfiguration {
                 configurationFile.createNewFile();
             }
             fileConfiguration.load(configurationFile);
+            setPath("example", "example.js");
             // Ensure presence of header in case user re-wrote the entire file
             headerWriter.writeTo(fileConfiguration);
             save();
