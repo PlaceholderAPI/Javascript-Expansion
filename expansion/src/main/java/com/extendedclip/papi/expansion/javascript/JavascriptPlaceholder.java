@@ -52,7 +52,6 @@ public class JavascriptPlaceholder {
     private final ScriptEvaluatorFactory evaluatorFactory;
     private final JavascriptExpansion expansion;
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public JavascriptPlaceholder(@NotNull final String identifier, @NotNull final String script, @NotNull final ScriptEvaluatorFactory evaluatorFactory, @NotNull final JavascriptExpansion expansion) {
         String dir = PlaceholderAPIPlugin.getInstance().getDataFolder() + "/javascripts/javascript_data";
         this.identifier = identifier;
@@ -60,6 +59,7 @@ public class JavascriptPlaceholder {
         final File directory = new File(dir);
 
         if (!directory.exists()) {
+            //noinspection ResultOfMethodCallIgnored
             directory.mkdirs();
         }
 
