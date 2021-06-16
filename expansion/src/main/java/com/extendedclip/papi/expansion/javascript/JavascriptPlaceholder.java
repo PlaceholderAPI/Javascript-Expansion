@@ -156,7 +156,7 @@ public class JavascriptPlaceholder {
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public boolean loadData() {
+    public void loadData() {
         yaml = new YamlConfiguration();
         dataFile.getParentFile().mkdirs();
 
@@ -165,7 +165,7 @@ public class JavascriptPlaceholder {
                 dataFile.createNewFile();
             } catch (IOException e) {
                 ExpansionUtils.errorLog("An error occurred while creating data file for " + getIdentifier(), e);
-                return false;
+                return;
             }
         }
 
@@ -173,13 +173,13 @@ public class JavascriptPlaceholder {
             yaml.load(dataFile);
         } catch (IOException | InvalidConfigurationException e) {
             ExpansionUtils.errorLog("An error occurred while loading for " + getIdentifier(), e);
-            return false;
+            return;
         }
 
         final Set<String> keys = yaml.getKeys(true);
 
         if (keys.size() == 0) {
-            return false;
+            return;
         }
 
         if (scriptData == null)
@@ -190,9 +190,7 @@ public class JavascriptPlaceholder {
 
         if (!scriptData.isEmpty()) {
             setData(scriptData);
-            return true;
         }
-        return false;
     }
 
     public void saveData() {
