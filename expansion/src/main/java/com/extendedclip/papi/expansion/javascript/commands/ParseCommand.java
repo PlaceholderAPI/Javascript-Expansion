@@ -30,7 +30,7 @@ public final class ParseCommand extends ExpansionCommand {
 
     @Override
     public void execute(final CommandSender sender, final String[] args) {
-        if (args.length < 3) {
+        if (args.length < 2) {
             ExpansionUtils.sendMsg(sender, "&cIncorrect usage! &f/" + getParentCommandName() + " parse [me/player] [code]");
             return;
         }
