@@ -76,18 +76,15 @@ public final class JavascriptPlaceholder {
         return identifier;
     }
 
-    public String evaluate(OfflinePlayer player, String... args) {
+    public String evaluate(final OfflinePlayer player, final String... args) {
         // A checker to deny all placeholders inside comment codes
-        Matcher matcher = pattern.matcher(script);
-        StringBuffer buffer = new StringBuffer();
-
+        final Matcher matcher = pattern.matcher(script);
+        final StringBuffer buffer = new StringBuffer();
         while (matcher.find()) {
-            String matched = matcher.group(0);
+            final String matched = matcher.group(0);
             if (!matched.startsWith("%") || matched.startsWith("/*") || matched.startsWith("//")) continue;
-
             matcher.appendReplacement(buffer, PlaceholderAPI.setPlaceholders(player, matched));
         }
-
         matcher.appendTail(buffer);
         try {
             final int length;
