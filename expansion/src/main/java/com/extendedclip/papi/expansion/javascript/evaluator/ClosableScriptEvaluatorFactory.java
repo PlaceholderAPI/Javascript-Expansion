@@ -1,13 +1,15 @@
 package com.extendedclip.papi.expansion.javascript.evaluator;
 
 import java.util.Map;
+import java.util.function.Function;
 
 public final class ClosableScriptEvaluatorFactory implements ScriptEvaluatorFactory{
-    private ScriptEvaluatorFactory internalFactory;
+    private final Function<Void, ScriptEvaluatorFactory> internalFactoryProducer;
     private boolean isActive;
+    private ScriptEvaluatorFactory evaluatorFactory;
 
-    public ClosableScriptEvaluatorFactory(ScriptEvaluatorFactory internalFactory) {
-        this.internalFactory = internalFactory;
+    public ClosableScriptEvaluatorFactory(final Function<Void, ScriptEvaluatorFactory> internalFactoryProducer) {
+        this.internalFactoryProducer = internalFactoryProducer;
         this.isActive = true;
     }
 
@@ -16,13 +18,18 @@ public final class ClosableScriptEvaluatorFactory implements ScriptEvaluatorFact
         if (!isActive) {
             throw new AssertionError("Evaluator creator requested on closed evaluator factory");
         }
-        return internalFactory.create(bindings);
+        if (evaluatorFactory == null) {
+            evaluatorFactory = internalFactoryProducer.apply(null);
+        }
+        return evaluatorFactory.create(bindings);
     }
 
     @Override
     public void cleanBinaries() {
-        internalFactory.cleanBinaries();
-        internalFactory = null;
+        if (evaluatorFactory != null) {
+            evaluatorFactory.cleanBinaries();
+            evaluatorFactory = null;
+        }
         this.isActive = false;
         // Attempt to unload JNI libraries (ClassLoader gc causes native libraries loaded into it to be unloaded)
         System.gc();
