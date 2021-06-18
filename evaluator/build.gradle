@@ -9,11 +9,15 @@ version '1.6.1'
 repositories {
     mavenCentral()
     mavenLocal()
+    flatDir {
+        dirs 'libs'
+    }
 }
 
 dependencies {
     compileOnly project(':evaluator-api')
-    implementation 'com.caoccao.javet:javet:0.9.1'
+    implementation name: 'j2v8_win32_x86_64-6.2.0'
+    implementation name: 'j2v8_linux_x86_64-6.2.0'
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
