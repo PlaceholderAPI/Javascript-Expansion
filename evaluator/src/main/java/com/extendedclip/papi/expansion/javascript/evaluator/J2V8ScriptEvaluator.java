@@ -14,7 +14,7 @@ public final class J2V8ScriptEvaluator implements ScriptEvaluator {
     }
 
     @Override
-    public Object execute(final Map<String, Object> additionalBindings, final String script) throws Exception {
+    public Object execute(final Map<String, Object> additionalBindings, final String script) throws EvaluatorException {
         try (final V8 v8 = V8.createV8Runtime()) {
             // Memory manager to handle bound reference management
             final MemoryManager memoryManager = new MemoryManager(v8);
