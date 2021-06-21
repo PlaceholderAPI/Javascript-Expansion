@@ -35,9 +35,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable {
@@ -55,8 +57,8 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
     private String argumentSeparator = "";
 
-    public JavascriptExpansion() throws ReflectiveOperationException {
-        this.scriptEvaluatorFactory = ScriptEvaluatorFactory.create();
+    public JavascriptExpansion() throws ReflectiveOperationException, NoSuchAlgorithmException, IOException, URISyntaxException {
+        this.scriptEvaluatorFactory = J2V8ScriptEvaluatorFactory.create();
 
         this.scriptManager = GitScriptManager.createDefault(getPlaceholderAPI());
         final HeaderWriter headerWriter = HeaderWriter.fromJar(SELF_JAR_URL);
