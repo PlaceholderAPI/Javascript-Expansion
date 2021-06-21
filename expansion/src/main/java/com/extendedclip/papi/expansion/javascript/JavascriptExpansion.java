@@ -47,7 +47,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     private static final URL SELF_JAR_URL = JavascriptExpansion.class.getProtectionDomain()
             .getCodeSource().getLocation();
 
-    private ScriptEvaluatorFactory scriptEvaluatorFactory;
+    private final ScriptEvaluatorFactory scriptEvaluatorFactory;
     private final CommandRegistrar commandRegistrar;
     private final ScriptRegistry registry = new ScriptRegistry();
     private final ScriptLoader loader;
@@ -56,14 +56,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     private String argumentSeparator = "";
 
     public JavascriptExpansion() throws ReflectiveOperationException {
-        this.scriptEvaluatorFactory = new ClosableScriptEvaluatorFactory(Void -> {
-            try {
-                return ScriptEvaluatorFactory.isolated();
-            } catch (ReflectiveOperationException e) {
-                e.printStackTrace();
-            }
-            return null;
-        });
+        this.scriptEvaluatorFactory = ScriptEvaluatorFactory.create();
 
         this.scriptManager = GitScriptManager.createDefault(getPlaceholderAPI());
         final HeaderWriter headerWriter = HeaderWriter.fromJar(SELF_JAR_URL);
@@ -160,7 +153,6 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         defaults.put("debug", false);
         defaults.put("argument_split", ",");
         defaults.put("github_script_downloads", false);
-
         return defaults;
     }
 }
