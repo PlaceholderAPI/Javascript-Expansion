@@ -1,7 +1,6 @@
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '7.0.0'
-    id 'io.github.slimjar' version '1.2.1'
 }
 
 group 'com.extendedclip.papi.expansion.javascript'
@@ -12,20 +11,19 @@ targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    mavenLocal()
     flatDir {
         dirs 'libs'
+    }
+    maven {
+        url = "https://repo.vshnv.tech/"
     }
 }
 
 dependencies {
     compileOnly project(':evaluator-api')
-    implementation 'io.alicorn.v8:v8-adapter:1.59'
-    implementation name: 'j2v8_win32_x86_64-6.2.0'
-    implementation name: 'j2v8_linux_x86_64-6.2.0'
+    compileOnly name: 'j2v8_win32_x86_64-6.2.0'
+    compileOnly name: 'j2v8_linux_x86_64-6.2.0'
+    compileOnly 'io.alicorn.v8:v8-adapter:1.59'
+    implementation 'io.github.slimjar:slimjar:1.2.2'
     testImplementation group: 'junit', name: 'junit', version: '4.12'
-}
-
-shadowJar {
-
 }
