@@ -8,6 +8,8 @@ group 'com.extendedclip.papi.expansion.javascript'
 version '1.6.1'
 archivesBaseName = "Javascript-Expansion"
 
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 repositories {
     mavenCentral()
     maven {
