@@ -1,5 +1,6 @@
 package com.extendedclip.papi.expansion.javascript.evaluator;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -31,8 +32,5 @@ public final class ClosableScriptEvaluatorFactory implements ScriptEvaluatorFact
             evaluatorFactory = null;
         }
         this.isActive = false;
-        // Attempt to unload JNI libraries (ClassLoader gc causes native libraries loaded into it to be unloaded)
-        System.gc();
-        System.runFinalization();
     }
 }
