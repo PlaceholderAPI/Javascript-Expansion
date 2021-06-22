@@ -4,11 +4,10 @@ import com.extendedclip.papi.expansion.javascript.ExpansionUtils;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public final class ResourceHeaderWriter implements HeaderWriter {
     @NotNull
@@ -20,10 +19,9 @@ public final class ResourceHeaderWriter implements HeaderWriter {
 
     @Override
     public void writeTo(@NotNull final FileConfiguration configuration) {
-        try (final InputStream stream = inputStreamFunction.apply("header.txt");
-            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            stream.transferTo(outputStream);
-            final String headerString = outputStream.toString(Charset.defaultCharset());
+        try (final InputStream stream = inputStreamFunction.apply("header.txt")) {
+            final String headerString = new BufferedReader(new InputStreamReader(stream)).lines()
+                    .collect(Collectors.joining("\n"));
             configuration.options().header(headerString);
         } catch (final IOException exception) {
             ExpansionUtils.errorLog("Failed to read header file", exception);
