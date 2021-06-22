@@ -104,6 +104,7 @@ public final class JavascriptPlaceholder {
                 }
                 arguments[i] = PlaceholderAPI.setBracketPlaceholders(player, args[i]);
             }
+
             final Map<String, Object> defaultBindings = prepareDefaultBindings();
 
             final ScriptEvaluator evaluator = evaluatorFactory.create(defaultBindings);
@@ -116,7 +117,7 @@ public final class JavascriptPlaceholder {
             }
             additionalBindings.put("OfflinePlayer", player);
             try {
-                Object result = evaluator.execute(additionalBindings, script);
+                Object result = evaluator.execute(additionalBindings, buffer.toString());
                 return result != null ? PlaceholderAPI.setBracketPlaceholders(player, result.toString()) : "";
             } catch (RuntimeException exception) { // todo:: prepare specific exception and catch that instead of all runtime exceptions
                 ExpansionUtils.errorLog("An error occurred while executing the script '" + identifier + "':\n\t" + exception.getMessage(), null);
