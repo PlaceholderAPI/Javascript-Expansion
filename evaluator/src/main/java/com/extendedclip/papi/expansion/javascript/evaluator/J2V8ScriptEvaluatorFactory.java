@@ -1,33 +1,22 @@
 package com.extendedclip.papi.expansion.javascript.evaluator;
 
-import io.github.slimjar.app.builder.ApplicationBuilder;
-import io.github.slimjar.app.builder.InjectingApplicationBuilder;
 import io.github.slimjar.injector.loader.Injectable;
-import io.github.slimjar.injector.loader.InstrumentationInjectable;
-import io.github.slimjar.injector.loader.UnsafeInjectable;
-import io.github.slimjar.injector.loader.WrappedInjectableClassLoader;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.*;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.jar.JarEntry;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 public final class J2V8ScriptEvaluatorFactory implements ScriptEvaluatorFactory {
-    private static final String[] libraries = {
+    private static final String[] LIBRARIES = {
         "j2v8_linux_x86_64-6.2.0.isolated-jar",
         "j2v8_win32_x86_64-6.2.0.isolated-jar",
         "v8-adapter-1.59.isolated-jar",
@@ -54,11 +43,11 @@ public final class J2V8ScriptEvaluatorFactory implements ScriptEvaluatorFactory 
         return new J2V8ScriptEvaluatorFactory();
     }
 
-    private static Collection<URL> extractLibraries() throws IOException, URISyntaxException {
+    private static Collection<URL> extractLibraries() throws IOException, URISyntaxException, NoSuchAlgorithmException, ReflectiveOperationException {
         final Collection<URL> extracted = new ArrayList<>();
         final File selfFile = new File(SELF_JAR_URL.toURI());
         final JarFile jarFile = new JarFile(selfFile);
-        for (final String library : libraries) {
+        for (final String library : LIBRARIES) {
             final File extractedFile = getExtractionFile(library, selfFile);
             if (extractedFile.exists()) {
                 extracted.add(extractedFile.toURI().toURL());
