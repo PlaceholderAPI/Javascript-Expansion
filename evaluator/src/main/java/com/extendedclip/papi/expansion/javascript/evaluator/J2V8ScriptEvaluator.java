@@ -20,10 +20,10 @@ public final class J2V8ScriptEvaluator implements ScriptEvaluator {
             final MemoryManager memoryManager = new MemoryManager(v8);
 
             for (Map.Entry<String, Object> entry : bindings.entrySet()) {
-                V8JavaAdapter.injectObject(entry.getKey(), entry.getValue(), v8);
+                bind(v8, entry.getKey(), entry.getValue());
             }
             for (Map.Entry<String, Object> entry : additionalBindings.entrySet()) {
-                V8JavaAdapter.injectObject(entry.getKey(), entry.getValue(), v8);
+                bind(v8, entry.getKey(), entry.getValue());
             }
             final Object result = v8.executeScript(script);
 
@@ -33,5 +33,18 @@ public final class J2V8ScriptEvaluator implements ScriptEvaluator {
         } catch (final Exception exception) {
             throw new EvaluatorException("Failed to evaluate requested script.", exception);
         }
+    }
+
+    private void bind(final V8 v8, final String key, final Object value) {
+        if (value.getClass().isArray()) {
+            final Object[] rawArray = (Object[]) value;
+            final V8Array jsArray = new V8Array(v8);
+            for (Object o : rawArray) {
+                jsArray.push(o);
+            }
+            v8.add(key, jsArray);
+            return;
+        }
+        V8JavaAdapter.injectObject(key, value, v8);
     }
 }
