@@ -15,21 +15,16 @@ public final class J2V8ScriptEvaluator implements ScriptEvaluator {
 
     @Override
     public Object execute(final Map<String, Object> additionalBindings, final String script) throws EvaluatorException {
-        try (final V8 v8 = V8.createV8Runtime()) {
+        try (final V8 v8 = V8.createV8Runtime();
+            final ClosableMemoryManager closableMemoryManager = new ClosableMemoryManager(v8)) {
             // Memory manager to handle bound reference management
-            final MemoryManager memoryManager = new MemoryManager(v8);
-
             for (Map.Entry<String, Object> entry : bindings.entrySet()) {
                 bind(v8, entry.getKey(), entry.getValue());
             }
             for (Map.Entry<String, Object> entry : additionalBindings.entrySet()) {
                 bind(v8, entry.getKey(), entry.getValue());
             }
-            final Object result = v8.executeScript(script);
-
-            // Release bound items;
-            memoryManager.release();
-            return result;
+            return v8.executeScript(script);
         } catch (final Exception exception) {
             throw new EvaluatorException("Failed to evaluate requested script.", exception);
         }
