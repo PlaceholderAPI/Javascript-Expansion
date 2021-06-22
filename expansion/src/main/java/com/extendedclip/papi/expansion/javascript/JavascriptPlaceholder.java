@@ -89,6 +89,7 @@ public final class JavascriptPlaceholder {
             matcher.appendReplacement(buffer, PlaceholderAPI.setPlaceholders(player, matched));
         }
         matcher.appendTail(buffer);
+        final String parsedScript = buffer.toString();
         try {
             final int length;
             if (args != null) {
@@ -117,7 +118,7 @@ public final class JavascriptPlaceholder {
             }
             additionalBindings.put("OfflinePlayer", player);
             try {
-                Object result = evaluator.execute(additionalBindings, buffer.toString());
+                Object result = evaluator.execute(additionalBindings, parsedScript);
                 return result != null ? PlaceholderAPI.setBracketPlaceholders(player, result.toString()) : "";
             } catch (RuntimeException exception) { // todo:: prepare specific exception and catch that instead of all runtime exceptions
                 ExpansionUtils.errorLog("An error occurred while executing the script '" + identifier + "':\n\t" + exception.getMessage(), null);
