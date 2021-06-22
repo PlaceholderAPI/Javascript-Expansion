@@ -53,4 +53,5 @@ shadowJar {
             rename ('(.*).jar', '$1.isolated-jar')
         }
     }
+    relocate 'io.github.slimjar', 'com.extendedclip.papi.expansion.javascript.slimjar'
 }
