@@ -4,9 +4,11 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.JarURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.function.Function;
@@ -24,13 +26,13 @@ public final class JarResourceProvider implements Function<String, InputStream> 
     @Nullable
     public InputStream apply(@Nullable final String fileName) {
         try {
-            final JarFile jarFile = new JarFile(resourceJar.getFile());
+            final JarFile jarFile = new JarFile(new File(resourceJar.toURI()));
             final ZipEntry zipEntry = jarFile.getEntry(fileName);
             if (zipEntry == null) {
                 return null;
             }
             return jarFile.getInputStream(zipEntry);
-        } catch (final IOException exception) {
+        } catch (final IOException | URISyntaxException exception) {
             exception.printStackTrace();
         }
         return null;

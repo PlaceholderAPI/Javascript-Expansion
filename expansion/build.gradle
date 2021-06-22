@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
     id 'com.coditory.manifest' version '0.1.14'
 }
 
@@ -8,8 +8,13 @@ group 'com.extendedclip.papi.expansion.javascript'
 version '1.6.1'
 archivesBaseName = "Javascript-Expansion"
 
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 repositories {
     mavenCentral()
+    maven {
+        url = "https://repo.vshnv.tech/"
+    }
     maven {
         url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
     }
@@ -20,6 +25,7 @@ repositories {
 }
 
 dependencies {
+    implementation project(':evaluator')
     implementation project(':evaluator-api')
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'me.clip:placeholderapi:2.10.9'
@@ -27,14 +33,25 @@ dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
+//shadowJar {
+//    dependsOn(project(':evaluator').shadowJar)
+//    doFirst {
+//        copy {
+//            from project(':evaluator').getTasks().getByName("shadowJar").outputs.files.singleFile
+//            into layout.buildDirectory.file("resources/main/")
+//            include('*.jar')
+//        }
+//    }
+//}
+
 shadowJar {
-    dependsOn(project(':evaluator').shadowJar)
     doFirst {
         copy {
-            from project(':evaluator').getTasks().getByName("shadowJar").outputs.files.singleFile
+            from project(':evaluator').getProjectDir().toPath().resolve("libs").toFile()
             into layout.buildDirectory.file("resources/main/")
             include('*.jar')
+            rename ('(.*).jar', '$1.isolated-jar')
         }
     }
-    exclude('libjavet-node*')
+    relocate 'io.github.slimjar', 'com.extendedclip.papi.expansion.javascript.slimjar'
 }
