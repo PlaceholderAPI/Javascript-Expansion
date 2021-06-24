@@ -30,7 +30,7 @@ public final class J2V8ScriptEvaluatorFactory implements ScriptEvaluatorFactory 
 
     @Override
     public ScriptEvaluator create(final Map<String, Object> bindings) {
-        return new J2V8ScriptEvaluator(bindings);
+        return new J2V8ScriptEvaluator(bindings, runtimeToCacheMap);
     }
 
     public static ScriptEvaluatorFactory create() throws URISyntaxException, ReflectiveOperationException, NoSuchAlgorithmException, IOException {

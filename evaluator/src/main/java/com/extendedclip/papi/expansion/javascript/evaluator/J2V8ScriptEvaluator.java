@@ -7,9 +7,11 @@ import java.util.Map;
 
 public final class J2V8ScriptEvaluator implements ScriptEvaluator {
     private final Map<String, Object> bindings;
+    private final Map<V8, ?> runtimeToCacheMap;
 
-    public J2V8ScriptEvaluator(final Map<String, Object> bindings) {
+    public J2V8ScriptEvaluator(final Map<String, Object> bindings, final Map<V8, ?> runtimeToCacheMap) {
         this.bindings = bindings;
+        this.runtimeToCacheMap = runtimeToCacheMap;
     }
 
     @Override
@@ -23,8 +25,11 @@ public final class J2V8ScriptEvaluator implements ScriptEvaluator {
             for (Map.Entry<String, Object> entry : additionalBindings.entrySet()) {
                 bind(v8, entry.getKey(), entry.getValue());
             }
-            return v8.executeScript(script);
+            final Object result = v8.executeScript(script);
+            runtimeToCacheMap.remove(v8);
+            return result;
         } catch (final Exception exception) {
+            System.gc(); // To make sure the v8 reference in the weak hashmap in the adapter gets cleared without comparison issues
             throw new EvaluatorException("Failed to evaluate requested script.", exception);
         }
     }
