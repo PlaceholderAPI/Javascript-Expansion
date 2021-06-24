@@ -58,7 +58,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
     private String argumentSeparator = "";
 
     public JavascriptExpansion() throws ReflectiveOperationException, NoSuchAlgorithmException, IOException, URISyntaxException {
-        this.scriptEvaluatorFactory = J2V8ScriptEvaluatorFactory.create();
+        this.scriptEvaluatorFactory = QuickJsScriptEvaluatorFactory.create();
 
         this.scriptManager = GitScriptManager.createDefault(getPlaceholderAPI());
         final HeaderWriter headerWriter = HeaderWriter.fromJar(SELF_JAR_URL);
