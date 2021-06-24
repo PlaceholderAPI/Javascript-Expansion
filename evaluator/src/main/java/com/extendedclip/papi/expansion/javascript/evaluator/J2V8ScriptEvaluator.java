@@ -1,7 +1,6 @@
 package com.extendedclip.papi.expansion.javascript.evaluator;
 
 import com.eclipsesource.v8.*;
-import com.eclipsesource.v8.utils.MemoryManager;
 import io.alicorn.v8.V8JavaAdapter;
 
 import java.util.Map;
@@ -38,6 +37,8 @@ public final class J2V8ScriptEvaluator implements ScriptEvaluator {
                 jsArray.push(o);
             }
             v8.add(key, jsArray);
+            // Drop native handle
+            jsArray.close();
             return;
         }
         V8JavaAdapter.injectObject(key, value, v8);
