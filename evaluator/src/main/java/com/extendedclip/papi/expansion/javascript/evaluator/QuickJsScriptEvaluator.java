@@ -13,8 +13,6 @@ public final class QuickJsScriptEvaluator implements ScriptEvaluator {
 
     @Override
     public Object execute(final Map<String, Object> additionalBindings, final String script) throws EvaluatorException {
-        final long start = System.currentTimeMillis();
-        final long startNano = System.nanoTime();
         try (final QuackContext context = QuackContext.create(true)) {
             for (Map.Entry<String, Object> entry : bindings.entrySet()) {
                 bind(context, entry.getKey(), entry.getValue());
@@ -25,16 +23,21 @@ public final class QuickJsScriptEvaluator implements ScriptEvaluator {
             return context.evaluate(script);
         } catch (final Exception exception) {
             throw new EvaluatorException("Failed to evaluate requested script.", exception);
-        } finally {
-            final long end = System.currentTimeMillis();
-            final long endNano = System.nanoTime();
-
-            final long timeTaken = end - start;
-            System.out.printf("Evaluated in %d %s\n", timeTaken == 0 ? (endNano - startNano) : timeTaken, timeTaken == 0 ? "ns" : "ms");
         }
     }
 
     private void bind(final QuackContext ctx, final String key, final Object value) {
-        ctx.getGlobalObject().set(key, value);
+        ctx.getGlobalObject().set(key, coerce(ctx, value));
+    }
+    private Object coerce(final QuackContext ctx, final Object value) {
+        if (value.getClass().isArray()) {
+            final Object[] array = (Object[]) value;
+            final JavaScriptObject jsObj = ctx.evaluateForJavaScriptObject("[]");
+            for (int i = 0; i < array.length; i++) {
+                jsObj.set(i, coerce(ctx, array[i]));
+            }
+            return jsObj;
+        }
+        return ctx.coerceJavaToJavaScript(value);
     }
 }
