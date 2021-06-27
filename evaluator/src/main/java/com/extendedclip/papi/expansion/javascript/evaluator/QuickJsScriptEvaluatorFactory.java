@@ -1,11 +1,11 @@
 package com.extendedclip.papi.expansion.javascript.evaluator;
 
+import com.extendedclip.papi.expansion.javascript.evaluator.util.Injectables;
 import io.github.slimjar.injector.loader.Injectable;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.net.*;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -22,8 +22,6 @@ public final class QuickJsScriptEvaluatorFactory implements ScriptEvaluatorFacto
     };
     private static final URL SELF_JAR_URL = QuickJsScriptEvaluatorFactory.class.getProtectionDomain()
             .getCodeSource().getLocation();
-
-
     private QuickJsScriptEvaluatorFactory() {
 
     }
