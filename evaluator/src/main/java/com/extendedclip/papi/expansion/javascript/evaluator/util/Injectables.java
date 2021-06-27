@@ -1,4 +1,4 @@
-package com.extendedclip.papi.expansion.javascript.evaluator;
+package com.extendedclip.papi.expansion.javascript.evaluator.util;
 
 import io.github.slimjar.app.builder.ApplicationBuilder;
 import io.github.slimjar.app.builder.InjectingApplicationBuilder;
@@ -44,14 +44,14 @@ public final class Injectables {
 
         final int jvmLevel;
         switch (parts.length) {
+            case 0:
+                jvmLevel = 16; // Assume highest if not found.
+                break;
             case 1:
                 jvmLevel = Integer.parseInt(parts[0]);
                 break;
-            case 2:
-                jvmLevel = Integer.parseInt(parts[1]);
-                break;
             default:
-                jvmLevel = 16; // Assume highest if not found.
+                jvmLevel = Integer.parseInt(parts[1]);
                 break;
         }
         return jvmLevel < 9;
