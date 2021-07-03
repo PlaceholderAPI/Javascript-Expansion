@@ -23,7 +23,7 @@ public final class NashornScriptEvaluator implements ScriptEvaluator {
     @Override
     public Object execute(final Map<String, Object> additionalBindings, final String script) throws EvaluatorException, ScriptException {
         final ScriptEngine engine = scriptEngineFactory.getScriptEngine();
-        final Bindings globalBindings = engine.getBindings(ScriptContext.GLOBAL_SCOPE);
+        final Bindings globalBindings = engine.getBindings(ScriptContext.ENGINE_SCOPE);
         globalBindings.putAll(bindings);
         globalBindings.putAll(additionalBindings);
         engine.setBindings(globalBindings, ScriptContext.GLOBAL_SCOPE);
