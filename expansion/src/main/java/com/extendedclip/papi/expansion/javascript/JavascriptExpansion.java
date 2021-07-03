@@ -72,7 +72,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         }
 
         final File configFile = new File(dataFolder, "javascript_placeholders.yml");
-        ScriptConfiguration scriptConfiguration = new YamlScriptConfiguration(configFile, headerWriter, scriptDirectoryPath);
+        final ScriptConfiguration scriptConfiguration = new YamlScriptConfiguration(configFile, headerWriter, scriptDirectoryPath);
         final JavascriptPlaceholderFactory placeholderFactory = new SimpleJavascriptPlaceholderFactory(this, scriptEvaluatorFactory);
         this.loader = new ConfigurationScriptLoader(registry, scriptConfiguration, placeholderFactory);
         this.commandRegistrar = new CommandRegistrar(scriptManager, placeholderFactory, scriptConfiguration, registry, loader);
