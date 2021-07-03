@@ -18,7 +18,7 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 public final class QuickJsScriptEvaluatorFactory implements ScriptEvaluatorFactory {
-    private static final Collection<String> LIBRARIES = Collections.singletonList("quickjs-1.0.0.isolated-jar");
+    public static final Collection<String> LIBRARIES = Collections.singletonList("quickjs-1.0.0.isolated-jar");
     private static final URL SELF_JAR_URL = QuickJsScriptEvaluatorFactory.class.getProtectionDomain()
             .getCodeSource().getLocation();
 
