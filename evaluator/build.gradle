@@ -22,6 +22,6 @@ repositories {
 dependencies {
     compileOnly project(':evaluator-api')
     compileOnly name: 'quickjs-1.0.0'
-    implementation 'io.github.slimjar:slimjar:1.2.2'
+    implementation 'io.github.slimjar:slimjar:1.2.3'
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
