@@ -41,54 +41,35 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.logging.Level;
 
 public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable {
     public static final String AUTHOR = "clip";
+    public static final String IDENTIFIER = "javascript";
     public static final String VERSION = JavascriptExpansion.class.getPackage().getImplementationVersion();
 
     private static final URL SELF_JAR_URL = JavascriptExpansion.class.getProtectionDomain()
             .getCodeSource().getLocation();
 
-    private final ScriptEvaluatorFactory scriptEvaluatorFactory;
-    private final CommandRegistrar commandRegistrar;
     private final ScriptRegistry registry = new ScriptRegistry();
-    private final ScriptLoader loader;
-    private final GitScriptManager scriptManager;
+    private final GitScriptManager scriptManager = GitScriptManager.createDefault(getPlaceholderAPI());
 
     private String argumentSeparator = "";
-
-    public JavascriptExpansion() throws ReflectiveOperationException, NoSuchAlgorithmException, IOException, URISyntaxException {
-        this.scriptEvaluatorFactory = J2V8ScriptEvaluatorFactory.create();
-
-        this.scriptManager = GitScriptManager.createDefault(getPlaceholderAPI());
-        final HeaderWriter headerWriter = HeaderWriter.fromJar(SELF_JAR_URL);
-
-        final File dataFolder = getPlaceholderAPI().getDataFolder();
-        final Path scriptDirectoryPath = dataFolder.toPath().resolve("javascripts");
-        try {
-            Files.createDirectories(scriptDirectoryPath);
-        } catch (IOException exception) {
-            ExpansionUtils.errorLog("Failed to create script folder.", exception);
-        }
-
-        final File configFile = new File(dataFolder, "javascript_placeholders.yml");
-        ScriptConfiguration scriptConfiguration = new YamlScriptConfiguration(configFile, headerWriter, scriptDirectoryPath);
-        final JavascriptPlaceholderFactory placeholderFactory = new SimpleJavascriptPlaceholderFactory(this, scriptEvaluatorFactory);
-        this.loader = new ConfigurationScriptLoader(registry, scriptConfiguration, placeholderFactory);
-        this.commandRegistrar = new CommandRegistrar(scriptManager, placeholderFactory, scriptConfiguration, registry, loader);
-
-    }
+    private boolean useQuickJS = false;
+    private ScriptLoader loader;
+    private ScriptEvaluatorFactory scriptEvaluatorFactory;
+    private CommandRegistrar commandRegistrar;
 
     @NotNull
     @Override
     public String getAuthor() {
-        return "clip";
+        return AUTHOR;
     }
 
     @NotNull
     @Override
     public String getIdentifier() {
-        return "javascript";
+        return IDENTIFIER;
     }
 
     @NotNull
@@ -103,6 +84,37 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         if (argumentSeparator.equals("_")) {
             argumentSeparator = ",";
             ExpansionUtils.warnLog("Underscore character will not be allowed for splitting. Defaulting to ',' for this", null);
+        }
+
+        useQuickJS = (boolean) get("use_quick_js", false);
+
+        if (useQuickJS) {
+            this.scriptEvaluatorFactory = QuickJsScriptEvaluatorFactory.createWithFallback(i -> {
+                getPlaceholderAPI().getLogger().log(Level.WARNING, "Failed to use QuickJS Engine. Falling back to Nashorn");
+                return createNashornEvaluatorFactory();
+            });
+        } else {
+            this.scriptEvaluatorFactory =  createNashornEvaluatorFactory();
+        }
+
+
+        final HeaderWriter headerWriter = HeaderWriter.fromJar(SELF_JAR_URL);
+
+        final File dataFolder = getPlaceholderAPI().getDataFolder();
+        final Path scriptDirectoryPath = dataFolder.toPath().resolve("javascripts");
+        try {
+            Files.createDirectories(scriptDirectoryPath);
+        } catch (IOException exception) {
+            ExpansionUtils.errorLog("Failed to create script folder.", exception);
+        }
+        final File configFile = new File(dataFolder, "javascript_placeholders.yml");
+        final ScriptConfiguration scriptConfiguration = new YamlScriptConfiguration(configFile, headerWriter, scriptDirectoryPath);
+        final JavascriptPlaceholderFactory placeholderFactory = new SimpleJavascriptPlaceholderFactory(this, scriptEvaluatorFactory);
+        this.loader = new ConfigurationScriptLoader(registry, scriptConfiguration, placeholderFactory);
+        try {
+            this.commandRegistrar = new CommandRegistrar(scriptManager, placeholderFactory, scriptConfiguration, registry, loader);
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
         }
 
         try {
@@ -155,6 +167,15 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         defaults.put("debug", false);
         defaults.put("argument_split", ",");
         defaults.put("github_script_downloads", false);
+        defaults.put("use_quick_js", false);
         return defaults;
+    }
+
+    private static ScriptEvaluatorFactory createNashornEvaluatorFactory() {
+        try {
+            return NashornScriptEvaluatorFactory.create();
+        } catch (URISyntaxException | ReflectiveOperationException | NoSuchAlgorithmException | IOException exception) {
+            throw new RuntimeException("Failed to create fallback evaluator: Nashorn" ,exception); // Unrecoverable
+        }
     }
 }

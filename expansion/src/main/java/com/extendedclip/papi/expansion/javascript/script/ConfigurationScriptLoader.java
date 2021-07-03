@@ -6,6 +6,7 @@ import com.extendedclip.papi.expansion.javascript.config.ScriptConfiguration;
 import com.extendedclip.papi.expansion.javascript.evaluator.ScriptEvaluatorFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -36,7 +37,7 @@ public final class ConfigurationScriptLoader implements ScriptLoader {
                 Files.createDirectories(path.getParent());
                 Files.createFile(path);
             }
-            final String script = new String(Files.readAllBytes(path));
+            final String script = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
             final JavascriptPlaceholder placeholder = placeholderFactory.create(scriptIdentifier, script);
             registry.register(placeholder);
             loaded++;
