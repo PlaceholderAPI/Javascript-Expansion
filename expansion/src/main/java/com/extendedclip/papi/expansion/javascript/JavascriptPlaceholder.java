@@ -34,6 +34,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 
+import javax.script.ScriptException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -120,9 +121,8 @@ public final class JavascriptPlaceholder {
             try {
                 Object result = evaluator.execute(additionalBindings, parsedScript);
                 return result != null ? PlaceholderAPI.setBracketPlaceholders(player, result.toString()) : "";
-            } catch (RuntimeException exception) { // todo:: prepare specific exception and catch that instead of all runtime exceptions
-                ExpansionUtils.errorLog("An error occurred while executing the script '" + identifier + "':\n\t" + exception.getMessage(), null);
-                exception.printStackTrace();
+            } catch (RuntimeException | ScriptException exception) { // todo:: prepare specific exception and catch that instead of all runtime exceptions
+                ExpansionUtils.errorLog("An error occurred while executing the script '" + identifier , exception);
                 return "Script error (check console)";
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
