@@ -1,7 +1,7 @@
 package com.extendedclip.papi.expansion.javascript.evaluator;
 
-import com.extendedclip.papi.expansion.javascript.evaluator.util.Injectables;
 import io.github.slimjar.injector.loader.Injectable;
+import io.github.slimjar.injector.loader.InjectableFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,9 +34,13 @@ public final class QuickJsScriptEvaluatorFactory implements ScriptEvaluatorFacto
     public static ScriptEvaluatorFactory create() throws URISyntaxException, ReflectiveOperationException, NoSuchAlgorithmException, IOException {
         final Collection<URL> libraryURLs = extractLibraries();
         final ClassLoader bukkitClassLoader = QuickJsScriptEvaluatorFactory.class.getClassLoader().getParent();
-        final Injectable injectable = Injectables.createInjectable(bukkitClassLoader);
-        for (final URL libraryURL : libraryURLs) {
-            injectable.inject(libraryURL);
+        try {
+            final Injectable injectable = InjectableFactory.create(bukkitClassLoader);
+            for (final URL libraryURL : libraryURLs) {
+                injectable.inject(libraryURL);
+            }
+        } catch (final Exception exception) {
+            throw new LibraryInjectionException(exception);
         }
         return new QuickJsScriptEvaluatorFactory();
     }
