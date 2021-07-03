@@ -40,12 +40,16 @@ public final class InjectionUtil {
         }
     }
 
-    public static void inject(final Collection<String> libraries) throws ReflectiveOperationException, URISyntaxException, IOException, NoSuchAlgorithmException {
-        final Collection<URL> libraryURLs = extractLibraries(libraries);
-        final ClassLoader bukkitClassLoader = InjectionUtil.class.getClassLoader().getParent();
-        final Injectable injectable = InjectableFactory.create(bukkitClassLoader);
-        for (final URL libraryURL : libraryURLs) {
-            injectable.inject(libraryURL);
+    public static void inject(final Collection<String> libraries) throws LibraryInjectionException {
+        try {
+            final Collection<URL> libraryURLs = extractLibraries(libraries);
+            final ClassLoader bukkitClassLoader = InjectionUtil.class.getClassLoader().getParent();
+            final Injectable injectable = InjectableFactory.create(bukkitClassLoader);
+            for (final URL libraryURL : libraryURLs) {
+                injectable.inject(libraryURL);
+            }
+        } catch (final Exception exception) {
+            throw new LibraryInjectionException(exception);
         }
     }
 
