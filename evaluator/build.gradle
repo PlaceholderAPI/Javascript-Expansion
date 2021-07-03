@@ -11,9 +11,6 @@ targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    flatDir {
-        dirs 'libs'
-    }
     maven {
         url = "https://repo.vshnv.tech/"
     }
@@ -21,7 +18,7 @@ repositories {
 
 dependencies {
     compileOnly project(':evaluator-api')
-    compileOnly name: 'quickjs-1.0.0'
+    compileOnly fileTree("libs")
     implementation 'io.github.slimjar:slimjar:1.2.3'
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
