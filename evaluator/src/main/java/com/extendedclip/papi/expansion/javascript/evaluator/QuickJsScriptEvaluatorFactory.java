@@ -22,6 +22,7 @@ public final class QuickJsScriptEvaluatorFactory implements ScriptEvaluatorFacto
     };
     private static final URL SELF_JAR_URL = QuickJsScriptEvaluatorFactory.class.getProtectionDomain()
             .getCodeSource().getLocation();
+
     private QuickJsScriptEvaluatorFactory() {
 
     }
