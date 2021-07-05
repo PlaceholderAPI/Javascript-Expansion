@@ -32,10 +32,6 @@ public final class ScriptData {
         this.map = data;
     }
 
-    public ScriptData() {
-        this.map = new HashMap<>();
-    }
-
     public Map<String, Object> getData() {
         return Collections.unmodifiableMap(map);
     }
