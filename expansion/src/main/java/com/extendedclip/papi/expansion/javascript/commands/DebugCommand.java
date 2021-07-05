@@ -43,7 +43,7 @@ public final class DebugCommand extends ExpansionCommand {
             jsp.saveData();
             ExpansionUtils.sendMsg(sender, "&aJavascript data '" + args[1] + "' successfully saved");
         } else if (args[0].equals(ARG_LOAD)) {
-            jsp.loadData();
+            jsp.getPersistableData().reload();
             ExpansionUtils.sendMsg(sender, "&aJavascript data '" + args[1] + "' successfully loaded");
         }
     }
