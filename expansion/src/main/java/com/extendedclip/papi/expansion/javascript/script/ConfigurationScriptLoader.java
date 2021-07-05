@@ -23,10 +23,7 @@ public final class ConfigurationScriptLoader implements ScriptLoader {
 
     @Override
     public int reload() throws IOException {
-        registry.getAllPlaceholders().forEach(placeholder -> {
-            placeholder.saveData();
-            placeholder.cleanup();
-        });
+        registry.getAllPlaceholders().forEach(JavascriptPlaceholder::saveData);
         registry.clearRegistry();
         configuration.reload();
         int loaded = 0;
@@ -47,6 +44,7 @@ public final class ConfigurationScriptLoader implements ScriptLoader {
 
     @Override
     public void clear() {
+        registry.getAllPlaceholders().forEach(JavascriptPlaceholder::saveData);
         registry.clearRegistry();
     }
 }
