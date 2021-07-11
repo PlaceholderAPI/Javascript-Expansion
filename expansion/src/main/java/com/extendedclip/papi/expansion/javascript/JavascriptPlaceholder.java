@@ -25,6 +25,8 @@ package com.extendedclip.papi.expansion.javascript;
 import com.extendedclip.papi.expansion.javascript.evaluator.ScriptEvaluator;
 import com.extendedclip.papi.expansion.javascript.evaluator.ScriptEvaluatorFactory;
 import com.extendedclip.papi.expansion.javascript.script.ScriptData;
+import com.extendedclip.papi.expansion.javascript.script.data.PersistableData;
+import com.extendedclip.papi.expansion.javascript.script.data.YmlPersistableData;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import org.apache.commons.lang.Validate;
@@ -48,9 +50,7 @@ import java.util.regex.Pattern;
 public final class JavascriptPlaceholder {
     private final String identifier;
     private final String script;
-    private final ScriptData scriptData = new ScriptData();
-    private final File dataFile;
-    private final YamlConfiguration yaml = new YamlConfiguration();
+    private final PersistableData persistableData;
     private final Pattern pattern = Pattern.compile("//.*|/\\*[\\S\\s]*?\\*/|%([^%]+)%");
     private final ScriptEvaluatorFactory evaluatorFactory;
     private final JavascriptExpansion expansion;
@@ -61,15 +61,13 @@ public final class JavascriptPlaceholder {
                 .resolve("javascripts")
                 .resolve("javascript_data")
                 .resolve(identifier + "_data.yml");
-        if (!Files.exists(dataFilePath)) {
-            try {
-                Files.createDirectories(dataFilePath.getParent());
-                Files.createFile(dataFilePath);
-            } catch (IOException exception) {
-                ExpansionUtils.errorLog("Unable to create placeholder data file", exception);
-            }
+
+        try {
+            this.persistableData = YmlPersistableData.create(identifier, dataFilePath);
+        } catch (final IOException exception) {
+            ExpansionUtils.errorLog("Unable to create placeholder data file", exception);
+            throw new RuntimeException(exception);
         }
-        this.dataFile = dataFilePath.toFile();
         this.identifier = identifier;
         this.script = script;
         this.evaluatorFactory = evaluatorFactory;
@@ -123,7 +121,6 @@ public final class JavascriptPlaceholder {
                 return result != null ? PlaceholderAPI.setBracketPlaceholders(player, result.toString()) : "";
             } catch (RuntimeException | ScriptException exception) { // todo:: prepare specific exception and catch that instead of all runtime exceptions
                 ExpansionUtils.errorLog("An error occurred while executing the script '" + identifier , exception);
-                return "Script error (check console)";
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
             ExpansionUtils.errorLog("Argument out of bound while executing script '" + identifier + "':\n\t" + ex.getMessage(), null);
@@ -133,8 +130,8 @@ public final class JavascriptPlaceholder {
 
     private Map<String, Object> prepareDefaultBindings() {
         final Map<String, Object> bindings = new HashMap<>();
-        bindings.put("Data", scriptData);
-        bindings.put("DataVar", scriptData.getData());
+        bindings.put("Data", persistableData.getScriptData());
+        bindings.put("DataVar", persistableData.getScriptData().getData());
         bindings.put("BukkitServer", Bukkit.getServer());
         bindings.put("Expansion", expansion);
         bindings.put("Placeholder", this);
@@ -147,46 +144,14 @@ public final class JavascriptPlaceholder {
     }
 
     public ScriptData getData() {
-        return scriptData;
-    }
-
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    public void loadData() {
-        if (!dataFile.exists()) {
-            try {
-                dataFile.createNewFile();
-            } catch (IOException e) {
-                ExpansionUtils.errorLog("An error occurred while creating data file for " + getIdentifier(), e);
-                return;
-            }
-        }
-        try {
-            yaml.load(dataFile);
-        } catch (IOException | InvalidConfigurationException e) {
-            ExpansionUtils.errorLog("An error occurred while loading for " + getIdentifier(), e);
-            return;
-        }
-
-        final Set<String> keys = yaml.getKeys(true);
-
-        if (keys.size() == 0) {
-            return;
-        }
-
-        scriptData.clear();
-
-        keys.forEach(key -> scriptData.set(key, ExpansionUtils.ymlToJavaObj(yaml.get(key))));
+        return persistableData.getScriptData();
     }
 
     public void saveData() {
-        try {
-            yaml.save(dataFile);
-        } catch (IOException e) {
-            ExpansionUtils.errorLog(ExpansionUtils.PREFIX + "An error occurred while saving data for " + getIdentifier(), e);
-        }
+        persistableData.save();
     }
 
-    public void cleanup() {
-        this.scriptData.clear();
+    public PersistableData getPersistableData() {
+        return persistableData;
     }
 }
