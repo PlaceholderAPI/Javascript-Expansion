@@ -1,0 +1,17 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+allprojects {
+    group = 'com.extendedclip.papi.expansion.javascript'
+    version = '1.6.1'
+    description = 'PAPI-Expansion-Javascript'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+}

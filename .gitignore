@@ -11,6 +11,8 @@ local.properties
 .settings/
 .loadpath
 .recommenders
+.gradle/
+target/
 
 # External tool builders
 .externalToolBuilders/
@@ -118,3 +120,4 @@ dist/
 nbdist/
 .nb-gradle/
 nbactions.xml
+/.gradle/
