@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
+}
+
+group 'com.extendedclip.papi.expansion.javascript'
+version '1.6.1'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven {
+        url = "https://repo.vshnv.tech/"
+    }
+}
+
+dependencies {
+    compileOnly project(':evaluator-api')
+    compileOnly fileTree("libs")
+    implementation 'io.github.slimjar:slimjar:1.2.3'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+}
