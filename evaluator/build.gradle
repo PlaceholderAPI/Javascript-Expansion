@@ -19,6 +19,6 @@ repositories {
 dependencies {
     compileOnly project(':evaluator-api')
     compileOnly fileTree("libs")
-    implementation 'io.github.slimjar:slimjar:1.2.3'
+    implementation 'io.github.slimjar:slimjar:1.2.6'
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }

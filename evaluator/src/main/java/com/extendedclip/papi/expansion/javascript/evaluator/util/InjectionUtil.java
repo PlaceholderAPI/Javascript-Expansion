@@ -4,6 +4,8 @@ import com.extendedclip.papi.expansion.javascript.evaluator.LibraryInjectionExce
 import com.extendedclip.papi.expansion.javascript.evaluator.QuickJsScriptEvaluatorFactory;
 import io.github.slimjar.injector.loader.Injectable;
 import io.github.slimjar.injector.loader.InjectableFactory;
+import io.github.slimjar.resolver.data.Repository;
+import io.github.slimjar.resolver.mirrors.SimpleMirrorSelector;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +20,7 @@ import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -42,9 +45,18 @@ public final class InjectionUtil {
 
     public static void inject(final Collection<String> libraries) throws LibraryInjectionException {
         try {
-            final Collection<URL> libraryURLs = extractLibraries(libraries);
+            final File selfFile = new File(SELF_JAR_URL.toURI());
+            final File libsFolder = getLibsFolder(selfFile);
+
+            final Collection<URL> libraryURLs = extractLibraries(selfFile, libsFolder, libraries);
             final ClassLoader bukkitClassLoader = InjectionUtil.class.getClassLoader().getParent();
-            final Injectable injectable = InjectableFactory.create(bukkitClassLoader);
+            final Injectable injectable = InjectableFactory.create(
+                    libsFolder.toPath(),
+                    //Collections.singletonList(new Repository(new URL(SimpleMirrorSelector.CENTRAL_URL))),
+                    Collections.emptyList(),
+                    bukkitClassLoader
+            );
+
             for (final URL libraryURL : libraryURLs) {
                 injectable.inject(libraryURL);
             }
@@ -53,12 +65,12 @@ public final class InjectionUtil {
         }
     }
 
-    private static Collection<URL> extractLibraries(final Collection<String> libraries) throws IOException, URISyntaxException, NoSuchAlgorithmException, ReflectiveOperationException {
+    private static Collection<URL> extractLibraries(final File selfFile, final File libsFolder, final Collection<String> libraries) throws IOException, URISyntaxException, NoSuchAlgorithmException, ReflectiveOperationException {
         final Collection<URL> extracted = new ArrayList<>();
-        final File selfFile = new File(SELF_JAR_URL.toURI());
         final JarFile jarFile = new JarFile(selfFile);
+
         for (final String library : libraries) {
-            final File extractedFile = getExtractionFile(library, selfFile);
+            final File extractedFile = getExtractionFile(library, libsFolder);
             if (extractedFile.exists()) {
                 extracted.add(extractedFile.toURI().toURL());
                 continue;
@@ -72,8 +84,8 @@ public final class InjectionUtil {
             //noinspection ResultOfMethodCallIgnored
             extractedFile.createNewFile();
             try (final InputStream stream = jarFile.getInputStream(entry);
-                final ReadableByteChannel inChannel = Channels.newChannel(stream);
-                final FileChannel outChannel = FileChannel.open(extractedFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+                 final ReadableByteChannel inChannel = Channels.newChannel(stream);
+                 final FileChannel outChannel = FileChannel.open(extractedFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
                 outChannel.transferFrom(inChannel, 0, entry.getSize());
             }
             extracted.add(extractedFile.toURI().toURL());
@@ -81,7 +93,11 @@ public final class InjectionUtil {
         return extracted;
     }
 
-    private static File getExtractionFile(final String name, final File selfFile) {
-        return new File(selfFile.getParentFile(), "libraries/" + name.replace("isolated-jar", "jar"));
+    private static File getExtractionFile(final String name, final File libsFolder) {
+        return new File(libsFolder, name.replace("isolated-jar", "jar"));
+    }
+
+    private static File getLibsFolder(final File selfFile) {
+        return new File(selfFile.getParentFile(), "libraries");
     }
 }
