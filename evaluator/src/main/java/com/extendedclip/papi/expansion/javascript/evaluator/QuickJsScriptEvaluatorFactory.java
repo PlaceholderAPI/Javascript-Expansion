@@ -1,8 +1,6 @@
 package com.extendedclip.papi.expansion.javascript.evaluator;
 
 import com.extendedclip.papi.expansion.javascript.evaluator.util.InjectionUtil;
-import io.github.slimjar.injector.loader.Injectable;
-import io.github.slimjar.injector.loader.InjectableFactory;
 
 import javax.script.ScriptException;
 import java.io.File;
