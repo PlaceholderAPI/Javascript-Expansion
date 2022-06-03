@@ -1,6 +1,6 @@
 package com.extendedclip.papi.expansion.javascript.evaluator;
 
-import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
+import org.mozilla.javascript.engine.RhinoScriptEngineFactory;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -8,11 +8,13 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import java.util.Map;
 
-public final class NashornScriptEvaluator implements ScriptEvaluator {
-    private final NashornScriptEngineFactory scriptEngineFactory;
+public class RhinoJSScriptEvaluator implements ScriptEvaluator {
+
+    private final RhinoScriptEngineFactory scriptEngineFactory;
+
     private final Map<String, Object> bindings;
 
-    public NashornScriptEvaluator(final NashornScriptEngineFactory scriptEngineFactory, final Map<String, Object> bindings) {
+    public RhinoJSScriptEvaluator(final RhinoScriptEngineFactory scriptEngineFactory, final Map<String, Object> bindings) {
         this.scriptEngineFactory = scriptEngineFactory;
         this.bindings = bindings;
     }
