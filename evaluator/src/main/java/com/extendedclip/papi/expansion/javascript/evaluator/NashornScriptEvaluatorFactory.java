@@ -12,7 +12,7 @@ import java.util.Map;
 
 public final class NashornScriptEvaluatorFactory implements ScriptEvaluatorFactory {
     public static final Collection<String> LIBRARIES = Arrays.asList(
-            "nashorn-core-15.3.isolated-jar",
+            "nashorn-core-15.4.isolated-jar",
             "asm-commons-9.2.isolated-jar",
             "asm-util-9.2.isolated-jar",
             "asm-9.2.isolated-jar"
