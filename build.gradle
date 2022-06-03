@@ -4,7 +4,7 @@ plugins {
 }
 allprojects {
     group = 'com.extendedclip.papi.expansion.javascript'
-    version = '2.1.0'
+    version = '2.1.1-DEV'
     description = 'PAPI-Expansion-Javascript'
 }
 
