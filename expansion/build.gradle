@@ -13,7 +13,7 @@ targetCompatibility = 1.8
 repositories {
     mavenCentral()
     maven {
-        url = "https://repo.vshnv.tech/"
+        url = "https://repo.glaremasters.me/repository/public/"
     }
     maven {
         url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
