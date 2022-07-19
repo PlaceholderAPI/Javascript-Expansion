@@ -34,7 +34,7 @@ public final class GitDownloadCommand extends ExpansionCommand {
     @Override
     public void execute(final CommandSender sender, final String[] args) {
         if (args.length < 1) {
-            ExpansionUtils.sendMsg(sender, "&cIncorrect usage! &f/" + getParentCommandName() + " git info [name]");
+            ExpansionUtils.sendMsg(sender, "&cIncorrect usage! &f/" + getParentCommandName() + " git download [name]");
             return;
         }
         final ScriptIndexProvider indexProvider = scriptManager.getIndexProvider();

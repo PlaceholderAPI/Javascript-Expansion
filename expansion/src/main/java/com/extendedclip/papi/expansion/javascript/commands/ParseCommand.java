@@ -1,9 +1,11 @@
 package com.extendedclip.papi.expansion.javascript.commands;
 
 import com.extendedclip.papi.expansion.javascript.ExpansionUtils;
+import com.extendedclip.papi.expansion.javascript.JavascriptExpansion;
 import com.extendedclip.papi.expansion.javascript.JavascriptPlaceholder;
 import com.extendedclip.papi.expansion.javascript.JavascriptPlaceholderFactory;
 import com.extendedclip.papi.expansion.javascript.commands.router.ExpansionCommand;
+import com.extendedclip.papi.expansion.javascript.config.ScriptConfiguration;
 import com.extendedclip.papi.expansion.javascript.evaluator.ScriptEvaluatorFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -23,13 +25,21 @@ public final class ParseCommand extends ExpansionCommand {
 
     private final JavascriptPlaceholderFactory placeholderFactory;
 
-    public ParseCommand(final String parentCommand, final JavascriptPlaceholderFactory placeholderFactory) {
+    private final JavascriptExpansion expansion;
+
+    public ParseCommand(final String parentCommand, final JavascriptPlaceholderFactory placeholderFactory, JavascriptExpansion expansion) {
         super(parentCommand, "parse");
         this.placeholderFactory = placeholderFactory;
+        this.expansion = expansion;
     }
 
     @Override
     public void execute(final CommandSender sender, final String[] args) {
+        if (!(boolean) expansion.get("enable_parse_command", false)) {
+            ExpansionUtils.sendMsg(sender, "&cThis command is disabled in config.");
+            return;
+        }
+
         if (args.length < 2) {
             ExpansionUtils.sendMsg(sender, "&cIncorrect usage! &f/" + getParentCommandName() + " parse [me/player] [code]");
             return;
