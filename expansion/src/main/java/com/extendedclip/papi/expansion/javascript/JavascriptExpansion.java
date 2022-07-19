@@ -112,7 +112,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         final JavascriptPlaceholderFactory placeholderFactory = new SimpleJavascriptPlaceholderFactory(this, scriptEvaluatorFactory);
         this.loader = new ConfigurationScriptLoader(registry, scriptConfiguration, placeholderFactory);
         try {
-            this.commandRegistrar = new CommandRegistrar(scriptManager, placeholderFactory, scriptConfiguration, registry, loader);
+            this.commandRegistrar = new CommandRegistrar(scriptManager, placeholderFactory, scriptConfiguration, registry, loader, this);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -167,6 +167,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         defaults.put("debug", false);
         defaults.put("argument_split", ",");
         defaults.put("github_script_downloads", false);
+        defaults.put("enable_parse_command", false);
         defaults.put("use_quick_js", false);
         return defaults;
     }

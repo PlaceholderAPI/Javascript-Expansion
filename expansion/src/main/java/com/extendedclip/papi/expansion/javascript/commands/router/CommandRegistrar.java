@@ -24,7 +24,7 @@ public final class CommandRegistrar {
     private final CommandRouter router;
     private final CommandMap commandMap;
 
-    public CommandRegistrar(final GitScriptManager gitScriptManager, final JavascriptPlaceholderFactory placeholderFactory, final ScriptConfiguration configuration, final ScriptRegistry registry, final ScriptLoader loader) throws ReflectiveOperationException {
+    public CommandRegistrar(final GitScriptManager gitScriptManager, final JavascriptPlaceholderFactory placeholderFactory, final ScriptConfiguration configuration, final ScriptRegistry registry, final ScriptLoader loader, JavascriptExpansion expansion) throws ReflectiveOperationException {
         final GitRefreshCommand gitRefreshCommand = new GitRefreshCommand(gitScriptManager.getIndexProvider());
         final GitListCommand gitListCommand = new GitListCommand(gitScriptManager.getIndexProvider());
         final GitDownloadCommand gitDownloadCommand = new GitDownloadCommand(gitScriptManager, configuration);
@@ -45,7 +45,7 @@ public final class CommandRegistrar {
         final GitCommand gitCommand = new GitCommand(COMMAND_NAME, gitScriptManager.getActiveStateSetter(), gitCommandRouter);
         final ListCommand listCommand = new ListCommand(COMMAND_NAME, registry);
         final DebugCommand debugCommand = new DebugCommand(COMMAND_NAME, registry);
-        final ParseCommand parseCommand = new ParseCommand(COMMAND_NAME, placeholderFactory);
+        final ParseCommand parseCommand = new ParseCommand(COMMAND_NAME, placeholderFactory, expansion);
         final ReloadCommand reloadCommand = new ReloadCommand(COMMAND_NAME, loader);
         final Map<String, ExpansionCommand> commandMap = ImmutableMap.<String, ExpansionCommand>builder()
                 .put("git", gitCommand)
