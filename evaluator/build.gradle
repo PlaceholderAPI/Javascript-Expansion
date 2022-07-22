@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'com.extendedclip.papi.expansion.javascript'
-version '2.1.1-DEV'
+version '2.1.1'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
