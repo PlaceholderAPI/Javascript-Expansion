@@ -1,6 +1,7 @@
 package com.extendedclip.papi.expansion.javascript.evaluator;
 
-import com.koushikdutta.quack.*;
+import com.koushikdutta.quack.JavaScriptObject;
+import com.koushikdutta.quack.QuackContext;
 
 import java.util.Map;
 

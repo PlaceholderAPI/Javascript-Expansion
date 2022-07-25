@@ -1,7 +1,5 @@
 package com.extendedclip.papi.expansion.javascript.evaluator;
 
-import com.koushikdutta.quack.QuackContext;
-import org.openjdk.nashorn.api.scripting.NashornScriptEngine;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 
 import javax.script.Bindings;
@@ -9,7 +7,6 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import java.util.Map;
-import java.util.stream.Stream;
 
 public final class NashornScriptEvaluator implements ScriptEvaluator {
     private final NashornScriptEngineFactory scriptEngineFactory;
@@ -22,7 +19,7 @@ public final class NashornScriptEvaluator implements ScriptEvaluator {
 
     @Override
     public Object execute(final Map<String, Object> additionalBindings, final String script) throws EvaluatorException, ScriptException {
-        final ScriptEngine engine = scriptEngineFactory.getScriptEngine();
+        final ScriptEngine engine = scriptEngineFactory.getScriptEngine("--no-java");
         final Bindings globalBindings = engine.getBindings(ScriptContext.ENGINE_SCOPE);
         globalBindings.putAll(bindings);
         globalBindings.putAll(additionalBindings);

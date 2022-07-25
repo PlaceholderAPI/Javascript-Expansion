@@ -3,19 +3,14 @@ package com.extendedclip.papi.expansion.javascript.evaluator;
 import com.extendedclip.papi.expansion.javascript.evaluator.util.InjectionUtil;
 
 import javax.script.ScriptException;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.*;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.file.StandardOpenOption;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 import java.util.function.Function;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
 
 public final class QuickJsScriptEvaluatorFactory implements ScriptEvaluatorFactory {
     private static final String TEST_EVALUATION_SCRIPT = "10 * 10";
