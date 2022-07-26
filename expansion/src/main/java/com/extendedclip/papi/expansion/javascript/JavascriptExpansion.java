@@ -56,6 +56,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
     private String argumentSeparator = "";
     private boolean useQuickJS = false;
+    private boolean useRhinoJS = false;
     private ScriptLoader loader;
     private ScriptEvaluatorFactory scriptEvaluatorFactory;
     private CommandRegistrar commandRegistrar;
@@ -87,16 +88,18 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         }
 
         useQuickJS = (boolean) get("use_quick_js", false);
+        useRhinoJS = (boolean) get("use_rhino_js", false);
 
         if (useQuickJS) {
             this.scriptEvaluatorFactory = QuickJsScriptEvaluatorFactory.createWithFallback(i -> {
                 getPlaceholderAPI().getLogger().log(Level.WARNING, "Failed to use QuickJS Engine. Falling back to Nashorn");
                 return createNashornEvaluatorFactory();
             });
+        } else if (useRhinoJS) {
+            this.scriptEvaluatorFactory = createRhinoJSEvaluatorFactory();
         } else {
             this.scriptEvaluatorFactory =  createNashornEvaluatorFactory();
         }
-
 
         final HeaderWriter headerWriter = HeaderWriter.fromJar(SELF_JAR_URL);
 
@@ -169,6 +172,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         defaults.put("github_script_downloads", false);
         defaults.put("enable_parse_command", false);
         defaults.put("use_quick_js", false);
+        defaults.put("use_rhino_js", false);
         return defaults;
     }
 
@@ -177,6 +181,14 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
             return NashornScriptEvaluatorFactory.create();
         } catch (URISyntaxException | ReflectiveOperationException | NoSuchAlgorithmException | IOException exception) {
             throw new RuntimeException("Failed to create fallback evaluator: Nashorn" ,exception); // Unrecoverable
+        }
+    }
+
+    private static ScriptEvaluatorFactory createRhinoJSEvaluatorFactory() {
+        try {
+            return RhinoJSScriptEvaluatorFactory.create();
+        } catch (ReflectiveOperationException | URISyntaxException | NoSuchAlgorithmException | IOException e) {
+            throw new RuntimeException("Failed to create fallback evaluator: RhinoJS", e);
         }
     }
 }
