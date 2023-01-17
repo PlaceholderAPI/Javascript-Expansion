@@ -6,6 +6,8 @@ allprojects {
     group = 'com.extendedclip.papi.expansion.javascript'
     version = '2.1.2'
     description = 'PAPI-Expansion-Javascript'
+
+    apply(plugin: 'java')
 }
 
 repositories {
