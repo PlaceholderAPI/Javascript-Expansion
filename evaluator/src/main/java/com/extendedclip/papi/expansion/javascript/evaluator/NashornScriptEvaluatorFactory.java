@@ -3,6 +3,7 @@ package com.extendedclip.papi.expansion.javascript.evaluator;
 import com.extendedclip.papi.expansion.javascript.evaluator.util.InjectionUtil;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 
+import javax.script.ScriptEngine;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
@@ -17,16 +18,16 @@ public final class NashornScriptEvaluatorFactory implements ScriptEvaluatorFacto
             "asm-util-9.2.isolated-jar",
             "asm-9.2.isolated-jar"
     );
-    private final NashornScriptEngineFactory engineFactory;
+
+    private final ThreadLocal<ScriptEngine> engines;
 
     private NashornScriptEvaluatorFactory(final NashornScriptEngineFactory engineFactory) {
-        this.engineFactory = engineFactory;
+        this.engines = ThreadLocal.withInitial(() -> engineFactory.getScriptEngine("--no-java"));
     }
-
 
     @Override
     public ScriptEvaluator create(final Map<String, Object> bindings) {
-        return new NashornScriptEvaluator(engineFactory, bindings);
+        return new NashornScriptEvaluator(engines.get(), bindings);
     }
 
     public static ScriptEvaluatorFactory create() throws URISyntaxException, ReflectiveOperationException, NoSuchAlgorithmException, IOException {
