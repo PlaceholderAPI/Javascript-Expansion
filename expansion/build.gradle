@@ -4,8 +4,8 @@ plugins {
     id 'com.coditory.manifest' version '0.1.14'
 }
 
-group 'com.extendedclip.papi.expansion.javascript'
-version '2.1.3'
+group 'at.helpch.papi.expansion.javascript'
+version '1.0.0'
 archivesBaseName = "Javascript-Expansion"
 
 sourceCompatibility = 1.8
@@ -16,19 +16,18 @@ repositories {
         url = "https://repo.glaremasters.me/repository/public/"
     }
     maven {
-        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+        url = 'https://repo.helpch.at/releases'
     }
-
     maven {
-        url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/'
+        url = "https://repo.codemc.io/repository/hytale/"
     }
 }
 
 dependencies {
     implementation project(':evaluator')
     implementation project(':evaluator-api')
-    compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
-    compileOnly 'me.clip:placeholderapi:2.10.9'
+    compileOnly 'com.hypixel.hytale:Server:2026.01.17-4b0f30090'
+    compileOnly 'at.helpch:placeholderapi-hytale:1.0.2'
     compileOnly 'org.jetbrains:annotations:21.0.1'
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
