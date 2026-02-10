@@ -2,6 +2,7 @@ package at.helpch.papi.expansion.javascript.script;
 
 import at.helpch.papi.expansion.javascript.JavascriptPlaceholder;
 import at.helpch.papi.expansion.javascript.JavascriptPlaceholderFactory;
+import at.helpch.papi.expansion.javascript.config.ConfigManager;
 import at.helpch.papi.expansion.javascript.config.ScriptConfiguration;
 
 import java.io.IOException;
@@ -11,11 +12,13 @@ import java.nio.file.Path;
 
 public final class ConfigurationScriptLoader implements ScriptLoader {
     private final ScriptRegistry registry;
+    private final ConfigManager configManager;
     private final ScriptConfiguration configuration;
     private final JavascriptPlaceholderFactory placeholderFactory;
 
-    public ConfigurationScriptLoader(ScriptRegistry registry, ScriptConfiguration configuration, JavascriptPlaceholderFactory placeholderFactory) {
+    public ConfigurationScriptLoader(ScriptRegistry registry, ConfigManager configManager, ScriptConfiguration configuration, JavascriptPlaceholderFactory placeholderFactory) {
         this.registry = registry;
+        this.configManager = configManager;
         this.configuration = configuration;
         this.placeholderFactory = placeholderFactory;
     }
@@ -24,9 +27,10 @@ public final class ConfigurationScriptLoader implements ScriptLoader {
     public int reload() throws IOException {
         registry.getAllPlaceholders().forEach(JavascriptPlaceholder::saveData);
         registry.clearRegistry();
-        configuration.reload();
+        configManager.setup();
+        configManager.save();
         int loaded = 0;
-        for (final String scriptIdentifier: configuration.getScripts()) {
+        for (final String scriptIdentifier: configuration.getScriptNames()) {
             final Path path = configuration.getPath(scriptIdentifier);
             if (path == null) continue;
             if (!Files.exists(path)) {

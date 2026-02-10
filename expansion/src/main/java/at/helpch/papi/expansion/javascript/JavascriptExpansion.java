@@ -21,8 +21,8 @@
 package at.helpch.papi.expansion.javascript;
 
 import at.helpch.papi.expansion.javascript.cloud.GitScriptManager;
+import at.helpch.papi.expansion.javascript.config.ConfigManager;
 import at.helpch.papi.expansion.javascript.config.ExpansionConfig;
-import at.helpch.papi.expansion.javascript.config.HeaderWriter;
 import at.helpch.papi.expansion.javascript.config.ScriptConfiguration;
 import at.helpch.papi.expansion.javascript.config.YamlScriptConfiguration;
 import at.helpch.papi.expansion.javascript.evaluator.NashornScriptEvaluatorFactory;
@@ -38,7 +38,6 @@ import at.helpch.placeholderapi.expansion.Configurable;
 import at.helpch.placeholderapi.expansion.PlaceholderExpansion;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,8 +46,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
-import java.util.logging.Level;
 
 public class JavascriptExpansion extends PlaceholderExpansion implements Cacheable, Configurable<ExpansionConfig> {
     public static final String AUTHOR = "clip";
@@ -59,7 +56,7 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
             .getCodeSource().getLocation();
 
     private final ScriptRegistry registry = new ScriptRegistry();
-    private final GitScriptManager scriptManager = GitScriptManager.createDefault(PlaceholderAPIPlugin.instance());
+    private GitScriptManager scriptManager;
 
     private String argumentSeparator = "";
     private boolean useQuickJS = false;
@@ -87,7 +84,9 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
 
     @Override
     public boolean register() {
+        final boolean result = super.register(); // register first otherwise we can't access config :(
         final ExpansionConfig config = getExpansionConfig(JavascriptExpansion.class);
+        scriptManager = GitScriptManager.createDefault(PlaceholderAPIPlugin.instance(), config);
 
         argumentSeparator = config.argumentSplit();
         if (argumentSeparator.equals("_")) {
@@ -106,25 +105,12 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
             this.scriptEvaluatorFactory =  createNashornEvaluatorFactory();
         }
 
-
-        final HeaderWriter headerWriter = HeaderWriter.fromJar(SELF_JAR_URL);
-
-        final File dataFolder = getPlaceholderAPI().getDataDirectory().toFile();
-        final Path scriptDirectoryPath = dataFolder.toPath().resolve("javascripts");
-        try {
-            Files.createDirectories(scriptDirectoryPath);
-        } catch (IOException exception) {
-            ExpansionUtils.errorLog("Failed to create script folder.", exception);
-        }
-        final File configFile = new File(dataFolder, "javascript_placeholders.yml");
-        final ScriptConfiguration scriptConfiguration = new YamlScriptConfiguration(configFile, headerWriter, scriptDirectoryPath);
+        final ConfigManager configManager = new ConfigManager(PlaceholderAPIPlugin.instance());
+        configManager.setup();
+        final ScriptConfiguration scriptConfiguration = configManager.config();
         final JavascriptPlaceholderFactory placeholderFactory = new SimpleJavascriptPlaceholderFactory(this, scriptEvaluatorFactory);
-        this.loader = new ConfigurationScriptLoader(registry, scriptConfiguration, placeholderFactory);
-        try {
-            this.commandRegistrar = new CommandRegistrar(scriptManager, placeholderFactory, scriptConfiguration, registry, loader, this);
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-        }
+        this.loader = new ConfigurationScriptLoader(registry, configManager, scriptConfiguration, placeholderFactory);
+        this.commandRegistrar = new CommandRegistrar(scriptManager, placeholderFactory, scriptConfiguration, registry, loader, this, configManager);
 
         try {
             final int amountLoaded = loader.reload();
@@ -132,14 +118,16 @@ public class JavascriptExpansion extends PlaceholderExpansion implements Cacheab
         } catch (final IOException exception) {
             ExpansionUtils.errorLog("Failed to load scripts", exception);
         }
+
         if (config.githubScriptDownloads()) {
             scriptManager.getIndexProvider().refreshIndex(scriptIndex -> {
                 long gitIndexed = scriptIndex.getCount();
                 ExpansionUtils.infoLog("Indexed " + gitIndexed + " gitscript" + ExpansionUtils.plural(Math.toIntExact(gitIndexed)));
             });
         }
+
         commandRegistrar.register();
-        return super.register();
+        return result;
     }
 
     @Override

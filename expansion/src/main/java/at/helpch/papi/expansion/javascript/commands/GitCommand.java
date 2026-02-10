@@ -2,11 +2,11 @@ package at.helpch.papi.expansion.javascript.commands;
 
 import at.helpch.papi.expansion.javascript.ExpansionUtils;
 import at.helpch.papi.expansion.javascript.cloud.ActiveStateSetter;
-import com.extendedclip.papi.expansion.javascript.cloud.*;
 import at.helpch.papi.expansion.javascript.commands.router.CommandRouter;
 import at.helpch.papi.expansion.javascript.commands.router.ExpansionCommand;
-import org.bukkit.command.CommandSender;
-import org.bukkit.util.StringUtil;
+import at.helpch.papi.expansion.javascript.commands.util.ColorUtil;
+import com.hypixel.hytale.server.core.command.system.CommandContext;
+import com.hypixel.hytale.server.core.command.system.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -30,26 +30,15 @@ public final class GitCommand extends ExpansionCommand {
     @Override
     public void execute(final CommandSender sender, final String[] args) {
         if (args.length < 1) {
-            ExpansionUtils.sendMsg(sender, "&cIncorrect usage! Type '&f/" + getParentCommandName() + "&c' for more help.");
+            sender.sendMessage(ColorUtil.colorize("&cIncorrect usage! Type '&f/" + getParentCommandName() + "&c' for more help."));
             return;
         }
         if (!activeStateSetter.isActive() && !"enabled".equalsIgnoreCase(args[0])) {
-            ExpansionUtils.sendMsg(sender, "&cThis feature is disabled in the PlaceholderAPI config.");
+            sender.sendMessage(ColorUtil.colorize("&cThis feature is disabled in the PlaceholderAPI config."));
             return;
         }
 
-        subCommandRouter.execute(sender, getParentCommandName() + " git", args);
-    }
-
-    @Override
-    @NotNull
-    public List<String> tabComplete(final CommandSender sender, final String[] args) {
-        if (args.length == 1) {
-            return StringUtil.copyPartialMatches(args[0], Arrays.asList(ARG_REFRESH, ARG_LIST, ARG_DOWNLOAD, ARG_ENABLED, ARG_INFO), new ArrayList<>());
-        } else if (args.length > 1) {
-            return subCommandRouter.tabComplete(sender, args[0], args);
-        }
-        return Collections.emptyList();
+        subCommandRouter.execute(sender, args);
     }
 
     @Override

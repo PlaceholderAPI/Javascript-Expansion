@@ -2,13 +2,12 @@ package at.helpch.papi.expansion.javascript.commands;
 
 import at.helpch.papi.expansion.javascript.ExpansionUtils;
 import at.helpch.papi.expansion.javascript.commands.router.ExpansionCommand;
+import at.helpch.papi.expansion.javascript.commands.util.ColorUtil;
 import at.helpch.papi.expansion.javascript.script.ScriptLoader;
-import org.bukkit.command.CommandSender;
+import com.hypixel.hytale.server.core.command.system.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 
 public final class ReloadCommand extends ExpansionCommand {
 
@@ -22,21 +21,15 @@ public final class ReloadCommand extends ExpansionCommand {
     @Override
     public void execute(final CommandSender sender, final String[] args) {
 
-        ExpansionUtils.sendMsg(sender, "&aJavascriptExpansion reloading...");
+        sender.sendMessage(ColorUtil.colorize("&aJavascriptExpansion reloading..."));
         try {
             final int scripts = loader.reload();
-            ExpansionUtils.sendMsg(sender, scripts + " &7script" + ExpansionUtils.plural(scripts) + " loaded");
+            sender.sendMessage(ColorUtil.colorize(scripts + " &7script" + ExpansionUtils.plural(scripts) + " loaded"));
         } catch (final IOException exception) {
             ExpansionUtils.errorLog("&7Failed to reload scripts.", exception);
-            ExpansionUtils.sendMsg(sender, "&7Failed to reload scripts.");
+            sender.sendMessage(ColorUtil.colorize("&7Failed to reload scripts."));
             exception.printStackTrace();
         }
-    }
-
-    @Override
-    @NotNull
-    public List<String> tabComplete(final CommandSender sender, final String[] args) {
-        return Collections.emptyList();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package at.helpch.papi.expansion.javascript.config;
 
+import at.helpch.papi.expansion.javascript.config.model.ScriptConfigModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,12 +15,13 @@ public interface ScriptConfiguration {
     void setPath(@NotNull String scriptName, @Nullable final String name);
 
     @NotNull
-    Collection<String> getScripts();
+    Collection<String> getScriptNames();
 
     @NotNull
     Map<String, Path> getEntries();
 
-    void reload();
+    @NotNull
+    Map<String, ScriptConfigModel> getScripts();
 
-    void save();
+    void setScripts(@NotNull final Map<String, ScriptConfigModel> scripts);
 }

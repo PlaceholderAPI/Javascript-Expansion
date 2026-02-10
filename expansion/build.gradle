@@ -1,33 +1,27 @@
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '7.0.0'
-    id 'com.coditory.manifest' version '0.1.14'
+    id 'com.gradleup.shadow' version '9.3.0'
+    id 'com.coditory.manifest' version '1.1.0'
 }
 
 group 'at.helpch.papi.expansion.javascript'
 version '1.0.0'
-archivesBaseName = "Javascript-Expansion"
+//archivesBaseName = "Javascript-Expansion"
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 repositories {
     mavenCentral()
-    maven {
-        url = "https://repo.glaremasters.me/repository/public/"
-    }
-    maven {
-        url = 'https://repo.helpch.at/releases'
-    }
-    maven {
-        url = "https://repo.codemc.io/repository/hytale/"
-    }
+    maven { url "https://repo.glaremasters.me/repository/public/" }
+    maven { url 'https://repo.helpch.at/releases' }
+    maven { url "https://maven.hytale.com/release/" }
 }
 
 dependencies {
     implementation project(':evaluator')
     implementation project(':evaluator-api')
-    compileOnly 'com.hypixel.hytale:Server:2026.01.17-4b0f30090'
-    compileOnly 'at.helpch:placeholderapi-hytale:1.0.2'
+
+    compileOnly 'com.hypixel.hytale:Server:latest.release'
+    compileOnly "org.yaml:snakeyaml:2.5"
+    compileOnly 'at.helpch:placeholderapi-hytale:1.0.5'
     compileOnly 'org.jetbrains:annotations:21.0.1'
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
@@ -44,6 +38,10 @@ dependencies {
 //}
 
 shadowJar {
+    archiveBaseName.set("Javascript-Expansion")
+
+    relocate("org.yaml.snakeyaml", "at.helpch.placeholderapi.libs.yaml")
+
     doFirst {
         copy {
             from project(':evaluator').getProjectDir().toPath().resolve("libs").toFile()

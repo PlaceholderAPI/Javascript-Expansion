@@ -1,15 +1,9 @@
 package at.helpch.papi.expansion.javascript.config;
 
-import at.helpch.papi.expansion.javascript.ExpansionUtils;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
+import at.helpch.papi.expansion.javascript.config.model.ScriptConfigModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -18,25 +12,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class YamlScriptConfiguration implements ScriptConfiguration {
-    private final FileConfiguration fileConfiguration;
-    private final File configurationFile;
-    private final HeaderWriter headerWriter;
     private final Path scriptDirectoryPath;
+    private final Map<String, ScriptConfigModel> scripts;
 
-    public YamlScriptConfiguration(final File configurationFile, final HeaderWriter headerWriter, final Path scriptDirectoryPath) {
-        this(
-                YamlConfiguration.loadConfiguration(configurationFile),
-                configurationFile,
-                headerWriter,
-                scriptDirectoryPath
-        );
-    }
-
-    public YamlScriptConfiguration(final FileConfiguration configuration, final File configurationFile, final HeaderWriter headerWriter, final Path scriptDirectoryPath) {
-        this.fileConfiguration = configuration;
-        this.configurationFile = configurationFile;
-        this.headerWriter = headerWriter;
+    public YamlScriptConfiguration(final Path scriptDirectoryPath, @NotNull final Map<String, ScriptConfigModel> scripts) {
         this.scriptDirectoryPath = scriptDirectoryPath;
+        this.scripts = scripts;
         if (!Files.isDirectory(scriptDirectoryPath)) {
             throw new AssertionError("Expected directory for scripts to be saved/loaded from. Found non-directory path.");
         }
@@ -45,11 +26,11 @@ public final class YamlScriptConfiguration implements ScriptConfiguration {
     @Override
     @Nullable
     public Path getPath(@NotNull final String scriptName) {
-        final ConfigurationSection scriptSection = fileConfiguration.getConfigurationSection(scriptName);
-        if (scriptSection == null) {
+        final ScriptConfigModel script = scripts.get(scriptName);
+        if (script == null) {
             return null;
         }
-        String fileName = scriptSection.getString("file");
+        String fileName = script.file();
         if (fileName == null) {
             fileName = scriptName + ".js";
         }
@@ -59,47 +40,31 @@ public final class YamlScriptConfiguration implements ScriptConfiguration {
     @Override
     public void setPath(@NotNull final String scriptName, @Nullable final String name) {
         final String key = scriptName + ".file";
-        fileConfiguration.set(key, name);
+        scripts.computeIfAbsent(scriptName, ScriptConfigModel::new).file(name);
     }
 
     @Override
     @NotNull
-    public Collection<String> getScripts() {
-        return fileConfiguration.getKeys(false);
+    public Collection<String> getScriptNames() {
+        return scripts.keySet();
+    }
+
+    @Override
+    @NotNull
+    public Map<String, ScriptConfigModel> getScripts() {
+        return scripts;
+    }
+
+    @Override
+    public void setScripts(final @NotNull Map<String, ScriptConfigModel> scripts) {
+        scripts.clear();
+        scripts.putAll(scripts);
     }
 
     @Override
     @NotNull
     public Map<String, Path> getEntries() {
         //noinspection ConstantConditions
-        return getScripts().stream().collect(Collectors.toMap(Function.identity(), this::getPath));
-    }
-
-    @Override
-    public void reload() {
-        try {
-            if (!configurationFile.exists()) {
-                //noinspection ResultOfMethodCallIgnored
-                configurationFile.getParentFile().mkdirs();
-                //noinspection ResultOfMethodCallIgnored
-                configurationFile.createNewFile();
-            }
-            fileConfiguration.load(configurationFile);
-            setPath("example", "example.js");
-            // Ensure presence of header in case user re-wrote the entire file
-            headerWriter.writeTo(fileConfiguration);
-            save();
-        } catch (final IOException | InvalidConfigurationException exception) {
-            ExpansionUtils.errorLog("Failed to reload configuration", exception);
-        }
-    }
-
-    @Override
-    public void save() {
-        try {
-            fileConfiguration.save(configurationFile);
-        } catch (final IOException exception) {
-            ExpansionUtils.errorLog("Failed to save configuration", exception);
-        }
+        return getScriptNames().stream().collect(Collectors.toMap(Function.identity(), this::getPath));
     }
 }

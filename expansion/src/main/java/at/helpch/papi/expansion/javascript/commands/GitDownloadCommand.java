@@ -5,15 +5,14 @@ import at.helpch.papi.expansion.javascript.cloud.GitScript;
 import at.helpch.papi.expansion.javascript.cloud.GitScriptManager;
 import at.helpch.papi.expansion.javascript.cloud.ScriptIndex;
 import at.helpch.papi.expansion.javascript.cloud.ScriptIndexProvider;
-import com.extendedclip.papi.expansion.javascript.cloud.*;
 import at.helpch.papi.expansion.javascript.cloud.download.PathSelector;
 import at.helpch.papi.expansion.javascript.cloud.download.ScriptDownloader;
 import at.helpch.papi.expansion.javascript.commands.router.ExpansionCommand;
 import at.helpch.papi.expansion.javascript.commands.router.ExpansionCommandRouter;
+import at.helpch.papi.expansion.javascript.commands.util.ColorUtil;
+import at.helpch.papi.expansion.javascript.config.ConfigManager;
 import at.helpch.papi.expansion.javascript.config.ScriptConfiguration;
-import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.StringUtil;
+import com.hypixel.hytale.server.core.command.system.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -28,35 +27,38 @@ import java.util.stream.Collectors;
 public final class GitDownloadCommand extends ExpansionCommand {
     private final GitScriptManager scriptManager;
     private final ScriptConfiguration configuration;
+    private final ConfigManager configManager;
 
-    public GitDownloadCommand(final GitScriptManager scriptManager, final ScriptConfiguration configuration) {
+    public GitDownloadCommand(final GitScriptManager scriptManager, final ScriptConfiguration configuration,
+                              final ConfigManager configManager) {
         super(ExpansionCommandRouter.COMMAND_NAME + " git", "download");
         this.scriptManager = scriptManager;
         this.configuration = configuration;
+        this.configManager = configManager;
     }
 
     @Override
     public void execute(final CommandSender sender, final String[] args) {
         if (args.length < 1) {
-            ExpansionUtils.sendMsg(sender, "&cIncorrect usage! &f/" + getParentCommandName() + " git download [name]");
+            sender.sendMessage(ColorUtil.colorize("&cIncorrect usage! &f/" + getParentCommandName() + " git download [name]"));
             return;
         }
         final ScriptIndexProvider indexProvider = scriptManager.getIndexProvider();
         final GitScript script = indexProvider.getScriptIndex().flatMap(index -> index.getScript(args[0])).orElse(null);
 
         if (script == null) {
-            ExpansionUtils.sendMsg(sender, "&cThe script &f" + args[0] + " &cdoes not exist!");
+            sender.sendMessage(ColorUtil.colorize("&cThe script &f" + args[0] + " &cdoes not exist!"));
             return;
         }
         final PathSelector selector = scriptManager.getDownloadPathSelector();
         final Path path = selector.select(script.getName());
         if (Files.exists(path)) {
-            ExpansionUtils.sendMsg(sender, "&cCould not download " + script.getName() + " because a file with the same name already exist in the javascripts folder.");
+            sender.sendMessage(ColorUtil.colorize("&cCould not download " + script.getName() + " because a file with the same name already exist in the javascripts folder."));
             return;
         }
         final ScriptDownloader downloader = scriptManager.getScriptDownloader();
         CompletableFuture.supplyAsync(() -> {
-            ExpansionUtils.sendMsg(sender, "&aDownload started. &eCheck the scripts folder in a moment...");
+            sender.sendMessage(ColorUtil.colorize("&aDownload started. &eCheck the scripts folder in a moment..."));
             try {
                 return downloader.download(script);
             } catch (IOException exception) {
@@ -65,24 +67,10 @@ public final class GitDownloadCommand extends ExpansionCommand {
             }
         }).thenAccept(downloadedPath -> {
             if (downloadedPath == null) return;
-            ExpansionUtils.sendMsg(sender, "&aDownload complete! " + script.getName());
+            sender.sendMessage(ColorUtil.colorize("&aDownload complete! " + script.getName()));
             configuration.setPath(script.getName(), downloadedPath.getFileName().toString());
-            configuration.save();
+            configManager.save();
         });
-    }
-
-    @Override
-    public @NotNull List<String> tabComplete(CommandSender sender, String[] args) {
-        if (args.length > 0) {
-            final ScriptIndexProvider indexProvider = scriptManager.getIndexProvider();
-            final List<String> scripts = indexProvider.getScriptIndex()
-                    .map(ScriptIndex::getAllScripts)
-                    .orElse(Collections.emptyList()).stream()
-                    .map(GitScript::getName)
-                    .collect(Collectors.toList());
-            return StringUtil.copyPartialMatches(args[0], scripts, new ArrayList<>());
-        }
-        return Collections.emptyList();
     }
 
     @Override

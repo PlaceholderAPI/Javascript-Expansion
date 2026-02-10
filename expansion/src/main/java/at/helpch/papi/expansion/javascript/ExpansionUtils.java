@@ -2,13 +2,8 @@ package at.helpch.papi.expansion.javascript;
 
 import at.helpch.placeholderapi.PlaceholderAPIPlugin;
 import com.hypixel.hytale.logger.HytaleLogger;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.MemorySection;
 
 import java.util.*;
-import java.util.logging.Level;
 
 public class ExpansionUtils {
 
@@ -54,27 +49,6 @@ public class ExpansionUtils {
             LOGGER.atSevere().log(prefix + log);
         } else {
             LOGGER.atSevere().log(prefix + log, throwable);
-        }
-    }
-
-    protected static Object ymlToJavaObj(Object obj) {
-        if (obj instanceof MemorySection) {
-            MemorySection ymlMem = (MemorySection) obj;
-            if (ymlMem.isList(ymlMem.getCurrentPath())) {
-                ArrayList<Object> list = new ArrayList<>();
-                for (String entry : ymlMem.getKeys(true)) {
-                    list.add(ymlToJavaObj(ymlMem.get(entry)));
-                }
-                return list;
-            } else {
-                Map<String, Object> map = new HashMap<>();
-                for (String entry : ymlMem.getKeys(true)) {
-                    map.put(entry, ymlToJavaObj(ymlMem.get(entry)));
-                }
-                return map;
-            }
-        } else {
-            return obj;
         }
     }
 

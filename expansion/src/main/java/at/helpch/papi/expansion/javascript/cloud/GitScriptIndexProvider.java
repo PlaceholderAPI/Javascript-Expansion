@@ -21,7 +21,7 @@ public final class GitScriptIndexProvider implements ScriptIndexProvider {
     private static final Gson GSON = new Gson();
     private static final String INDEX_URL =
             "https://raw.githubusercontent.com/PlaceholderAPI/" +
-            "Javascript-Expansion/master/scripts/master_list.json";
+            "Javascript-Expansion/hytale/scripts/master_list.json";
 
     @NotNull
     private final PlaceholderAPIPlugin plugin;

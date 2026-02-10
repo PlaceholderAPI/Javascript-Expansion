@@ -20,6 +20,8 @@
  */
 package at.helpch.papi.expansion.javascript.script;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +32,11 @@ public final class ScriptData {
 
     public ScriptData(final Map<String, Object> data) {
         this.map = data;
+    }
+
+    public void setData(@NotNull final Map<String, Object> data) {
+        clear();
+        map.putAll(data);
     }
 
     public Map<String, Object> getData() {

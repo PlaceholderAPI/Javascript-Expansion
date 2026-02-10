@@ -5,17 +5,16 @@ import at.helpch.papi.expansion.javascript.JavascriptExpansion;
 import at.helpch.papi.expansion.javascript.JavascriptPlaceholder;
 import at.helpch.papi.expansion.javascript.JavascriptPlaceholderFactory;
 import at.helpch.papi.expansion.javascript.commands.router.ExpansionCommand;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.util.StringUtil;
+import at.helpch.papi.expansion.javascript.commands.util.ColorUtil;
+import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.NameMatching;
+import com.hypixel.hytale.server.core.command.system.CommandSender;
+import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public final class ParseCommand extends ExpansionCommand {
     private static final String ARG_ME = "me";
@@ -33,47 +32,38 @@ public final class ParseCommand extends ExpansionCommand {
 
     @Override
     public void execute(final CommandSender sender, final String[] args) {
-        if (!(boolean) expansion.get("enable_parse_command", false)) {
-            ExpansionUtils.sendMsg(sender, "&cThis command is disabled in config.");
+        if (!expansion.getExpansionConfig(JavascriptExpansion.class).enableParseCommand()) {
+            sender.sendMessage(ColorUtil.colorize("&cThis command is disabled in config."));
             return;
         }
 
         if (args.length < 2) {
-            ExpansionUtils.sendMsg(sender, "&cIncorrect usage! &f/" + getParentCommandName() + " parse [me/player] [code]");
+            sender.sendMessage(ColorUtil.colorize("&cIncorrect usage! &f/" + getParentCommandName() + " parse [me/player] [code]"));
             return;
         }
-        final OfflinePlayer player;
+
+        final PlayerRef player;
 
         if ("me".equalsIgnoreCase(args[0])) {
-            if (!(sender instanceof Player)) {
-                ExpansionUtils.sendMsg(sender, "&cOnly players can run this command!");
+            if (!(sender instanceof Player) && !(sender instanceof PlayerRef)) {
+                sender.sendMessage(ColorUtil.colorize("&cOnly players can run this command!"));
                 return;
             }
 
-            player = (OfflinePlayer) sender;
+            player = (sender instanceof Player) ? ((Player) sender).getPlayerRef() : (PlayerRef) sender;
         } else {
-            player = Bukkit.getOfflinePlayer(args[0]);
+            player = Universe.get().getPlayerByUsername(args[0], NameMatching.EXACT);
         }
 
         final String script = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
         final JavascriptPlaceholder placeholder = placeholderFactory.create( "parse-command", String.join(" ", script));
 
-
-        if (!player.hasPlayedBefore() || player.getName() == null) {
-            ExpansionUtils.sendMsg(sender, "&cUnknown player " + args[0]);
+        if (player == null) {
+            sender.sendMessage(ColorUtil.colorize("&cUnknown player " + args[0]));
             return;
         }
 
-        sender.sendMessage(placeholder.evaluate(player));
-    }
-
-    @Override
-    @NotNull
-    public List<String> tabComplete(final CommandSender sender, final String[] args) {
-        if (args.length == 1) {
-            return StringUtil.copyPartialMatches(args[0], Arrays.asList(ARG_ME, ARG_PLAYER), new ArrayList<>());
-        }
-        return Collections.emptyList();
+        sender.sendMessage(Message.raw(String.valueOf(placeholder.evaluate(player))));
     }
 
     @Override

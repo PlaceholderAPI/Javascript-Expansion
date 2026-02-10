@@ -2,9 +2,10 @@ package at.helpch.papi.expansion.javascript.commands;
 
 import at.helpch.papi.expansion.javascript.ExpansionUtils;
 import at.helpch.papi.expansion.javascript.JavascriptPlaceholder;
+import at.helpch.papi.expansion.javascript.commands.util.ColorUtil;
 import at.helpch.papi.expansion.javascript.script.ScriptRegistry;
 import at.helpch.papi.expansion.javascript.commands.router.ExpansionCommand;
-import org.bukkit.command.CommandSender;
+import com.hypixel.hytale.server.core.command.system.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -24,14 +25,8 @@ public final class ListCommand extends ExpansionCommand {
     public void execute(final CommandSender sender, final String[] args) {
 
         final List<String> loaded = registry.getAllPlaceholders().stream().map(JavascriptPlaceholder::getIdentifier).collect(Collectors.toList());
-        ExpansionUtils.sendMsg(sender,loaded.size() + " &7script" + ExpansionUtils.plural(loaded.size()) + " loaded.",
-                String.join(", ", loaded));
-    }
-
-    @Override
-    @NotNull
-    public List<String> tabComplete(final CommandSender sender, final String[] args) {
-        return Collections.emptyList();
+        sender.sendMessage(ColorUtil.colorize(loaded.size() + " &7script" + ExpansionUtils.plural(loaded.size()) + " loaded.\n" +
+                String.join(", ", loaded)));
     }
 
     @Override

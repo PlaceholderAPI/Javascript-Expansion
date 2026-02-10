@@ -3,16 +3,13 @@ package at.helpch.papi.expansion.javascript.commands.router;
 import at.helpch.papi.expansion.javascript.JavascriptExpansion;
 import at.helpch.papi.expansion.javascript.JavascriptPlaceholderFactory;
 import at.helpch.papi.expansion.javascript.commands.*;
+import at.helpch.papi.expansion.javascript.config.ConfigManager;
 import at.helpch.papi.expansion.javascript.script.ScriptLoader;
 import at.helpch.papi.expansion.javascript.script.ScriptRegistry;
 import at.helpch.papi.expansion.javascript.cloud.GitScriptManager;
-import com.extendedclip.papi.expansion.javascript.commands.*;
+import at.helpch.placeholderapi.PlaceholderAPIPlugin;
 import at.helpch.papi.expansion.javascript.config.ScriptConfiguration;
-import com.google.common.collect.ImmutableMap;
-import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandMap;
-import org.bukkit.plugin.java.JavaPlugin;
+import com.hypixel.hytale.server.core.command.system.CommandRegistration;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -22,23 +19,25 @@ import static at.helpch.papi.expansion.javascript.commands.router.ExpansionComma
 public final class CommandRegistrar {
     private static final String WIKI_LINK = "https://github.com/PlaceholderAPI/Javascript-Expansion/wiki";
     private final CommandRouter router;
-    private final CommandMap commandMap;
+    private CommandRegistration hytaleCommand;
 
-    public CommandRegistrar(final GitScriptManager gitScriptManager, final JavascriptPlaceholderFactory placeholderFactory, final ScriptConfiguration configuration, final ScriptRegistry registry, final ScriptLoader loader, JavascriptExpansion expansion) throws ReflectiveOperationException {
+    public CommandRegistrar(final GitScriptManager gitScriptManager, final JavascriptPlaceholderFactory placeholderFactory,
+                            final ScriptConfiguration configuration, final ScriptRegistry registry,
+                            final ScriptLoader loader, JavascriptExpansion expansion,
+                            final ConfigManager configManager) {
         final GitRefreshCommand gitRefreshCommand = new GitRefreshCommand(gitScriptManager.getIndexProvider());
         final GitListCommand gitListCommand = new GitListCommand(gitScriptManager.getIndexProvider());
-        final GitDownloadCommand gitDownloadCommand = new GitDownloadCommand(gitScriptManager, configuration);
+        final GitDownloadCommand gitDownloadCommand = new GitDownloadCommand(gitScriptManager, configuration, configManager);
         final GitInfoCommand gitInfoCommand = new GitInfoCommand(gitScriptManager.getIndexProvider());
         final GitEnabledCommand gitEnabledCommand = new GitEnabledCommand(gitScriptManager.getActiveStateSetter());
 
-
-        final Map<String, ExpansionCommand> gitCommandMap = ImmutableMap.<String, ExpansionCommand>builder()
-                .put("refresh", gitRefreshCommand)
-                .put("list", gitListCommand)
-                .put("download", gitDownloadCommand)
-                .put("info", gitInfoCommand)
-                .put("enabled", gitEnabledCommand)
-                .build();
+        final Map<String, ExpansionCommand> gitCommandMap = Map.of(
+                "refresh", gitRefreshCommand,
+                "list", gitListCommand,
+                "download", gitDownloadCommand,
+                "info", gitInfoCommand,
+                "enabled", gitEnabledCommand
+        );
 
         final CommandRouter gitCommandRouter = new ExpansionCommandRouter(JavascriptExpansion.VERSION, JavascriptExpansion.AUTHOR, WIKI_LINK, gitCommandMap);
 
@@ -47,53 +46,25 @@ public final class CommandRegistrar {
         final DebugCommand debugCommand = new DebugCommand(COMMAND_NAME, registry);
         final ParseCommand parseCommand = new ParseCommand(COMMAND_NAME, placeholderFactory, expansion);
         final ReloadCommand reloadCommand = new ReloadCommand(COMMAND_NAME, loader);
-        final Map<String, ExpansionCommand> commandMap = ImmutableMap.<String, ExpansionCommand>builder()
-                .put("git", gitCommand)
-                .put("list", listCommand)
-                .put("debug", debugCommand)
-                .put("parse", parseCommand)
-                .put("reload", reloadCommand)
-                .build();
+        final Map<String, ExpansionCommand> commandMap = Map.of(
+                "git", gitCommand,
+                "list", listCommand,
+                "debug", debugCommand,
+                "parse", parseCommand,
+                "reload", reloadCommand
+        );
 
         this.router = new ExpansionCommandRouter(JavascriptExpansion.VERSION, JavascriptExpansion.AUTHOR, WIKI_LINK, commandMap);
-        final Field field = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-        field.setAccessible(true);
-        this.commandMap = (CommandMap) field.get(Bukkit.getServer());
     }
 
     public void register() {
-        commandMap.register("papi" + router.getName(), router);
+        hytaleCommand = PlaceholderAPIPlugin.instance().getCommandRegistry().registerCommand(router);
     }
 
     public void unregister() {
-
-        try {
-            Class<? extends CommandMap> cmdMapClass = commandMap.getClass();
-            final Field knownCommandsField;
-
-            //Check if the server's in 1.13+
-            if (cmdMapClass.getSimpleName().equals("CraftCommandMap")) {
-                knownCommandsField = cmdMapClass.getSuperclass().getDeclaredField("knownCommands");
-            } else {
-                knownCommandsField = cmdMapClass.getDeclaredField("knownCommands");
-            }
-
-            knownCommandsField.setAccessible(true);
-
-            //noinspection unchecked
-            final Map<String, Command> knownCommands = (Map<String, Command>) knownCommandsField.get(commandMap);
-            knownCommands.remove(router.getName());
-            for (String alias : router.getAliases()) {
-                if (knownCommands.containsKey(alias) && knownCommands.get(alias).toString().contains(router.getName())) {
-                    knownCommands.remove(alias);
-                }
-            }
-
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
+        if (hytaleCommand != null) {
+            hytaleCommand.unregister();
         }
-
-        router.unregister(commandMap);
     }
 
 }

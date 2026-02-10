@@ -1,6 +1,6 @@
 package at.helpch.papi.expansion.javascript.commands.router;
 
-import org.bukkit.command.CommandSender;
+import com.hypixel.hytale.server.core.command.system.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -16,9 +16,6 @@ public abstract class ExpansionCommand {
     }
 
     public abstract void execute(final CommandSender sender, final String[] args);
-
-    @NotNull
-    public abstract List<String> tabComplete(final CommandSender sender, final String[] args);
 
     @NotNull
     protected abstract String getCommandFormat();

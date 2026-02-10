@@ -26,7 +26,7 @@ import at.helpch.papi.expansion.javascript.evaluator.ScriptEvaluator;
 import at.helpch.papi.expansion.javascript.evaluator.ScriptEvaluatorFactory;
 import at.helpch.papi.expansion.javascript.script.ScriptData;
 import at.helpch.papi.expansion.javascript.script.data.PersistableData;
-import at.helpch.papi.expansion.javascript.script.data.YmlPersistableData;
+import at.helpch.papi.expansion.javascript.script.data.JsonPersistableData;
 import at.helpch.placeholderapi.PlaceholderAPI;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -61,7 +61,7 @@ public final class JavascriptPlaceholder {
                 .resolve(identifier + "_data.yml");
 
         try {
-            this.persistableData = YmlPersistableData.create(identifier, dataFilePath);
+            this.persistableData = JsonPersistableData.create(identifier, dataFilePath);
         } catch (final IOException exception) {
             ExpansionUtils.errorLog("Unable to create placeholder data file", exception);
             throw new RuntimeException(exception);
@@ -116,9 +116,12 @@ public final class JavascriptPlaceholder {
                     return null;
 
                 final Store<EntityStore> store = ref.getStore();
-                final Player player = store.getComponent(ref, Player.getComponentType());
 
-                additionalBindings.put("Player", player);
+                if (store.isInThread()) {
+                    final Player player = store.getComponent(ref, Player.getComponentType());
+
+                    additionalBindings.put("Player", player);
+                }
             }
             additionalBindings.put("OfflinePlayer", playerRef);
             try {

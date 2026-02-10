@@ -4,6 +4,8 @@ import at.helpch.papi.expansion.javascript.cloud.download.ChanneledScriptDownloa
 import at.helpch.papi.expansion.javascript.cloud.download.GitScriptPathSelector;
 import at.helpch.papi.expansion.javascript.cloud.download.PathSelector;
 import at.helpch.papi.expansion.javascript.cloud.download.ScriptDownloader;
+import at.helpch.papi.expansion.javascript.config.ExpansionConfig;
+import at.helpch.placeholderapi.PlaceholderAPIPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 
 import java.io.File;
@@ -37,11 +39,11 @@ public final class GitScriptManager {
         return downloadPathSelector;
     }
 
-    public static GitScriptManager createDefault(final JavaPlugin plugin) {
+    public static GitScriptManager createDefault(final PlaceholderAPIPlugin plugin, ExpansionConfig config) {
         final PathSelector pathSelector = new GitScriptPathSelector(new File(plugin.getDataDirectory().toFile(), "javascripts"));
         final ScriptDownloader downloader = new ChanneledScriptDownloader(pathSelector);
         final GitScriptIndexProvider indexProvider = new GitScriptIndexProvider(plugin);
-        final ActiveStateSetter activeStateSetter = new GitScriptActiveStateSetter(plugin);
+        final ActiveStateSetter activeStateSetter = new GitScriptActiveStateSetter(config);
         return new GitScriptManager(activeStateSetter, indexProvider, downloader, pathSelector);
     }
 }

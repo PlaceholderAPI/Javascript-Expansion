@@ -3,17 +3,11 @@ package at.helpch.papi.expansion.javascript.commands;
 import at.helpch.papi.expansion.javascript.ExpansionUtils;
 import at.helpch.papi.expansion.javascript.cloud.GitScript;
 import at.helpch.papi.expansion.javascript.cloud.GitScriptIndexProvider;
-import at.helpch.papi.expansion.javascript.cloud.ScriptIndex;
 import at.helpch.papi.expansion.javascript.commands.router.ExpansionCommand;
 import at.helpch.papi.expansion.javascript.commands.router.ExpansionCommandRouter;
-import org.bukkit.command.CommandSender;
-import org.bukkit.util.StringUtil;
+import at.helpch.papi.expansion.javascript.commands.util.ColorUtil;
+import com.hypixel.hytale.server.core.command.system.CommandSender;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public final class GitInfoCommand extends ExpansionCommand {
     private final GitScriptIndexProvider indexProvider;
@@ -26,37 +20,24 @@ public final class GitInfoCommand extends ExpansionCommand {
     @Override
     public void execute(final CommandSender sender, final String[] args) {
         if (args.length < 1) {
-            ExpansionUtils.sendMsg(sender, "&cIncorrect usage! &f/" + getParentCommandName() + " git info [name]");
+            sender.sendMessage(ColorUtil.colorize("&cIncorrect usage! &f/" + getParentCommandName() + " git info [name]"));
             return;
         }
 
         final GitScript script = indexProvider.getScriptIndex().flatMap(index -> index.getScript(args[0])).orElse(null);
 
         if (script == null) {
-            ExpansionUtils.sendMsg(sender, "&cThe script &f" + args[1] + " &cdoes not exist!");
+            sender.sendMessage(ColorUtil.colorize("&cThe script &f" + args[1] + " &cdoes not exist!"));
             return;
         }
 
-        ExpansionUtils.sendMsg(sender,
-                "&eName: &f" + script.getName(),
-                "&eVersion: &f" + script.getVersion(),
-                "&eDescription: &f" + script.getDescription(),
-                "&eAuthor: &f" + script.getAuthor(),
+        sender.sendMessage(ColorUtil.colorize(
+                "&eName: &f" + script.getName() + '\n' +
+                "&eVersion: &f" + script.getVersion() + '\n' +
+                "&eDescription: &f" + script.getDescription() + '\n' +
+                "&eAuthor: &f" + script.getAuthor() + '\n' +
                 "&eSource URL: &f" + script.getUrl()
-        );
-    }
-
-    @Override
-    public @NotNull List<String> tabComplete(CommandSender sender, String[] args) {
-        if (args.length > 0) {
-            final List<String> scripts = indexProvider.getScriptIndex()
-                    .map(ScriptIndex::getAllScripts)
-                    .orElse(Collections.emptyList()).stream()
-                    .map(GitScript::getName)
-                    .collect(Collectors.toList());
-            return StringUtil.copyPartialMatches(args[0], scripts, new ArrayList<>());
-        }
-        return Collections.emptyList();
+        ));
     }
 
     @Override

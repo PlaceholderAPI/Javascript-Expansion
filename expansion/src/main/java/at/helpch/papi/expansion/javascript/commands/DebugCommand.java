@@ -1,11 +1,10 @@
 package at.helpch.papi.expansion.javascript.commands;
 
-import at.helpch.papi.expansion.javascript.ExpansionUtils;
 import at.helpch.papi.expansion.javascript.JavascriptPlaceholder;
+import at.helpch.papi.expansion.javascript.commands.util.ColorUtil;
 import at.helpch.papi.expansion.javascript.script.ScriptRegistry;
 import at.helpch.papi.expansion.javascript.commands.router.ExpansionCommand;
-import org.bukkit.command.CommandSender;
-import org.bukkit.util.StringUtil;
+import com.hypixel.hytale.server.core.command.system.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -29,31 +28,23 @@ public final class DebugCommand extends ExpansionCommand {
     @Override
     public void execute(final CommandSender sender, final String[] args) {
         if (args.length < 2) {
-            ExpansionUtils.sendMsg(sender, "&cIncorrect usage! Type '&f/" + getParentCommandName() + "&c' for more help.");
+            sender.sendMessage(ColorUtil.colorize("&cIncorrect usage! Type '&f/" + getParentCommandName() + "&c' for more help."));
             return;
         }
 
         JavascriptPlaceholder jsp = registry.getPlaceholder(getIdentifier(args));
         if (jsp == null) {
-            ExpansionUtils.sendMsg(sender, "&cInvalid javascript identifier! Please re-check your typo");
+            sender.sendMessage(ColorUtil.colorize("&cInvalid javascript identifier! Please re-check your typo"));
             return;
         }
 
         if (args[0].equals(ARG_SAVE)) {
             jsp.saveData();
-            ExpansionUtils.sendMsg(sender, "&aJavascript data '" + args[1] + "' successfully saved");
+            sender.sendMessage(ColorUtil.colorize("&aJavascript data '" + args[1] + "' successfully saved"));
         } else if (args[0].equals(ARG_LOAD)) {
             jsp.getPersistableData().reload();
-            ExpansionUtils.sendMsg(sender, "&aJavascript data '" + args[1] + "' successfully loaded");
+            sender.sendMessage(ColorUtil.colorize("&aJavascript data '" + args[1] + "' successfully loaded"));
         }
-    }
-
-    @Override
-    public @NotNull List<String> tabComplete(final CommandSender sender, final String[] args) {
-        if (args.length == 1) {
-            return StringUtil.copyPartialMatches(args[0], Arrays.asList(ARG_SAVE, ARG_LOAD), new ArrayList<>());
-        }
-        return Collections.emptyList();
     }
 
     @Override

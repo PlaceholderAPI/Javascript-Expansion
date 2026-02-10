@@ -2,11 +2,10 @@ package at.helpch.papi.expansion.javascript.commands;
 
 import at.helpch.papi.expansion.javascript.ExpansionUtils;
 import at.helpch.papi.expansion.javascript.cloud.ActiveStateSetter;
-import com.extendedclip.papi.expansion.javascript.cloud.*;
 import at.helpch.papi.expansion.javascript.commands.router.ExpansionCommand;
 import at.helpch.papi.expansion.javascript.commands.router.ExpansionCommandRouter;
-import org.bukkit.command.CommandSender;
-import org.bukkit.util.StringUtil;
+import at.helpch.papi.expansion.javascript.commands.util.ColorUtil;
+import com.hypixel.hytale.server.core.command.system.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -26,22 +25,14 @@ public final class GitEnabledCommand extends ExpansionCommand {
     @Override
     public void execute(final CommandSender sender, final String[] args) {
         if (args.length < 1) {
-            ExpansionUtils.sendMsg(sender, "&cIncorrect usage! &f/jsexpansion git enabled (true/false)");
+            sender.sendMessage(ColorUtil.colorize("&cIncorrect usage! &f/jsexpansion git enabled (true/false)"));
             return;
         }
 
         final boolean enabled = Boolean.parseBoolean(args[0]);
         activeStateSetter.setActive(enabled);
 
-        ExpansionUtils.sendMsg(sender, "&6Git script downloads set to: &e" + enabled);
-    }
-
-    @Override
-    public @NotNull List<String> tabComplete(CommandSender sender, String[] args) {
-        if (args.length > 0) {
-            return StringUtil.copyPartialMatches(args[0], boolCompletion, new ArrayList<>());
-        }
-        return Collections.emptyList();
+        sender.sendMessage(ColorUtil.colorize("&6Git script downloads set to: &e" + enabled));
     }
 
     @Override

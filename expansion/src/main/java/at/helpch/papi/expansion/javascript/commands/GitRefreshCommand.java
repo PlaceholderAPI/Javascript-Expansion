@@ -4,7 +4,8 @@ import at.helpch.papi.expansion.javascript.ExpansionUtils;
 import at.helpch.papi.expansion.javascript.cloud.GitScriptIndexProvider;
 import at.helpch.papi.expansion.javascript.commands.router.ExpansionCommand;
 import at.helpch.papi.expansion.javascript.commands.router.ExpansionCommandRouter;
-import org.bukkit.command.CommandSender;
+import at.helpch.papi.expansion.javascript.commands.util.ColorUtil;
+import com.hypixel.hytale.server.core.command.system.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -20,15 +21,10 @@ public final class GitRefreshCommand extends ExpansionCommand {
 
     @Override
     public void execute(final CommandSender sender, final String[] args) {
-        ExpansionUtils.sendMsg(sender, "&aFetching available scripts... Check back in a sec!");
+        sender.sendMessage(ColorUtil.colorize("&aFetching available scripts... Check back in a sec!"));
         indexProvider.refreshIndex(index -> {
-            ExpansionUtils.sendMsg(sender, "&aFetched " + index.getCount() + " scripts to index!");
+            sender.sendMessage(ColorUtil.colorize("&aFetched " + index.getCount() + " scripts to index!"));
         });
-    }
-
-    @Override
-    public @NotNull List<String> tabComplete(CommandSender sender, String[] args) {
-        return Collections.emptyList();
     }
 
     @Override

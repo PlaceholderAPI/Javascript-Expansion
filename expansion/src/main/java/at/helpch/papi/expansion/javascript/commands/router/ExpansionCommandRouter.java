@@ -30,7 +30,7 @@ public final class ExpansionCommandRouter extends CommandRouter {
             @NotNull final String wikiLink,
             @NotNull final Map<String, ExpansionCommand> commandMap
     ) {
-        super(COMMAND_NAME, DESCRIPTION, USAGE, ALIASES, PERMISSION, commandMap);
+        super(COMMAND_NAME, DESCRIPTION, /*USAGE,*/ ALIASES, commandMap, PERMISSION);
         this.expansionVersion = expansionVersion;
         this.authorName = authorName;
         this.wikiLink = wikiLink;
